@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import Layout from './layouts'
 import ExamplePage from './pages/example'
 import SignInPage from './pages/vendor/sign-in'
+import SignUpPage from './pages/vendor/sign-up'
 import StoreListPage from './pages/vendor/store/list'
 
 const isAuthenticated = () => {
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
             {
                 path: 'login',
                 element: <SignInPage />,
+            },
+            {
+                path: 'signup',
+                element: <SignUpPage />,
             },
             {
                 path: 'dashboard',
