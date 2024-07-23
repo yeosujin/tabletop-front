@@ -4,6 +4,10 @@ import Layout from './layouts'
 import ExamplePage from './pages/example'
 import SignInPage from './pages/seller/sign-in'
 import StoreListPage from './pages/seller/store/list'
+import MenuPage from './pages/consumer/menu/menu'
+import ConsumerLayout from './layouts/consumer'
+import CartPage from './pages/consumer/cart'
+import { Suspense } from 'react'
 
 const isAuthenticated = () => {
     return localStorage.getItem('token') !== null
@@ -39,6 +43,24 @@ const router = createBrowserRouter([
                 ),
             },
             // 더 많은 보호된 라우트를 여기에 추가할 수 있습니다
+        ],
+    },
+    {
+        path: '/consumer/:storeId',
+        element: (
+            <Suspense fallback={<div>Loading...</div>}>
+                <ConsumerLayout />
+            </Suspense>
+        ),
+        children: [
+            {
+                path: 'menu',
+                element: <MenuPage />,
+            },
+            {
+                path: 'cart',
+                element: <CartPage />,
+            },
         ],
     },
 ])
