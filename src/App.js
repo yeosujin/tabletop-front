@@ -8,6 +8,7 @@ import MenuPage from './pages/consumer/menu/menu'
 import ConsumerLayout from './layouts/consumer'
 import CartPage from './pages/consumer/cart'
 import { Suspense } from 'react'
+import InfoStorePage from './pages/consumer/info-store'
 
 const isAuthenticated = () => {
     return localStorage.getItem('token') !== null
@@ -60,6 +61,10 @@ const router = createBrowserRouter([
             {
                 path: 'cart',
                 element: <CartPage />,
+            },
+            {
+                path: 'info-store',
+                element: <InfoStorePage />,
             },
         ],
     },
