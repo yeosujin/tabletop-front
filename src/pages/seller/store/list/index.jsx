@@ -1,5 +1,14 @@
-const StoreListPage = () => {
-    return <div>store list page</div>
-}
+import React from 'react';
+import InfiniteScrollComponent from '../../../../components/store/InfiniteScroll';
 
-export default StoreListPage
+const StoreListPage = () => {
+  return (
+    <div className="StoreListPage">
+      <h1>My Stores</h1>
+      <InfiniteScrollComponent />
+    </div>
+  );
+};
+
+export default StoreListPage;
+

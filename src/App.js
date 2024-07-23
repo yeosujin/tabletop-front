@@ -4,6 +4,9 @@ import Layout from './layouts'
 import ExamplePage from './pages/example'
 import SignInPage from './pages/seller/sign-in'
 import StoreListPage from './pages/seller/store/list'
+import StoreAddPage from './pages/seller/store/add'
+import StoreModifyPage from './pages/seller/store/modify'
+
 
 const isAuthenticated = () => {
     return localStorage.getItem('token') !== null
@@ -11,9 +14,9 @@ const isAuthenticated = () => {
 
 // 보호된 라우트를 위한 컴포넌트
 const ProtectedRoute = ({ children }) => {
-    if (!isAuthenticated()) {
-        return <Navigate to="/login" replace />
-    }
+    // if (!isAuthenticated()) {
+    //     return <Navigate to="/login" replace />
+    // }
     return children
 }
 
@@ -35,6 +38,22 @@ const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute>
                         <StoreListPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: 'addstore',
+                element: (
+                    <ProtectedRoute>
+                        <StoreAddPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: 'modifystore',
+                element: (
+                    <ProtectedRoute>
+                        <StoreModifyPage />
                     </ProtectedRoute>
                 ),
             },
