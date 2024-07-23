@@ -2,8 +2,8 @@ import './App.css'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import Layout from './layouts'
 import ExamplePage from './pages/example'
-import SignInPage from './pages/vendor/sign-in'
-import StoreListPage from './pages/vendor/store/list'
+import SignInPage from './pages/seller/sign-in'
+import StoreListPage from './pages/seller/store/list'
 
 const isAuthenticated = () => {
     return localStorage.getItem('token') !== null
