@@ -2,6 +2,7 @@ import ConsumerHeader from './header'
 import { Outlet, useParams, useSearchParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { menuQuery } from '../../queries/menu'
+import { ConsumerLayoutContainer } from './styled'
 
 const ConsumerLayout = () => {
     const [info, setInfo] = useState(null)
@@ -28,7 +29,7 @@ const ConsumerLayout = () => {
     if (!info) return <div>Loading...</div>
 
     return (
-        <div>
+        <ConsumerLayoutContainer>
             {/* header */}
             <ConsumerHeader store={info.store} tableNo={tableNo} />
 
@@ -44,7 +45,7 @@ const ConsumerLayout = () => {
             />
 
             {/* footer */}
-        </div>
+        </ConsumerLayoutContainer>
     )
 }
 
