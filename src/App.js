@@ -7,6 +7,13 @@ import StoreListPage from './pages/seller/store/list'
 import StoreAddPage from './pages/seller/store/add'
 import StoreModifyPage from './pages/seller/store/modify'
 import OrderPage from './pages/seller/order'
+import MenuPage from './pages/consumer/menu/menu'
+import ConsumerLayout from './layouts/consumer'
+import CartPage from './pages/consumer/cart'
+import { Suspense } from 'react'
+import InfoStorePage from './pages/consumer/info-store'
+import { CartProvider } from './contexts/cart'
+import PaymentPage from './pages/consumer/payment'
 
 const isAuthenticated = () => {
     return localStorage.getItem('token') !== null
@@ -14,9 +21,9 @@ const isAuthenticated = () => {
 
 // 보호된 라우트를 위한 컴포넌트
 const ProtectedRoute = ({ children }) => {
-    // if (!isAuthenticated()) {
-    //     return <Navigate to="/login" replace />
-    // }
+    if (!isAuthenticated()) {
+        return <Navigate to="/login" replace />
+    }
     return children
 }
 
@@ -64,10 +71,40 @@ const router = createBrowserRouter([
             },
         ],
     },
+    {
+        path: '/consumer/:storeId',
+        element: (
+            <Suspense fallback={<div>Loading...</div>}>
+                <ConsumerLayout />
+            </Suspense>
+        ),
+        children: [
+            {
+                path: 'menu',
+                element: <MenuPage />,
+            },
+            {
+                path: 'cart',
+                element: <CartPage />,
+            },
+            {
+                path: 'info',
+                element: <InfoStorePage />,
+            },
+            {
+                path: 'payment',
+                element: <PaymentPage />,
+            },
+        ],
+    },
 ])
 
 function App() {
-    return <RouterProvider router={router} />
+    return (
+        <CartProvider>
+            <RouterProvider router={router} />
+        </CartProvider>
+    )
 }
 
 export default App
