@@ -1,20 +1,25 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 const StoreAddPage = () => {
     // store type을 설정하는 radio button 값 저장
     const [selectedType, setSelectedType] = useState('상시');
+    // holidays를 설정하는 ToggleButton의 값 저장
+    const [holidays, setHolidays] = useState(() => []);
 
     const [image, setImage] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
         corpRegistrationNumber: '',
+        openDate: '',
+        closeDate: '',
+        openTime: '',
+        closeTime: '',
         notice: '',
-        discription: '',
-        open_date: '',
-        close_date: '',
-        open_time: '',
-        close_time: ''
+        address: '',
+        description: ''
     });
 
     // 사업자 등록번호 검증 관련
@@ -25,12 +30,20 @@ const StoreAddPage = () => {
     // store type 변경
     const handleTypeChange = (event) => {
         setSelectedType(event.target.value);
+        handleInputChange(event);
     };
 
     // form의 input 값 변경 시
     const handleInputChange = (event) => {    
+        console.log(event.target.name, event.target.value);
         const { name, value } = event.target;
         setFormData({...formData, [name]: value});
+    };
+
+    // holidays 변경
+    const handleHolidaysChange = (event, newHolidays) => {
+        setHolidays(newHolidays);
+        handleInputChange(event);
     };
 
     // 이미지 변경 시
@@ -39,6 +52,7 @@ const StoreAddPage = () => {
         if (file) {
             setImage(file);
         }
+        handleInputChange(event);
     };
     
     // 이미지 삭제 시
@@ -54,7 +68,7 @@ const StoreAddPage = () => {
     // 사업자등록번호 중복 검사
     const checkDuplicatedNumber = (num) => {
         // store
-        fetch(`http://localhost:8080/api/store/${num}`)
+        fetch(`http://localhost:8080/api/dupalicationCheck/${num}`)
             .then(response => {
                 const data = response.json()
                 return data.isDuplicated
@@ -119,10 +133,12 @@ const StoreAddPage = () => {
     };
 
     const handleSubmit = (e) => {    
-        e.preventDefault();      
+        e.preventDefault();  
+        console.log(formData); 
+
         // 제출 로직 추가        
     };
-        
+    
     return (
         <form onSubmit={handleSubmit}>
             {image && (
@@ -192,11 +208,27 @@ const StoreAddPage = () => {
             </div>
             <div>
                 <label>개점시간</label><br />
-                <input type="time" value={formData.open_time} onChange={handleInputChange} required />
+                <input type="time" name="openTime" value={formData.openTime} onChange={handleInputChange} required />
             </div>
             <div>
                 <label>폐점시간</label><br />
-                <input type="time" value={formData.close_time} onChange={handleInputChange} required />
+                <input type="time" name="closeTime" value={formData.closeTime} onChange={handleInputChange} required />
+            </div>
+            <div>
+                <label>휴무일</label><br />
+                <ToggleButtonGroup
+                    value={holidays}
+                    onChange={handleHolidaysChange}
+                    aria-label="day"
+                >
+                    <ToggleButton name="holidays" value="monday" aria-label="Mon">월</ToggleButton>
+                    <ToggleButton name="holidays" value="tuesday" aria-label="Tue">화</ToggleButton>
+                    <ToggleButton name="holidays" value="wednesday" aria-label="Wed">수</ToggleButton>
+                    <ToggleButton name="holidays" value="thursday" aria-label="Thu">목</ToggleButton>
+                    <ToggleButton name="holidays" value="friday" aria-label="Fri">금</ToggleButton>
+                    <ToggleButton name="holidays" value="saturday" aria-label="Sat">토</ToggleButton>
+                    <ToggleButton name="holidays" value="sunday" aria-label="Sun">일</ToggleButton>
+                </ToggleButtonGroup>
             </div>
             <button type="submit">등록</button>
         </form>
