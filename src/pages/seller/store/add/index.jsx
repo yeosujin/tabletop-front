@@ -6,8 +6,6 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 const StoreAddPage = () => {
     // store type을 설정하는 radio button 값 저장
     const [selectedType, setSelectedType] = useState('상시');
-    // holidays를 설정하는 ToggleButton의 값 저장
-    const [holidays, setHolidays] = useState(() => []);
 
     const [image, setImage] = useState(null);
     const [formData, setFormData] = useState({
@@ -19,7 +17,8 @@ const StoreAddPage = () => {
         closeTime: '',
         notice: '',
         address: '',
-        description: ''
+        description: '',
+        holidays: []
     });
 
     // 사업자 등록번호 검증 관련
@@ -42,8 +41,10 @@ const StoreAddPage = () => {
 
     // holidays 변경
     const handleHolidaysChange = (event, newHolidays) => {
-        setHolidays(newHolidays);
-        handleInputChange(event);
+        setFormData(prevData => ({
+            ...prevData,
+            holidays: newHolidays
+        }));
     };
 
     // 이미지 변경 시
@@ -217,17 +218,18 @@ const StoreAddPage = () => {
             <div>
                 <label>휴무일</label><br />
                 <ToggleButtonGroup
-                    value={holidays}
+                    value={formData.holidays || []}
                     onChange={handleHolidaysChange}
                     aria-label="day"
+                    multiple
                 >
-                    <ToggleButton name="holidays" value="monday" aria-label="Mon">월</ToggleButton>
-                    <ToggleButton name="holidays" value="tuesday" aria-label="Tue">화</ToggleButton>
-                    <ToggleButton name="holidays" value="wednesday" aria-label="Wed">수</ToggleButton>
-                    <ToggleButton name="holidays" value="thursday" aria-label="Thu">목</ToggleButton>
-                    <ToggleButton name="holidays" value="friday" aria-label="Fri">금</ToggleButton>
-                    <ToggleButton name="holidays" value="saturday" aria-label="Sat">토</ToggleButton>
-                    <ToggleButton name="holidays" value="sunday" aria-label="Sun">일</ToggleButton>
+                    <ToggleButton value="monday" aria-label="Mon">월</ToggleButton>
+                    <ToggleButton value="tuesday" aria-label="Tue">화</ToggleButton>
+                    <ToggleButton value="wednesday" aria-label="Wed">수</ToggleButton>
+                    <ToggleButton value="thursday" aria-label="Thu">목</ToggleButton>
+                    <ToggleButton value="friday" aria-label="Fri">금</ToggleButton>
+                    <ToggleButton value="saturday" aria-label="Sat">토</ToggleButton>
+                    <ToggleButton value="sunday" aria-label="Sun">일</ToggleButton>
                 </ToggleButtonGroup>
             </div>
             <button type="submit">등록</button>
