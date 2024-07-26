@@ -52,6 +52,7 @@ const Card = ({ store }) => {
               onClose={handleClose}
               TransitionComponent={Fade}
             >
+<<<<<<< Updated upstream
               <MenuItem onClick={() => {
                 handleClose();
                 moveToEditMenu();
@@ -61,6 +62,14 @@ const Card = ({ store }) => {
                 moveToModifyStore(store.id);
               }}>Modify Store</MenuItem>
               <MenuItem onClick={handleClose}>Delete Store</MenuItem>
+=======
+              <MenuItem onClick={handleClose}>메뉴 수정</MenuItem>
+              <MenuItem onClick={() => {
+                handleClose();
+                moveToModifyStore(13);
+              }}>가게 정보 수정</MenuItem>
+              <MenuItem onClick={handleClose}>가게 삭제</MenuItem>
+>>>>>>> Stashed changes
             </Menu>
         </div>
         <p>{store.image}</p>
