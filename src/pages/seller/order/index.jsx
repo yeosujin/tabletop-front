@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import {
     AppBar,
     Box,
@@ -16,10 +16,10 @@ import {
 } from '@mui/material'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { format, isEqual } from 'date-fns'
+import { format, isEqual, startOfDay } from 'date-fns'
 
 const OrderPage = () => {
-    const [selectedDate, setSelectedDate] = useState(new Date())
+    const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()))
     const [activeTab, setActiveTab] = useState('진행중')
     const [orders, setOrders] = useState({
         진행중: [
@@ -60,6 +60,12 @@ const OrderPage = () => {
         ],
     })
 
+    useEffect(() => {
+        if (activeTab === '진행중') {
+            setSelectedDate(startOfDay(new Date()))
+        }
+    }, [activeTab])
+
     const handleCancel = (orderId) => {
         console.log('주문 취소:', orderId)
     }
@@ -71,16 +77,10 @@ const OrderPage = () => {
     const filteredOrders = useMemo(() => {
         return {
             진행중: orders.진행중.filter((order) =>
-                isEqual(
-                    format(order.date, 'yyyy-MM-dd'),
-                    format(selectedDate, 'yyyy-MM-dd')
-                )
+                isEqual(startOfDay(order.date), startOfDay(new Date()))
             ),
             완료: orders.완료.filter((order) =>
-                isEqual(
-                    format(order.date, 'yyyy-MM-dd'),
-                    format(selectedDate, 'yyyy-MM-dd')
-                )
+                isEqual(startOfDay(order.date), startOfDay(selectedDate))
             ),
         }
     }, [orders, selectedDate])
@@ -96,6 +96,7 @@ const OrderPage = () => {
                             value={selectedDate}
                             onChange={(newValue) => setSelectedDate(newValue)}
                             renderInput={(params) => <TextField {...params} />}
+                            disabled={activeTab === '진행중'}
                         />
                     </LocalizationProvider>
                 </Toolbar>
