@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 const Card = ({ store }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+  const navigate = useNavigate();
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -19,12 +20,13 @@ const Card = ({ store }) => {
     setAnchorEl(null);
   };
 
-  const navigate = useNavigate();
-
   const moveToModifyStore = (storeId) => {
     navigate('/modifystore', { state: { storeId } });
   };
 
+  const moveToEditMenu = () => {
+    navigate('/menu', { state: { storeId: store.id } });
+  };
 
   return (
     <div className="card">
@@ -50,10 +52,13 @@ const Card = ({ store }) => {
               onClose={handleClose}
               TransitionComponent={Fade}
             >
-              <MenuItem onClick={handleClose}>Edit Menu</MenuItem>
               <MenuItem onClick={() => {
                 handleClose();
-                moveToModifyStore(13);
+                moveToEditMenu();
+              }}>Edit Menu</MenuItem>
+              <MenuItem onClick={() => {
+                handleClose();
+                moveToModifyStore(store.id);
               }}>Modify Store</MenuItem>
               <MenuItem onClick={handleClose}>Delete Store</MenuItem>
             </Menu>
@@ -65,4 +70,3 @@ const Card = ({ store }) => {
 };
 
 export default Card;
-
