@@ -34,7 +34,7 @@ const router = createBrowserRouter([
                 element: <SignInPage />,
             },
             {
-                path: 'dashboard',
+                path: 'storelist',
                 element: (
                     <ProtectedRoute>
                         <StoreListPage />
