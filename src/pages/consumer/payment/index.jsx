@@ -70,6 +70,9 @@ const PaymentPage = () => {
                 case 'tosspay':
                     pgProvider = 'tosspay.tosstest'
                     break
+                case 'inicis':
+                    pgProvider = 'html5_inicis.INIpayTest' // KG이니시스 테스트 모드
+                    break
                 default:
                     console.error('Invalid payment method')
                     return
@@ -89,6 +92,12 @@ const PaymentPage = () => {
                     buyer_tel: '010-1234-5678',
                     buyer_addr: '서울특별시 강남구 삼성동',
                     buyer_postcode: '123-456',
+                    m_redirect_url: '{모바일에서 결제 완료 후 리디렉션 될 URL}',
+                    escrow: true,
+                    vbank_due: 'YYYYMMDD',
+                    bypass: {
+                        acceptmethod: 'noeasypay',
+                    },
                 },
                 function (rsp) {
                     console.log('Payment response received', rsp)
@@ -145,6 +154,16 @@ const PaymentPage = () => {
                 }
             >
                 토스로 결제하기
+            </button>
+            <button
+                onClick={() => handlePaymentClick('inicis')}
+                disabled={
+                    !scriptsLoaded ||
+                    isPaymentProcessing ||
+                    cartItems.length === 0
+                }
+            >
+                KG이니시스로 결제하기
             </button>
 
             {isPaymentProcessing && (

@@ -43,7 +43,7 @@ const OrderPage = () => {
         완료: [
             {
                 id: 3,
-                date: new Date('2023-05-10'),
+                date: new Date('2024-07-10'),
                 menus: [
                     { name: '파스타', price: 8000, quantity: 1 },
                     { name: '아이스크림', price: 2000, quantity: 1 },
@@ -51,7 +51,7 @@ const OrderPage = () => {
             },
             {
                 id: 4,
-                date: new Date('2023-05-11'),
+                date: new Date('2024-07-10'),
                 menus: [
                     { name: '스테이크', price: 15000, quantity: 1 },
                     { name: '와인', price: 10000, quantity: 1 },
