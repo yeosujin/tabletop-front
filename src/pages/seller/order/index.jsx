@@ -73,18 +73,28 @@ const OrderPage = () => {
         }
     }, [activeTab])
 
+    const updateOrderStatus = useCallback((orderId, newStatus) => {
+        setOrders((prevOrders) =>
+            prevOrders.map((order) =>
+                order.orderId === orderId
+                    ? { ...order, status: newStatus }
+                    : order
+            )
+        )
+    }, [])
+
     const handleCancel = async (orderId) => {
         try {
             const response = await fetch(
                 `http://localhost:8080/api/orders/${orderId}/cancel`,
                 {
-                    method: 'POST',
+                    method: 'PUT',
                 }
             )
             if (!response.ok) {
                 throw new Error('주문 취소에 실패했습니다')
             }
-            fetchOrders() // 주문 목록 새로고침
+            updateOrderStatus(orderId, 2) // 취소 상태로 업데이트
         } catch (error) {
             console.error('주문 취소 실패:', error)
         }
@@ -95,13 +105,13 @@ const OrderPage = () => {
             const response = await fetch(
                 `http://localhost:8080/api/orders/${orderId}/complete`,
                 {
-                    method: 'POST',
+                    method: 'PUT',
                 }
             )
             if (!response.ok) {
                 throw new Error('주문 완료 처리에 실패했습니다')
             }
-            fetchOrders() // 주문 목록 새로고침
+            updateOrderStatus(orderId, 1) // 완료 상태로 업데이트
         } catch (error) {
             console.error('주문 완료 처리 실패:', error)
         }
@@ -137,6 +147,8 @@ const OrderPage = () => {
         return <Typography>로딩 중...</Typography>
     }
 
+    console.log(orders)
+
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
@@ -171,16 +183,22 @@ const OrderPage = () => {
                 <Grid item xs={10}>
                     <Grid container spacing={2}>
                         {filteredOrders.map((order) => (
-                            <Grid item xs={12} sm={6} md={4} key={order.id}>
+                            <Grid
+                                item
+                                xs={12}
+                                sm={6}
+                                md={4}
+                                key={order.orderId}
+                            >
                                 <Card>
                                     <CardContent>
                                         <Typography variant="h6">
-                                            주문 #{order.id}
+                                            주문 #{order.orderId}
                                         </Typography>
                                         <Typography variant="body2">
                                             {format(
-                                                order.createdAt.split('T')[0],
-                                                'yyyy-MM-dd'
+                                                new Date(order.createdAt),
+                                                'yyyy-MM-dd HH:mm:ss'
                                             )}
                                         </Typography>
                                         <List>
@@ -195,13 +213,15 @@ const OrderPage = () => {
                                                 )
                                             )}
                                         </List>
-                                        {activeTab === '진행중' && (
+                                        {order.status === 0 && (
                                             <Box>
                                                 <Button
                                                     variant="contained"
                                                     color="secondary"
                                                     onClick={() =>
-                                                        handleCancel(order.id)
+                                                        handleCancel(
+                                                            order.orderId
+                                                        )
                                                     }
                                                 >
                                                     Cancel
@@ -210,7 +230,9 @@ const OrderPage = () => {
                                                     variant="contained"
                                                     color="primary"
                                                     onClick={() =>
-                                                        handleDone(order.id)
+                                                        handleDone(
+                                                            order.orderId
+                                                        )
                                                     }
                                                 >
                                                     Done
