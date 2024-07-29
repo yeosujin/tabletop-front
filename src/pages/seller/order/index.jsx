@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
     AppBar,
     Box,
@@ -22,28 +22,39 @@ import { useParams } from 'react-router-dom'
 const OrderPage = () => {
     const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()))
     const [activeTab, setActiveTab] = useState('진행중')
-    const [orders, setOrders] = useState({
-        진행중: [],
-        완료: [],
-    })
+    const [orders, setOrders] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
 
     const { storeId } = useParams()
 
-    useEffect(() => {
-        // 초기 주문 목록 로드
-        // fetchOrders()
+    const fetchOrders = useCallback(async () => {
+        setIsLoading(true)
+        try {
+            const response = await fetch(
+                `http://localhost:8080/api/orders/${storeId}`
+            )
+            if (!response.ok) {
+                throw new Error('서버 응답이 실패했습니다')
+            }
+            const data = await response.json()
+            setOrders(data)
+        } catch (error) {
+            console.error('주문 목록을 불러오는데 실패했습니다:', error)
+        } finally {
+            setIsLoading(false)
+        }
+    }, [storeId])
 
-        // SSE 연결 설정
+    useEffect(() => {
+        fetchOrders()
+
         const eventSource = new EventSource(
             `http://localhost:8080/api/sse/orders/${storeId}`
         )
 
         eventSource.onmessage = (event) => {
             const newOrder = JSON.parse(event.data)
-            setOrders((prevOrders) => ({
-                ...prevOrders,
-                진행중: [...prevOrders.진행중, newOrder],
-            }))
+            setOrders((prevOrders) => [...prevOrders, newOrder])
         }
 
         eventSource.onerror = (error) => {
@@ -54,21 +65,7 @@ const OrderPage = () => {
         return () => {
             eventSource.close()
         }
-    }, [storeId])
-
-    // const fetchOrders = async () => {
-    //     try {
-    //         const response = await fetch(
-    //             `http://localhost:8080/api/orders/${storeId}`
-    //         )
-    //         const data = await response.json()
-    //         setOrders(data)
-    //     } catch (error) {
-    //         console.error('주문 목록 로딩 실패:', error)
-    //     }
-    // }
-
-    console.log(orders)
+    }, [storeId, fetchOrders])
 
     useEffect(() => {
         if (activeTab === '진행중') {
@@ -77,44 +74,68 @@ const OrderPage = () => {
     }, [activeTab])
 
     const handleCancel = async (orderId) => {
-        // try {
-        //     await fetch(`http://localhost:8080/api/orders/${orderId}/cancel`, {
-        //         method: 'POST',
-        //     })
-        //     fetchOrders() // 주문 목록 새로고침
-        // } catch (error) {
-        //     console.error('주문 취소 실패:', error)
-        // }
+        try {
+            const response = await fetch(
+                `http://localhost:8080/api/orders/${orderId}/cancel`,
+                {
+                    method: 'POST',
+                }
+            )
+            if (!response.ok) {
+                throw new Error('주문 취소에 실패했습니다')
+            }
+            fetchOrders() // 주문 목록 새로고침
+        } catch (error) {
+            console.error('주문 취소 실패:', error)
+        }
     }
 
     const handleDone = async (orderId) => {
-        // try {
-        //     await fetch(
-        //         `http://localhost:8080/api/orders/${orderId}/complete`,
-        //         { method: 'POST' }
-        //     )
-        //     fetchOrders() // 주문 목록 새로고침
-        // } catch (error) {
-        //     console.error('주문 완료 처리 실패:', error)
-        // }
+        try {
+            const response = await fetch(
+                `http://localhost:8080/api/orders/${orderId}/complete`,
+                {
+                    method: 'POST',
+                }
+            )
+            if (!response.ok) {
+                throw new Error('주문 완료 처리에 실패했습니다')
+            }
+            fetchOrders() // 주문 목록 새로고침
+        } catch (error) {
+            console.error('주문 완료 처리 실패:', error)
+        }
     }
 
     const filteredOrders = useMemo(() => {
-        return {
-            진행중: orders.진행중.filter((order) =>
-                isEqual(
-                    startOfDay(Date.parse(order.createdAt)),
-                    startOfDay(new Date())
-                )
-            ),
-            완료: orders.완료.filter((order) =>
-                isEqual(
-                    startOfDay(Date.parse(order.createdAt)),
-                    startOfDay(selectedDate)
-                )
-            ),
+        const getStatusCode = (tab) => {
+            switch (tab) {
+                case '진행중':
+                    return 0
+                case '완료':
+                    return 1
+                case '취소':
+                    return 2
+                default:
+                    return -1
+            }
         }
-    }, [orders, selectedDate])
+
+        return orders.filter((order) => {
+            const orderDate = startOfDay(new Date(order.createdAt))
+            const isToday = isEqual(orderDate, startOfDay(new Date()))
+            const isSelectedDate = isEqual(orderDate, startOfDay(selectedDate))
+
+            return (
+                order.status === getStatusCode(activeTab) &&
+                (activeTab === '진행중' ? isToday : isSelectedDate)
+            )
+        })
+    }, [orders, selectedDate, activeTab])
+
+    if (isLoading) {
+        return <Typography>로딩 중...</Typography>
+    }
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -135,7 +156,7 @@ const OrderPage = () => {
             <Grid container spacing={2}>
                 <Grid item xs={2}>
                     <List>
-                        {['진행중', '완료'].map((text) => (
+                        {['진행중', '완료', '취소'].map((text) => (
                             <ListItem key={text} disablePadding>
                                 <ListItemButton
                                     selected={activeTab === text}
@@ -149,7 +170,7 @@ const OrderPage = () => {
                 </Grid>
                 <Grid item xs={10}>
                     <Grid container spacing={2}>
-                        {filteredOrders[activeTab].map((order) => (
+                        {filteredOrders.map((order) => (
                             <Grid item xs={12} sm={6} md={4} key={order.id}>
                                 <Card>
                                     <CardContent>
@@ -167,12 +188,8 @@ const OrderPage = () => {
                                                 (menu, index) => (
                                                     <ListItem key={index}>
                                                         <ListItemText
-                                                            primary={
-                                                                activeTab ===
-                                                                '진행중'
-                                                                    ? `${menu.menuName} - ${menu.quantity}개`
-                                                                    : `${menu.menuName} - ${menu.price}원`
-                                                            }
+                                                            primary={`${menu.menuName} - ${menu.quantity}개`}
+                                                            secondary={`${menu.price}원`}
                                                         />
                                                     </ListItem>
                                                 )
@@ -200,17 +217,16 @@ const OrderPage = () => {
                                                 </Button>
                                             </Box>
                                         )}
-                                        {activeTab === '완료' && (
-                                            <Typography variant="body1">
-                                                총 가격:{' '}
-                                                {order.menus.reduce(
-                                                    (sum, menu) =>
-                                                        sum + menu.price,
-                                                    0
-                                                )}
-                                                원
-                                            </Typography>
-                                        )}
+                                        <Typography variant="body1">
+                                            총 가격:{' '}
+                                            {order.orderItems.reduce(
+                                                (sum, item) =>
+                                                    sum +
+                                                    item.price * item.quantity,
+                                                0
+                                            )}
+                                            원
+                                        </Typography>
                                     </CardContent>
                                 </Card>
                             </Grid>
