@@ -14,6 +14,7 @@ import { Suspense } from 'react'
 import InfoStorePage from './pages/consumer/info-store'
 import { CartProvider } from './contexts/cart'
 import PaymentPage from './pages/consumer/payment'
+import { TableProvider } from './contexts/table-number'
 
 const isAuthenticated = () => {
     return localStorage.getItem('token') !== null
@@ -66,7 +67,7 @@ const router = createBrowserRouter([
             },
             // 더 많은 보호된 라우트를 여기에 추가할 수 있습니다
             {
-                path: 'order',
+                path: 'storelist/:storeId/order',
                 element: <OrderPage />,
             },
         ],
@@ -101,9 +102,11 @@ const router = createBrowserRouter([
 
 function App() {
     return (
-        <CartProvider>
-            <RouterProvider router={router} />
-        </CartProvider>
+        <TableProvider>
+            <CartProvider>
+                <RouterProvider router={router} />
+            </CartProvider>
+        </TableProvider>
     )
 }
 

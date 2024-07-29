@@ -1,11 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useCart } from '../../../contexts/cart'
+import { useParams } from 'react-router-dom'
+import { useTable } from '../../../contexts/table-number'
+import axios from 'axios'
 
 const PaymentPage = () => {
     const [scriptsLoaded, setScriptsLoaded] = useState(false)
     const [paymentStatus, setPaymentStatus] = useState(null)
     const [isPaymentProcessing, setIsPaymentProcessing] = useState(false)
     const { cartItems } = useCart()
+
+    const { storeId } = useParams()
+    const { tableNumber } = useTable()
 
     useEffect(() => {
         const loadScripts = async () => {
@@ -99,12 +105,19 @@ const PaymentPage = () => {
                         acceptmethod: 'noeasypay',
                     },
                 },
-                function (rsp) {
+                async function (rsp) {
                     console.log('Payment response received', rsp)
                     setIsPaymentProcessing(false)
                     if (rsp.success) {
                         console.log('Payment successful', rsp)
-                        setPaymentStatus('success')
+                        try {
+                            const orderResult = await sendOrderToServer(rsp)
+                            setPaymentStatus('success')
+                            // 여기서 주문 완료 후 추가 작업을 수행할 수 있습니다 (예: 장바구니 비우기, 주문 완료 페이지로 이동 등)
+                        } catch (error) {
+                            console.error('Order processing failed:', error)
+                            setPaymentStatus('order_failure')
+                        }
                     } else {
                         console.error('Payment failed', rsp.error_msg)
                         setPaymentStatus('failure')
@@ -112,12 +125,50 @@ const PaymentPage = () => {
                 }
             )
         },
-        [scriptsLoaded]
+        [scriptsLoaded, cartItems]
     )
 
     const handlePaymentClick = (paymentMethod) => {
         setPaymentStatus(null)
         requestPay(paymentMethod)
+    }
+
+    const sendOrderToServer = async (paymentData) => {
+        try {
+            const orderData = {
+                storeId: storeId, // 실제 스토어 ID로 변경해주세요
+                tableNumber: tableNumber, // 테이블 번호, 필요에 따라 변경하세요
+                orderItems: cartItems.map((item) => ({
+                    menuId: item.menuId,
+                    quantity: item.quantity,
+                    price: item.price,
+                })),
+                payment: {
+                    paymentMethod: paymentData.pg_provider,
+                    transactionId: paymentData.imp_uid,
+                },
+            }
+
+            console.log('order Data :' + JSON.stringify(orderData))
+
+            const response = await axios.post(
+                'http://localhost:8080/api/orders/',
+                orderData
+            )
+            console.log('Order sent to server:', response.data)
+
+            // SSE를 통해 주방에 알림 보내기
+            await axios.post(
+                `http://localhost:8080/api/sse/notify/${orderData.storeId}`,
+                response.data
+            )
+            console.log('SSE notification sent')
+
+            return response.data
+        } catch (error) {
+            console.error('Failed to send order to server:', error)
+            throw error
+        }
     }
 
     return (
@@ -176,6 +227,7 @@ const PaymentPage = () => {
             {paymentStatus === 'failure' && <p>결제 실패</p>}
             {paymentStatus === 'script_error' && <p>스크립트 로딩 실패</p>}
             {paymentStatus === 'imp_error' && <p>IMP 초기화 실패</p>}
+            {paymentStatus === 'order_failure' && <p>주문 처리 실패</p>}
         </div>
     )
 }

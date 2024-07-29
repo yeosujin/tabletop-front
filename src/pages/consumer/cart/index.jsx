@@ -1,13 +1,15 @@
 // CartPage.js
-import React from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useCart } from '../../../contexts/cart'
+import { useTable } from '../../../contexts/table-number'
 
 const CartPage = () => {
     const { cartItems, addToCart, removeFromCart, calculateTotal } = useCart()
     const navigate = useNavigate()
     const { storeId } = useParams()
-
+    const [searchParams, setSearchParams] = useSearchParams()
+    const { setTableNumber } = useTable()
     const generateRandomItems = () => {
         const menuItems = [
             { menuId: 1, name: '햄버거', price: 5000 },
@@ -25,6 +27,11 @@ const CartPage = () => {
             addToCart(randomMenuItem)
         }
     }
+
+    useEffect(() => {
+        setTableNumber(searchParams.get('tableNumber'))
+        console.log(searchParams.get('tableNumber'))
+    }, [])
 
     return (
         <div>

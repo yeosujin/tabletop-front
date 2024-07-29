@@ -17,48 +17,58 @@ import {
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { format, isEqual, startOfDay } from 'date-fns'
+import { useParams } from 'react-router-dom'
 
 const OrderPage = () => {
     const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()))
     const [activeTab, setActiveTab] = useState('진행중')
     const [orders, setOrders] = useState({
-        진행중: [
-            {
-                id: 1,
-                date: new Date('2024-07-10'),
-                menus: [
-                    { name: '햄버거', price: 5000, quantity: 3 },
-                    { name: '콜라', price: 1500, quantity: 2 },
-                ],
-            },
-            {
-                id: 2,
-                date: new Date('2024-07-11'),
-                menus: [
-                    { name: '피자', price: 12000, quantity: 1 },
-                    { name: '샐러드', price: 3000, quantity: 5 },
-                ],
-            },
-        ],
-        완료: [
-            {
-                id: 3,
-                date: new Date('2024-07-10'),
-                menus: [
-                    { name: '파스타', price: 8000, quantity: 1 },
-                    { name: '아이스크림', price: 2000, quantity: 1 },
-                ],
-            },
-            {
-                id: 4,
-                date: new Date('2024-07-10'),
-                menus: [
-                    { name: '스테이크', price: 15000, quantity: 1 },
-                    { name: '와인', price: 10000, quantity: 1 },
-                ],
-            },
-        ],
+        진행중: [],
+        완료: [],
     })
+
+    const { storeId } = useParams()
+
+    useEffect(() => {
+        // 초기 주문 목록 로드
+        // fetchOrders()
+
+        // SSE 연결 설정
+        const eventSource = new EventSource(
+            `http://localhost:8080/api/sse/orders/${storeId}`
+        )
+
+        eventSource.onmessage = (event) => {
+            const newOrder = JSON.parse(event.data)
+            setOrders((prevOrders) => ({
+                ...prevOrders,
+                진행중: [...prevOrders.진행중, newOrder],
+            }))
+        }
+
+        eventSource.onerror = (error) => {
+            console.error('SSE 에러:', error)
+            eventSource.close()
+        }
+
+        return () => {
+            eventSource.close()
+        }
+    }, [storeId])
+
+    // const fetchOrders = async () => {
+    //     try {
+    //         const response = await fetch(
+    //             `http://localhost:8080/api/orders/${storeId}`
+    //         )
+    //         const data = await response.json()
+    //         setOrders(data)
+    //     } catch (error) {
+    //         console.error('주문 목록 로딩 실패:', error)
+    //     }
+    // }
+
+    console.log(orders)
 
     useEffect(() => {
         if (activeTab === '진행중') {
@@ -66,21 +76,42 @@ const OrderPage = () => {
         }
     }, [activeTab])
 
-    const handleCancel = (orderId) => {
-        console.log('주문 취소:', orderId)
+    const handleCancel = async (orderId) => {
+        // try {
+        //     await fetch(`http://localhost:8080/api/orders/${orderId}/cancel`, {
+        //         method: 'POST',
+        //     })
+        //     fetchOrders() // 주문 목록 새로고침
+        // } catch (error) {
+        //     console.error('주문 취소 실패:', error)
+        // }
     }
 
-    const handleDone = (orderId) => {
-        console.log('주문 완료:', orderId)
+    const handleDone = async (orderId) => {
+        // try {
+        //     await fetch(
+        //         `http://localhost:8080/api/orders/${orderId}/complete`,
+        //         { method: 'POST' }
+        //     )
+        //     fetchOrders() // 주문 목록 새로고침
+        // } catch (error) {
+        //     console.error('주문 완료 처리 실패:', error)
+        // }
     }
 
     const filteredOrders = useMemo(() => {
         return {
             진행중: orders.진행중.filter((order) =>
-                isEqual(startOfDay(order.date), startOfDay(new Date()))
+                isEqual(
+                    startOfDay(Date.parse(order.createdAt)),
+                    startOfDay(new Date())
+                )
             ),
             완료: orders.완료.filter((order) =>
-                isEqual(startOfDay(order.date), startOfDay(selectedDate))
+                isEqual(
+                    startOfDay(Date.parse(order.createdAt)),
+                    startOfDay(selectedDate)
+                )
             ),
         }
     }, [orders, selectedDate])
@@ -125,25 +156,27 @@ const OrderPage = () => {
                                         <Typography variant="h6">
                                             주문 #{order.id}
                                         </Typography>
-                                        <Typography
-                                            variant="body2"
-                                            color="textSecondary"
-                                        >
-                                            {format(order.date, 'yyyy-MM-dd')}
+                                        <Typography variant="body2">
+                                            {format(
+                                                order.createdAt.split('T')[0],
+                                                'yyyy-MM-dd'
+                                            )}
                                         </Typography>
                                         <List>
-                                            {order.menus.map((menu, index) => (
-                                                <ListItem key={index}>
-                                                    <ListItemText
-                                                        primary={
-                                                            activeTab ===
-                                                            '진행중'
-                                                                ? `${menu.name} - ${menu.quantity}개`
-                                                                : `${menu.name} - ${menu.price}원`
-                                                        }
-                                                    />
-                                                </ListItem>
-                                            ))}
+                                            {order.orderItems.map(
+                                                (menu, index) => (
+                                                    <ListItem key={index}>
+                                                        <ListItemText
+                                                            primary={
+                                                                activeTab ===
+                                                                '진행중'
+                                                                    ? `${menu.menuName} - ${menu.quantity}개`
+                                                                    : `${menu.menuName} - ${menu.price}원`
+                                                            }
+                                                        />
+                                                    </ListItem>
+                                                )
+                                            )}
                                         </List>
                                         {activeTab === '진행중' && (
                                             <Box>
