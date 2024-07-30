@@ -4,6 +4,7 @@ import SiteHeader from './layouts/header'
 import SiteFooter from './layouts/footer'
 import ExamplePage from './pages/example'
 import SignInPage from './pages/seller/sign-in'
+import SignUpPage from './pages/seller/sign-up'
 import StoreListPage from './pages/seller/store/list'
 import StoreAddPage from './pages/seller/store/add'
 import StoreModifyPage from './pages/seller/store/modify'
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
             {
                 path: 'login',
                 element: <SignInPage />,
+            },
+            {
+                path: 'signup',
+                element: <SignUpPage />,
             },
             {
                 path: 'dashboard',
