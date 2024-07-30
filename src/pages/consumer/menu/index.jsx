@@ -1,101 +1,158 @@
 import React, { useState, useEffect } from 'react';
-import { Camera } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import styled from 'styled-components';
 
-const QRScanner = ({ onScan }) => {
-  useEffect(() => {
-    const scanner = new Html5QrcodeScanner('reader', {
-      qrbox: {
-        width: 250,
-        height: 250,
-      },
-      fps: 5,
-    }, false);
+const PageContainer = styled.div`
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+`;
 
-    scanner.render(success, error);
+const Header = styled.header`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+`;
 
-    function success(result) {
-      console.log('QR Code detected:', result);
-      onScan(result);
-      scanner.clear();
-    }
+const StoreName = styled.h1`
+  font-size: 24px;
+  margin: 0;
+`;
 
-    function error(err) {
-      console.warn(err);
-    }
+const TableNumber = styled.span`
+  font-size: 18px;
+  font-weight: bold;
+`;
 
-    return () => {
-      scanner.clear();
-    };
-  }, [onScan]);
+const MenuList = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+`;
 
-  return (
-    <div className="relative w-full h-64 bg-gray-200 flex items-center justify-center">
-      <div id="reader"></div>
-      <button onClick={() => onScan('1')} className="absolute bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded">
-        Simulate Scan
-      </button>
-    </div>
-  );
-};
+const MenuItem = styled.div`
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+`;
 
-// 메뉴 아이템 컴포넌트
-const MenuItem = ({ item, onAddToCart }) => (
-  <div className="flex items-center justify-between p-4 border-b">
-    <div>
-      <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
-      <h3 className="font-bold">{item.name}</h3>
-      <p className="text-sm text-gray-600">{item.description}</p>
-    </div>
-    <button onClick={() => onAddToCart(item)} className="bg-blue-500 text-white px-3 py-1 rounded">
-      Add
-    </button>
-  </div>
-);
+const MenuImage = styled.img`
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+`;
+
+const MenuInfo = styled.div`
+  padding: 10px;
+`;
+
+const MenuName = styled.h3`
+  margin: 0 0 5px 0;
+`;
+
+const MenuPrice = styled.p`
+  margin: 0 0 5px 0;
+  font-weight: bold;
+`;
+
+const MenuDescription = styled.p`
+  margin: 0;
+  font-size: 14px;
+`;
+
+const FloatingCart = styled.button`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 const MenuPage = () => {
-  const [tableNumber, setTableNumber] = useState(null);
-  const [menu, setMenu] = useState([]);
-  const [cart, setCart] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
+  const [cartCount, setCartCount] = useState(0);
+  const [storeName, setStoreName] = useState('');
+  const { storeId, tableNumber } = useParams();
+  const navigate = useNavigate();
 
-  const handleQRScan = (scannedTableNumber) => {
-    setTableNumber(scannedTableNumber);
-    // QR 스캔 후 메뉴 데이터 가져오기
-    fetchMenu(scannedTableNumber);
+  useEffect(() => {
+    const fetchMenuItems = async () => {
+      try {
+        const response = await axios.get(`/api/stores/${storeId}/menus`);
+        setMenuItems(response.data);
+      } catch (error) {
+        console.error('메뉴를 불러오는데 실패했습니다:', error);
+      }
+    };
+
+    const fetchStoreInfo = async () => {
+      try {
+        const response = await axios.get(`/api/stores/${storeId}`);
+        setStoreName(response.data.name);
+      } catch (error) {
+        console.error('가게 정보를 불러오는데 실패했습니다:', error);
+      }
+    };
+
+    fetchMenuItems();
+    fetchStoreInfo();
+  }, [storeId]);
+
+  const handleAddToCart = (item) => {
+    // 장바구니에 아이템을 추가하는 로직
+    // 예: localStorage 사용
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    cart.push(item);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    setCartCount(cart.length);
   };
 
-  const fetchMenu = async (storeId) => {
-    try {
-      const response = await fetch(`/api/stores/${storeId}/menus`);
-      const data = await response.json();
-      setMenu(data);
-    } catch (error) {
-      console.error('Failed to fetch menu:', error);
-    }
+  const handleCartClick = () => {
+    navigate(`/cart/${storeId}/${tableNumber}`);
   };
 
-  const addToCart = (item) => {
-    setCart([...cart, item]);
+  const handleStoreInfoClick = () => {
+    navigate(`/store-info/${storeId}`);
   };
 
   return (
-    <div className="max-w-md mx-auto p-4">
-      {!tableNumber ? (
-        <QRScanner onScan={handleQRScan} />
-      ) : (
-        <>
-          <Alert>
-            <AlertDescription>Table No. {tableNumber}</AlertDescription>
-          </Alert>
-          <div className="mt-4">
-            {menu.map((item) => (
-              <MenuItem key={item.id} item={item} onAddToCart={addToCart} />
-            ))}
-          </div>
-        </>
-      )}
-    </div>
+    <PageContainer>
+      <Header>
+        <StoreName>
+          {storeName} <button onClick={handleStoreInfoClick}>ℹ️</button>
+        </StoreName>
+        <TableNumber>No.{tableNumber}</TableNumber>
+      </Header>
+
+      <MenuList>
+        {menuItems.map(item => (
+          <MenuItem key={item.id} onClick={() => handleAddToCart(item)}>
+            <MenuImage src={item.image} alt={item.name} />
+            <MenuInfo>
+              <MenuName>{item.name}</MenuName>
+              <MenuPrice>{item.price}원</MenuPrice>
+              <MenuDescription>{item.description}</MenuDescription>
+            </MenuInfo>
+          </MenuItem>
+        ))}
+      </MenuList>
+
+      <FloatingCart onClick={handleCartClick}>
+        🛒 {cartCount}
+      </FloatingCart>
+    </PageContainer>
   );
 };
 
