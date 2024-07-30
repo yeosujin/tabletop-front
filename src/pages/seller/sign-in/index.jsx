@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { styled } from '@mui/system';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { login } from '../../../apis/auth/AuthAPI';
 
 const Container = styled(Box)({
   display: 'flex',
@@ -37,6 +38,44 @@ const FormBox = styled(Box)({
 });
 
 const SignInPage = () => {
+  const navigate = useNavigate();
+  const [values, setValues] = useState({
+    loginId: "",
+    password: "",
+  });
+
+  const handleChange = (e) => {
+    setValues({
+      ...values,
+      [e.target.id]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async () => {
+    const { loginId, password } = values;
+
+    if (!loginId || !password) {
+      alert('아이디와 비밀번호 모두 입력해주세요.');
+      return;
+    }
+
+    try {
+      const response = await login(values);
+
+      localStorage.clear();
+
+      localStorage.setItem('id', response.id);
+      localStorage.setItem('tokenType', response.tokenType);
+      localStorage.setItem('accessToken', response.accessToken);
+      localStorage.setItem('refreshToken', response.refreshToken);
+
+      const loginId = localStorage.getItem('id');
+      navigate(`/stores/${loginId}`);
+    } catch (err) {
+      alert(err.response.data.message);
+    }
+  };
+
   return (
     <Container>
       <FormContainer>
@@ -58,12 +97,36 @@ const SignInPage = () => {
           <Typography variant="h5" component="h1" gutterBottom>
             로그인
           </Typography>
-          <TextField label="ID" variant="outlined" margin="normal" fullWidth />
-          <TextField label="Password" type="password" variant="outlined" margin="normal" fullWidth />
+          <TextField 
+            id="loginId" 
+            label="ID" 
+            variant="outlined" 
+            margin="normal" 
+            fullWidth 
+            onChange={handleChange} 
+            value={values.loginId} 
+          />
+          <TextField 
+            id="password" 
+            label="Password" 
+            type="password" 
+            variant="outlined" 
+            margin="normal" 
+            fullWidth 
+            onChange={handleChange} 
+            value={values.password} 
+          />
           <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
             <Link to="/signup" style={{ textDecoration: 'none', color: '#1976d2' }}>회원가입</Link>
+            <Link to="/password" style={{ textDecoration: 'none', color: '#1976d2' }}>비밀번호 찾기</Link>
           </Box>
-          <Button variant="contained" color="primary" fullWidth sx={{ marginTop: '2rem' }}>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            fullWidth 
+            sx={{ marginTop: '2rem' }}
+            onClick={handleSubmit}
+          >
             로그인
           </Button>
         </FormBox>
