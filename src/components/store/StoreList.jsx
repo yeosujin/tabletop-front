@@ -1,19 +1,14 @@
 import React from 'react';
-import Fab from '@mui/material/Fab';
-import AddIcon from '@mui/icons-material/Add';
 import Card from './Card.jsx';
 
-const StoreList = ({ stores }) => {
+const StoreList = ({ stores, render }) => {
+ 
     return (
         <div className="store-list">
             {stores.map(store => (
-                <Card key={store.id} store={store} />
+                <Card key={store.storeId} store={store} render={render}/>
             ))}
-            <Fab color="primary" aria-label="add">
-                <AddIcon />
-            </Fab>
         </div>
-        
     );
 };
 

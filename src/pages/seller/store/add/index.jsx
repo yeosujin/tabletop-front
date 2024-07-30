@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 const StoreAddPage = () => {
+    const navigate = useNavigate();
+
     // store type을 설정하는 radio button 값 저장
     const [selectedType, setSelectedType] = useState('상시');
 
     const [image, setImage] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
-        corpRegistrationNumber: '',
+        storeType: '상시',
+        corporateRegistrationNumber: '',
         openDate: '',
         closeDate: '',
         openTime: '',
@@ -18,12 +22,10 @@ const StoreAddPage = () => {
         notice: '',
         address: '',
         description: '',
-        holidays: []
+        holidays: [],
     });
 
     // 사업자 등록번호 검증 관련
-    // const [isDuplicated, setIsDuplicated] = useState(true);
-    // const [isValid, setIsValid] = useState(false);
     const [validated, setValidated] = useState(false);
 
     // store type 변경
@@ -34,7 +36,7 @@ const StoreAddPage = () => {
 
     // form의 input 값 변경 시
     const handleInputChange = (event) => {    
-        console.log(event.target.name, event.target.value);
+        // console.log(event.target.name, event.target.value);
         const { name, value } = event.target;
         setFormData({...formData, [name]: value});
     };
@@ -68,21 +70,19 @@ const StoreAddPage = () => {
 
     // 사업자등록번호 중복 검사
     const checkDuplicatedNumber = (num) => {
-        // store
-        fetch(`http://localhost:8080/api/dupalicationCheck/${num}`)
-            .then(response => {
-                const data = response.json()
-                return data.isDuplicated
+        fetch(`http://localhost:8080/api/duplicationCheck/${num}`)
+            .then(response => response.json())
+            .then(data => {
+                return data.isDuplicated === "true";
             })
             .catch(error => {
                 console.error('Error validating number(1):', error);
             });
-        
     };
 
     // 사업자등록번호 유효성 검사
     const validateNumber = async (num) => {
-        // num = formData.corpRegistrationNumber;
+        // num = formData.corporateRegistrationNumber;
         const url = 'https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=dykZa6G6kCjn6O0CuStT3mPDTe9Z7gKnGguk6FedQrB9wjbaCVfcZYDzAATjTXczqyg0EA7vDwNKAHIx3vLhFA%3D%3D&returnType=JSON';
         const data = {
             b_no: [num]
@@ -96,7 +96,6 @@ const StoreAddPage = () => {
                 }
             });
             
-            console.log(response.data.data[0].b_stt_cd);
             if(response.data.data[0].b_stt_cd === '01') {
                 return true;
             } else {
@@ -109,13 +108,14 @@ const StoreAddPage = () => {
     };
 
     // 사업자등록번호 검사
-    const checkCorpRegistrationNumber = () => {
-        const num = formData.corpRegistrationNumber;
+    const checkCorporateRegistrationNumber = (event) => {
+        event.preventDefault();
+        const num = formData.corporateRegistrationNumber;
 
         // 입력 값 검증에 성공하면
         if (checkNumberLength(num)) {
             // 중복 검사에 성공하면
-            if(checkDuplicatedNumber(num)) {
+            if(!checkDuplicatedNumber(num)) {
                 // 유효성 검사에 성공하면
                 if(validateNumber(num)) {
                     setValidated(true);
@@ -133,11 +133,28 @@ const StoreAddPage = () => {
         }
     };
 
-    const handleSubmit = (e) => {    
-        e.preventDefault();  
-        console.log(formData); 
+    const handleSubmit = (event) => {    
+        event.preventDefault();  
+        console.log(formData);
 
-        // 제출 로직 추가        
+        // FormData 객체 생성
+        const formDataToSend = new FormData();
+        formDataToSend.append('storeData', new Blob([JSON.stringify(formData)], { type: 'application/json' }));
+        const imageFile = document.querySelector('input[type="file"]').files[0];
+        if (imageFile) {
+            formDataToSend.append('image', imageFile);
+        }
+
+        const url = `http://localhost:8080/api/store/YH`;
+
+        axios.post(url, formDataToSend)
+            .then(response => {
+                console.log('등록 성공', response);
+                navigate('/storelist');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });        
     };
     
     return (
@@ -164,9 +181,9 @@ const StoreAddPage = () => {
             {selectedType === '상시' && (       
                 <div>
                     <label>사업자 등록번호</label>
-                    <input type="text" name="corpRegistrationNumber" value={formData.corpRegistrationNumber} onChange={handleInputChange} placeholder="'-'없이 10자리 숫자만 입력하세요." required />
-                    <button onClick={validateNumber}>test</button>
-                    <button onClick={checkCorpRegistrationNumber}>검사</button>
+                    <input type="text" name="corporateRegistrationNumber" value={formData.corporateRegistrationNumber} onChange={handleInputChange} placeholder="'-'없이 10자리 숫자만 입력하세요." required />
+                    {/* <button onClick={() => checkDuplicatedNumber(3646700101)}>test</button> */}
+                    <button onClick={checkCorporateRegistrationNumber}>검사</button>
                     {validated && (
                         <>
                             <span className="checkmark">&#10004;</span>
