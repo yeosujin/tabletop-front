@@ -15,6 +15,7 @@ import InfoStorePage from './pages/consumer/info-store'
 import { CartProvider } from './contexts/cart'
 import PaymentPage from './pages/consumer/payment'
 import { TableProvider } from './contexts/table-number'
+import CompletePage from './pages/consumer/complete'
 
 const isAuthenticated = () => {
     return localStorage.getItem('token') !== null
@@ -95,6 +96,10 @@ const router = createBrowserRouter([
             {
                 path: 'payment',
                 element: <PaymentPage />,
+            },
+            {
+                path: 'complete',
+                element: <CompletePage />,
             },
         ],
     },
