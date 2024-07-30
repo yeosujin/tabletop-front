@@ -1,43 +1,63 @@
-// InfiniteScroll.js
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import StoreList from './StoreList.jsx';
 
-const fetchMoreStores = (setStores, setHasMore) => {
-  // API 호출로 더 많은 스토어 데이터를 가져옵니다.
-  // 여기서는 예시로 setTimeout을 사용했습니다.
-  setTimeout(() => {
-    const newStores = Array.from({ length: 6 }, (_, index) => ({
-      id: index + Math.random(),
-      name: `Store ${index + 1}`,
-      type: `임시`,
-      image: `이미지를 등록하세요`,
-      description: 'This is a store description.',
-    }));
+const ITEMS_PER_PAGE = 6;
 
-    setStores(prevStores => [...prevStores, ...newStores]);
-    setHasMore(newStores.length > 0);
-  }, 1500);
-};
+const InfiniteScrollComponent = ({ loginId }) => {
+    const [allStores, setAllStores] = useState([]);
+    const [displayedStores, setDisplayedStores] = useState([]);
+    const [hasMore, setHasMore] = useState(true);
+    const [isListChanged, setIsListChanged] = useState(false);
 
-const InfiniteScrollComponent = () => {
-  const [stores, setStores] = useState([]);
-  const [hasMore, setHasMore] = useState(true);
+    useEffect(() => {
+        fetchStores();
+    }, [isListChanged]);
 
-  useEffect(() => {
-    fetchMoreStores(setStores, setHasMore);
-  }, []);
+    // 전체 데이터 가져오기
+    const fetchStores = async () => {
+        const url = `http://localhost:8080/api/stores/${loginId}`;
 
-  return (
-    <InfiniteScroll
-      dataLength={stores.length}
-      next={() => fetchMoreStores(setStores, setHasMore)}
-      hasMore={hasMore}
-      loader={<h4>Loading...</h4>}
-    >
-      <StoreList stores={stores} />
-    </InfiniteScroll>
-  );
+        await axios.get(url)
+            .then(response => {
+                setAllStores(response.data);
+                setDisplayedStores(response.data.slice(0, ITEMS_PER_PAGE));
+                setHasMore(response.data.length > ITEMS_PER_PAGE);
+            })
+            .catch(error => {
+                console.error('Error fetching stores:', error);
+                setHasMore(false);
+            });
+        
+    };
+
+    // 전체 데이터에서 6개씩 더 가져오기
+    const loadMoreStores = () => {
+        const currentLength = displayedStores.length;
+        const newStores = allStores.slice(currentLength, currentLength + ITEMS_PER_PAGE);
+        setDisplayedStores(prevStores => [...prevStores, ...newStores]);
+        console.log('loadMoreStores: newStores', newStores);
+        console.log('loadMoreStores: displayedStores', displayedStores);
+        setHasMore(allStores.length > currentLength + newStores.length);
+    };
+
+    return (
+        <>
+            {allStores.length === 0 ? (
+                <h4>no data to display...</h4>
+            ) : (
+                <InfiniteScroll
+                    dataLength={displayedStores.length}
+                    next={loadMoreStores}
+                    hasMore={hasMore}
+                    loader={<h4>Loading...</h4>}
+                >
+                <StoreList stores={displayedStores} render={setIsListChanged}/>
+                </InfiniteScroll>
+            )}
+        </>
+    );
 };
 
 export default InfiniteScrollComponent;
