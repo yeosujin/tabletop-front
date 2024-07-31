@@ -4,6 +4,8 @@ import SiteHeader from './layouts/header'
 import SiteFooter from './layouts/footer'
 import ExamplePage from './pages/example'
 import SignInPage from './pages/seller/sign-in'
+import SignUpPage from './pages/seller/sign-up'
+import PasswordPage from './pages/seller/sign-in/password'
 import StoreListPage from './pages/seller/store/list'
 import StoreAddPage from './pages/seller/store/add'
 import StoreModifyPage from './pages/seller/store/modify'
@@ -18,6 +20,8 @@ import PaymentPage from './pages/consumer/payment'
 import { TableProvider } from './contexts/table-number'
 import ErrorBoundary from './components/ErrorBoundary'
 import Menu from './pages/seller/menu'
+import MyProfilePage from './pages/seller/profile'
+import MyProfileModifyPage from './pages/seller/profile/modify'
 import CompletePage from './pages/consumer/complete'
 
 const NotFound = () => <h1>404 - 페이지를 찾을 수 없습니다.</h1>
@@ -50,6 +54,14 @@ const router = createBrowserRouter([
                 element: <SignInPage />,
             },
             {
+                path: 'signup',
+                element: <SignUpPage />,
+            },
+            {
+                path: 'password',
+                element: <PasswordPage />,
+            },
+            {
                 path: 'storelist',
                 element: <StoreListPage />,
             },
@@ -69,28 +81,41 @@ const router = createBrowserRouter([
                 path: 'sellers/:username/:storeId/menus',
                 element: <Menu />,
             },
-        ],
-    },
-    {
-        path: '/consumer/:storeId',
-        element: <ConsumerLayout />,
-        errorElement: <ErrorBoundary />,
-        children: [
             {
-                path: 'menu',
-                element: <MenuPage />,
+                path: 'sellers/:loginId/profile',
+                element: <MyProfilePage />,// Placeholder for nested routes
+                
             },
             {
-                path: 'cart',
-                element: <CartPage />,
+                path: 'sellers/:loginId/profile/modify',
+                element: <MyProfileModifyPage />,     
             },
             {
                 path: 'details',
                 element: <InfoStorePage />,
             },
             {
-                path: 'payment',
-                element: <PaymentPage />,
+                path: '/consumer/:storeId',
+                element: <ConsumerLayout />,
+                errorElement: <ErrorBoundary />,
+                children: [
+                    {
+                        path: 'menu',
+                        element: <MenuPage />,
+                    },
+                    {
+                        path: 'cart',
+                        element: <CartPage />,
+                    },
+                    {
+                        path: 'info',
+                        element: <InfoStorePage />,
+                    },
+                    {
+                        path: 'payment',
+                        element: <PaymentPage />,
+                    },
+                ],
             },
             {
                 path: 'complete',
