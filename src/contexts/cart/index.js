@@ -44,7 +44,7 @@ const tempCartItems = [
 ]
 
 export const CartProvider = ({ children }) => {
-    const [cartItems, setCartItems] = useState(tempCartItems)
+    const [cartItems, setCartItems] = useState([])
 
     const addToCart = (item) => {
         setCartItems((prevItems) => {

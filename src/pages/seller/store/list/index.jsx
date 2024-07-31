@@ -20,9 +20,9 @@ const StoreListPage = () => {
                 <AddIcon />
             </Fab>
         </div>
-        
     );
 };
 
 export default StoreListPage;
+
 
