@@ -5,6 +5,47 @@ const CartContext = createContext()
 
 export const useCart = () => useContext(CartContext)
 
+<<<<<<< Updated upstream
+=======
+// const tempCartItems = [
+//     {
+//         menuId: 1,
+//         name: '빅맥',
+//         price: 5500,
+//         quantity: 2,
+//         image: 'https://example.com/bigmac.jpg',
+//     },
+//     {
+//         menuId: 3,
+//         name: '후렌치 후라이',
+//         price: 2000,
+//         quantity: 1,
+//         image: 'https://example.com/fries.jpg',
+//     },
+//     {
+//         menuId: 4,
+//         name: '코카콜라',
+//         price: 1500,
+//         quantity: 2,
+//         image: 'https://example.com/coke.jpg',
+//     },
+//     {
+//         menuId: 5,
+//         name: '맥너겟',
+//         price: 3000,
+//         quantity: 1,
+//         image: 'https://example.com/nuggets.jpg',
+//     },
+//     {
+//         menuId: 7,
+//         name: '아이스크림 콘',
+//         price: 900,
+//         quantity: 3,
+//         image: 'https://example.com/icecream.jpg',
+//     },
+// ]
+
+>>>>>>> Stashed changes
 export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([])
 

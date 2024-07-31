@@ -38,12 +38,33 @@ const router = createBrowserRouter([
                 element: <SignInPage />,
             },
             {
+<<<<<<< Updated upstream
                 path: 'dashboard',
                 element: (
                     <ProtectedRoute>
                         <StoreListPage />
                     </ProtectedRoute>
                 ),
+=======
+                path: 'storelist',
+                element: <StoreListPage />,
+            },
+            {
+                path: 'addstore',
+                element: <StoreAddPage />,
+            },
+            {
+                path: 'modifystore',
+                element: <StoreModifyPage />,
+            },
+            {
+                path: 'sellers/:username/stores/:storeid/orders',
+                element: <OrderPage />,
+            },
+            {
+                path: 'sellers/:username/:storeId/menus',
+                element: <Menu />,
+>>>>>>> Stashed changes
             },
             // 더 많은 보호된 라우트를 여기에 추가할 수 있습니다
         ],
