@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { useCart } from '../../../contexts/cart';
 import { useTable } from '../../../contexts/table-number';
@@ -19,12 +19,9 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 const MenuPage = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [storeName, setStoreName] = useState('');
-<<<<<<< Updated upstream
   const { storeId, tableNumber } = useParams();
-=======
-  const { storeId } = useParams();
   const [searchParams] = useSearchParams();
->>>>>>> Stashed changes
+
   const navigate = useNavigate();
   const { cartItems, addToCart } = useCart();
   const { setTableNumber } = useTable();
@@ -54,53 +51,6 @@ const MenuPage = () => {
 
     fetchMenuItems();
     fetchStoreInfo();
-<<<<<<< Updated upstream
-  }, [storeId]);
-
-  const handleAddToCart = (item) => {
-    // 장바구니에 아이템을 추가하는 로직
-    // 예: localStorage 사용
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    cart.push(item);
-    localStorage.setItem('cart', JSON.stringify(cart));
-    setCartCount(cart.length);
-  };
-
-  const handleCartClick = () => {
-    navigate(`/cart/${storeId}/${tableNumber}`);
-  };
-
-  const handleStoreInfoClick = () => {
-    navigate(`/store-info/${storeId}`);
-  };
-
-  return (
-    <PageContainer>
-      <Header>
-        <StoreName>
-          {storeName} <button onClick={handleStoreInfoClick}>ℹ️</button>
-        </StoreName>
-        <TableNumber>No.{tableNumber}</TableNumber>
-      </Header>
-
-      <MenuList>
-        {menuItems.map(item => (
-          <MenuItem key={item.id} onClick={() => handleAddToCart(item)}>
-            <MenuImage src={item.image} alt={item.name} />
-            <MenuInfo>
-              <MenuName>{item.name}</MenuName>
-              <MenuPrice>{item.price}원</MenuPrice>
-              <MenuDescription>{item.description}</MenuDescription>
-            </MenuInfo>
-          </MenuItem>
-        ))}
-      </MenuList>
-
-      <FloatingCart onClick={handleCartClick}>
-        🛒 {cartCount}
-      </FloatingCart>
-    </PageContainer>
-=======
   }, [storeId, searchParams, setTableNumber]);
 
   const handleAddToCart = (item) => {
@@ -173,7 +123,6 @@ const MenuPage = () => {
           </Typography>
         </IconButton>
       </Box>
->>>>>>> Stashed changes
   );
 };
 

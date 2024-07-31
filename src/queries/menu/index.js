@@ -1,6 +1,5 @@
 import menu1 from './menu1.jpg'
 
-// TODO menu 정보를 가져와야 함
 export const get = (storeId) => {
     return new Promise((resolve, reject) => {
         const value = {
