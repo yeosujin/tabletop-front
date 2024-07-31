@@ -19,8 +19,9 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 const MenuPage = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [storeName, setStoreName] = useState('');
-  const { storeId } = useParams();
+  const { storeId, tableNumber } = useParams();
   const [searchParams] = useSearchParams();
+
   const navigate = useNavigate();
   const { cartItems, addToCart } = useCart();
   const { setTableNumber } = useTable();

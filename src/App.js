@@ -18,6 +18,7 @@ import PaymentPage from './pages/consumer/payment'
 import { TableProvider } from './contexts/table-number'
 import ErrorBoundary from './components/ErrorBoundary'
 import Menu from './pages/seller/menu'
+import CompletePage from './pages/consumer/complete'
 
 const NotFound = () => <h1>404 - 페이지를 찾을 수 없습니다.</h1>
 
@@ -91,6 +92,10 @@ const router = createBrowserRouter([
                 path: 'payment',
                 element: <PaymentPage />,
             },
+            {
+                path: 'complete',
+                element: <CompletePage />
+            }
         ],
     },
     {
