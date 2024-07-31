@@ -105,7 +105,7 @@ const MyProfilePage = () => {
   }, [loginId]);
 
   const handleModifyClick = () => {
-    navigate('/profilemodify', { state: { seller } });
+    navigate(`/sellers/${loginId}/profile/modify`, { state: { seller } });
   };
 
   const handleDeleteClick = async () => {
@@ -117,7 +117,7 @@ const MyProfilePage = () => {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         alert('판매자 계정이 성공적으로 삭제되었습니다.');
-        navigate('/signin'); // 삭제 후 로그인 페이지로 이동
+        navigate('/login'); // 삭제 후 로그인 페이지로 이동
       }
     } catch (err) {
       alert(err.response.data.message);

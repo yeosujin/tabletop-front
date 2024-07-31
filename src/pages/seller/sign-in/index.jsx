@@ -70,7 +70,7 @@ const SignInPage = () => {
       localStorage.setItem('refreshToken', response.refreshToken);
 
       const loginId = localStorage.getItem('id');
-      navigate(`/stores/${loginId}`);
+      navigate(`/dashboard`);
     } catch (err) {
       alert(err.response.data.message);
     }

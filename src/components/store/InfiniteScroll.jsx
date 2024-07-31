@@ -19,7 +19,16 @@ const InfiniteScrollComponent = ({ loginId }) => {
     const fetchStores = async () => {
         const url = `http://localhost:8080/api/stores/${loginId}`;
 
-        await axios.get(url)
+        const TOKEN_TYPE = localStorage.getItem("tokenType");
+        const ACCESS_TOKEN = localStorage.getItem("accessToken");
+        let REFRESH_TOKEN = localStorage.getItem("refreshToken");
+
+        await axios.get(url, {
+            headers: {
+                'Authorization': `${TOKEN_TYPE} ${ACCESS_TOKEN}`,
+                'REFRESH_TOKEN': REFRESH_TOKEN
+            }
+        })
             .then(response => {
                 setAllStores(response.data);
                 setDisplayedStores(response.data.slice(0, ITEMS_PER_PAGE));

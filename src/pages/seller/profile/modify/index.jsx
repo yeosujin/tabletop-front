@@ -208,7 +208,7 @@ const MyProfileModifyPage = () => {
       const response = await updateSellerInfo(formValues.loginId, updatedData);
       console.log(response);
       alert('프로필이 성공적으로 수정되었습니다.');
-      navigate(`/profile/${loginId}`);
+      navigate(`/sellers/${loginId}/profile`);
     } catch (err) {
       alert(err.response.data.message);
       setFormValues({

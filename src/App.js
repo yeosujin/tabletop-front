@@ -80,20 +80,13 @@ const router = createBrowserRouter([
             },
 
             {
-                path: 'sellers/:loginId',
-                element: <Outlet />, // Placeholder for nested routes
-                children: [
-                    {
-                        path: 'profile',
-                        element: <MyProfilePage />,
-                        children: [
-                            {
-                                path: 'modify',
-                                element: <MyProfileModifyPage />,
-                            },
-                        ],
-                    },
-                ],
+                path: 'sellers/:loginId/profile',
+                element: <MyProfilePage />,// Placeholder for nested routes
+                
+            },
+            {
+                path: 'sellers/:loginId/profile/modify',
+                element: <MyProfileModifyPage />,                       
             },
 
             {
