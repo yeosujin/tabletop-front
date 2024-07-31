@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import styled from 'styled-components';
 import ReactCrop from 'react-image-crop';
@@ -155,7 +156,8 @@ const ModalContent = styled.div`
   overflow: auto;
 `;
 
-const Menu = ({ storeId }) => {
+const Menu = () => {
+  const { username, storeId } = useParams();
   const [menuItems, setMenuItems] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [newItem, setNewItem] = useState({ name: '', price: '', description: '', image: null, isAvailable: true });
@@ -176,7 +178,7 @@ const Menu = ({ storeId }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`/api/stores/${storeId}/menus`, {
+      const response = await axios.get(`/api/sellers/${username}/${storeId}/menus`, {
         params: { lastMenuId, limit: 20 }
       });
       const newItems = response.data;
@@ -189,7 +191,7 @@ const Menu = ({ storeId }) => {
     } finally {
       setLoading(false);
     }
-  }, [storeId, lastMenuId, loading, hasMore]);
+  }, [username, storeId, lastMenuId, loading, hasMore]);
 
   useEffect(() => {
     if (storeId) {
@@ -222,15 +224,15 @@ const Menu = ({ storeId }) => {
     const ctx = canvas.getContext('2d');
 
     ctx.drawImage(
-      image,
-      crop.x * scaleX,
-      crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
-      0,
-      0,
-      crop.width,
-      crop.height
+        image,
+        crop.x * scaleX,
+        crop.y * scaleY,
+        crop.width * scaleX,
+        crop.height * scaleY,
+        0,
+        0,
+        crop.width,
+        crop.height
     );
 
     return new Promise((resolve) => {
@@ -262,7 +264,7 @@ const Menu = ({ storeId }) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
-  
+
     const formData = new FormData();
     formData.append('name', newItem.name);
     formData.append('price', newItem.price);
@@ -271,16 +273,16 @@ const Menu = ({ storeId }) => {
     if (newItem.image) {
       formData.append('image', newItem.image);
     }
-  
+
     try {
       if (editingItemId) {
-        const response = await axios.put(`/api/stores/${storeId}/menus/${editingItemId}`, formData, {
+        const response = await axios.put(`/api/sellers/${username}/${storeId}/menus/${editingItemId}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         setMenuItems(prev => prev.map(item => item.id === editingItemId ? response.data : item));
         setEditingItemId(null);
       } else {
-        const response = await axios.post(`/api/stores/${storeId}/menus`, formData, {
+        const response = await axios.post(`/api/sellers/${username}/${storeId}/menus`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         setMenuItems(prev => [response.data, ...prev]);
@@ -300,11 +302,11 @@ const Menu = ({ storeId }) => {
       setShowForm(false);
       return;
     }
-    
+
     setIsDeleting(true);
     setError(null);
     try {
-      await axios.delete(`/api/stores/${storeId}/menus/${editingItemId}`);
+      await axios.delete(`/api/sellers/${username}/${storeId}/menus/${editingItemId}`);
       setMenuItems(prev => prev.filter(item => item.id !== editingItemId));
       setShowForm(false);
       setEditingItemId(null);
@@ -323,100 +325,94 @@ const Menu = ({ storeId }) => {
   };
 
   return (
-    <Container>
-      <Title>메뉴 관리</Title>
-      <AddButton onClick={() => {setShowForm(true); setEditingItemId(null); setNewItem({ name: '', price: '', description: '', image: null, isAvailable: true });}}>
-        + 메뉴 추가
-      </AddButton>
-      
-      {showForm && (
-        <Form onSubmit={handleSubmit}>
-          <ImageSection>
-            <Input type="file" onChange={handleImageUpload} accept="image/*" />
-            {newItem.image && (
-              <>
-                <ImagePreview src={newItem.image} alt="Preview" />
-                <CropButton type="button" onClick={() => setShowCropModal(true)}>
-                  이미지 자르기
-                </CropButton>
-              </>
-            )}
-          </ImageSection>
-          <InputSection>
-            <Input
-              type="text"
-              name="name"
-              value={newItem.name}
-              onChange={handleInputChange}
-              placeholder="메뉴 이름"
-              required
-            />
-            <Input
-              type="number"
-              name="price"
-              value={newItem.price}
-              onChange={handleInputChange}
-              placeholder="가격"
-              required
-            />
-            <Textarea
-              name="description"
-              value={newItem.description}
-              onChange={handleInputChange}
-              placeholder="설명"
-            />
-            <ButtonContainer>
-              <SaveButton type="submit" disabled={isSubmitting}>
-                {isSubmitting ? '저장 중...' : '저장'}
-              </SaveButton>
-              <DeleteButton type="button" onClick={handleDelete} disabled={isDeleting || !editingItemId}>
-                {isDeleting ? '삭제 중...' : '삭제'}
-              </DeleteButton>
-            </ButtonContainer>
-          </InputSection>
-        </Form>
-      )}
+      <Container>
+        <Title>메뉴 관리</Title>
+        <AddButton onClick={() => {setShowForm(true); setEditingItemId(null); setNewItem({ name: '', price: '', description: '', image: null, isAvailable: true });}}>
+          + 메뉴 추가
+        </AddButton>
 
-      {showCropModal && (
-        <Modal>
-          <ModalContent>
-            <ReactCrop
-              src={newItem.image}
-              crop={crop}
-              onChange={(_, percentCrop) => setCrop(percentCrop)}
-              onImageLoaded={(img) => imgRef.current = img}
-              onComplete={(c) => setCompletedCrop(c)}
-            />
-            <ButtonContainer>
-              <Button onClick={handleCropComplete}>자르기 완료</Button>
-              <Button onClick={() => setShowCropModal(false)}>취소</Button>
-            </ButtonContainer>
-          </ModalContent>
-        </Modal>
-      )}
+        {showForm && (
+            <Form onSubmit={handleSubmit}>
+              <ImageSection>
+                <Input type="file" onChange={handleImageUpload} accept="image/*" />
+                {newItem.image && (
+                    <>
+                      <ImagePreview src={newItem.image} alt="Preview" />
+                      <CropButton type="button" onClick={() => setShowCropModal(true)}>
+                        이미지 자르기
+                      </CropButton>
+                    </>
+                )}
+              </ImageSection>
+              <InputSection>
+                <Input
+                    type="text"
+                    name="name"
+                    value={newItem.name}
+                    onChange={handleInputChange}
+                    placeholder="메뉴 이름"
+                    required
+                />
+                <Input
+                    type="number"
+                    name="price"
+                    value={newItem.price}
+                    onChange={handleInputChange}
+                    placeholder="가격"
+                    required
+                />
+                <Textarea
+                    name="description"
+                    value={newItem.description}
+                    onChange={handleInputChange}
+                    placeholder="설명"
+                />
+                <ButtonContainer>
+                  <SaveButton type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? '저장 중...' : '저장'}
+                  </SaveButton>
+                  <DeleteButton type="button" onClick={handleDelete} disabled={isDeleting || !editingItemId}>
+                    {isDeleting ? '삭제 중...' : '삭제'}
+                  </DeleteButton>
+                </ButtonContainer>
+              </InputSection>
+            </Form>
+        )}
 
-      {error && <Error>{error}</Error>}
+        {showCropModal && (
+            <Modal>
+              <ModalContent>
+                <ReactCrop
+                    src={newItem.image}
+                    crop={crop}
+                    onChange={(_, percentCrop) => setCrop(percentCrop)}
+                    onImageLoaded={(img) => imgRef.current = img}
+                    onComplete={(c) => setCompletedCrop(c)}
+                />
+                <ButtonContainer>
+                  <Button onClick={handleCropComplete}>자르기 완료</Button>
+                  <Button onClick={() => setShowCropModal(false)}>취소</Button>
+                </ButtonContainer>
+              </ModalContent>
+            </Modal>
+        )}
 
-      <MenuList>
-        {menuItems.map((item) => (
-          <MenuItem key={item.id}>
-            {item.image && <MenuImage src={item.image} alt={item.name} />}
-            <ItemName>{item.name}</ItemName>
-            <ItemPrice>{item.price}원</ItemPrice>
-            <ItemDescription>{item.description}</ItemDescription>
-            <Button onClick={() => handleEdit(item)}>수정</Button>
-          </MenuItem>
-        ))}
-      </MenuList>
+        {error && <Error>{error}</Error>}
 
-      {hasMore && !loading && (
-        <Button onClick={fetchMenuItems}>
-          더 보기
-        </Button>
-      )}
-      
-      {loading && <p>로딩 중...</p>}
-    </Container>
+        <MenuList>
+          {menuItems.map((item) => (
+              <MenuItem key={item.id}>
+                {item.image && <MenuImage src={item.image} alt={item.name} />}
+                <ItemName>{item.name}</ItemName>
+                <ItemPrice>{item.price}원</ItemPrice>
+                <ItemDescription>{item.description}</ItemDescription>
+                <Button onClick={() => handleEdit(item)}>수정</Button>
+              </MenuItem>
+          ))}
+        </MenuList>
+
+        {loading && <p>로딩 중...</p>}
+      </Container>
   );
 };
 

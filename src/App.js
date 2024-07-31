@@ -1,5 +1,5 @@
 import './App.css'
-import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom'
+import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import SiteHeader from './layouts/header'
 import SiteFooter from './layouts/footer'
 import ExamplePage from './pages/example'
@@ -22,19 +22,22 @@ import ErrorBoundary from './components/ErrorBoundary'
 import Menu from './pages/seller/menu'
 import MyProfilePage from './pages/seller/profile'
 import MyProfileModifyPage from './pages/seller/profile/modify'
+import CompletePage from './pages/consumer/complete'
 
-const NotFound = () => <h1>404 - 페이지를 찾을 수 없습니다.</h1>;
+const NotFound = () => <h1>404 - 페이지를 찾을 수 없습니다.</h1>
 
 // Layout 컴포넌트 정의
 const Layout = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <SiteHeader />
-      <main style={{ flex: 1 }}>
-        <Outlet />
-      </main>
-      <SiteFooter />
+    <div
+        style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}
+    >
+        <SiteHeader />
+        <main style={{ flex: 1 }}>
+            <Outlet />
+        </main>
+        <SiteFooter />
     </div>
-  );
+)
 
 const router = createBrowserRouter([
     {
@@ -59,7 +62,7 @@ const router = createBrowserRouter([
                 element: <PasswordPage />,
             },
             {
-                path: 'dashboard',
+                path: 'storelist',
                 element: <StoreListPage />,
             },
             {
@@ -71,14 +74,13 @@ const router = createBrowserRouter([
                 element: <StoreModifyPage />,
             },
             {
-                path: 'storelist/:storeId/order',
+                path: 'sellers/:username/stores/:storeid/orders',
                 element: <OrderPage />,
             },
             {
-                path: 'menu',
+                path: 'sellers/:username/:storeId/menus',
                 element: <Menu />,
             },
-
             {
                 path: 'sellers/:loginId/profile',
                 element: <MyProfilePage />,// Placeholder for nested routes
@@ -86,9 +88,12 @@ const router = createBrowserRouter([
             },
             {
                 path: 'sellers/:loginId/profile/modify',
-                element: <MyProfileModifyPage />,                       
+                element: <MyProfileModifyPage />,     
             },
-
+            {
+                path: 'details',
+                element: <InfoStorePage />,
+            },
             {
                 path: '/consumer/:storeId',
                 element: <ConsumerLayout />,
@@ -112,7 +117,10 @@ const router = createBrowserRouter([
                     },
                 ],
             },
-
+            {
+                path: 'complete',
+                element: <CompletePage />
+            }
         ],
     },
     {
