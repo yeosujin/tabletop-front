@@ -239,7 +239,7 @@ const SignUpPage = () => {
     try {
       const response = await signUp({ loginId, email, password, username, mobile });
       alert(response);
-      navigate('/signin');
+      navigate('/login');
     } catch (err) {
       alert('회원가입에 실패했습니다.');
     }

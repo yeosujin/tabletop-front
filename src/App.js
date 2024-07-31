@@ -5,6 +5,7 @@ import SiteFooter from './layouts/footer'
 import ExamplePage from './pages/example'
 import SignInPage from './pages/seller/sign-in'
 import SignUpPage from './pages/seller/sign-up'
+import PasswordPage from './pages/seller/sign-in/password'
 import StoreListPage from './pages/seller/store/list'
 import StoreAddPage from './pages/seller/store/add'
 import StoreModifyPage from './pages/seller/store/modify'
@@ -20,6 +21,7 @@ import { TableProvider } from './contexts/table-number'
 import ErrorBoundary from './components/ErrorBoundary'
 import Menu from './pages/seller/menu'
 import MyProfilePage from './pages/seller/profile'
+import MyProfileModifyPage from './pages/seller/profile/modify'
 
 const NotFound = () => <h1>404 - 페이지를 찾을 수 없습니다.</h1>;
 
@@ -53,6 +55,10 @@ const router = createBrowserRouter([
                 element: <SignUpPage />,
             },
             {
+                path: 'password',
+                element: <PasswordPage />,
+            },
+            {
                 path: 'dashboard',
                 element: <StoreListPage />,
             },
@@ -72,55 +78,48 @@ const router = createBrowserRouter([
                 path: 'menu',
                 element: <Menu />,
             },
+
             {
                 path: 'sellers/:loginId',
                 element: <Outlet />, // Placeholder for nested routes
                 children: [
                     {
                         path: 'profile',
-                        element: <MyProfilePage />,                       
+                        element: <MyProfilePage />,
+                        children: [
+                            {
+                                path: 'modify',
+                                element: <MyProfileModifyPage />,
+                            },
+                        ],
                     },
                 ],
             },
-        ],
-    },
-    {
-        path: '/',
-        element: <Layout />,
-        errorElement: <ErrorBoundary />,
-        children: [
+
             {
-                index: true,
-                element: <ExamplePage />,
+                path: '/consumer/:storeId',
+                element: <ConsumerLayout />,
+                errorElement: <ErrorBoundary />,
+                children: [
+                    {
+                        path: 'menu',
+                        element: <MenuPage />,
+                    },
+                    {
+                        path: 'cart',
+                        element: <CartPage />,
+                    },
+                    {
+                        path: 'info',
+                        element: <InfoStorePage />,
+                    },
+                    {
+                        path: 'payment',
+                        element: <PaymentPage />,
+                    },
+                ],
             },
-            {
-                path: 'login',
-                element: <SignInPage />,
-            },
-            {
-                path: 'signup',
-                element: <SignUpPage />,
-            },
-            {
-                path: 'dashboard',
-                element: <StoreListPage />,
-            },
-            {
-                path: 'addstore',
-                element: <StoreAddPage />,
-            },
-            {
-                path: 'modifystore',
-                element: <StoreModifyPage />,
-            },
-            {
-                path: 'storelist/:storeId/order',
-                element: <OrderPage />,
-            },
-            {
-                path: 'menu',
-                element: <Menu />,
-            },
+
         ],
     },
     {
