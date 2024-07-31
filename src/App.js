@@ -19,6 +19,7 @@ import PaymentPage from './pages/consumer/payment'
 import { TableProvider } from './contexts/table-number'
 import ErrorBoundary from './components/ErrorBoundary'
 import Menu from './pages/seller/menu'
+import MyProfilePage from './pages/seller/profile'
 
 const NotFound = () => <h1>404 - 페이지를 찾을 수 없습니다.</h1>;
 
@@ -71,28 +72,54 @@ const router = createBrowserRouter([
                 path: 'menu',
                 element: <Menu />,
             },
+            {
+                path: 'sellers/:loginId',
+                element: <Outlet />, // Placeholder for nested routes
+                children: [
+                    {
+                        path: 'profile',
+                        element: <MyProfilePage />,                       
+                    },
+                ],
+            },
         ],
     },
     {
-        path: '/consumer/:storeId',
-        element: <ConsumerLayout />,
+        path: '/',
+        element: <Layout />,
         errorElement: <ErrorBoundary />,
         children: [
             {
+                index: true,
+                element: <ExamplePage />,
+            },
+            {
+                path: 'login',
+                element: <SignInPage />,
+            },
+            {
+                path: 'signup',
+                element: <SignUpPage />,
+            },
+            {
+                path: 'dashboard',
+                element: <StoreListPage />,
+            },
+            {
+                path: 'addstore',
+                element: <StoreAddPage />,
+            },
+            {
+                path: 'modifystore',
+                element: <StoreModifyPage />,
+            },
+            {
+                path: 'storelist/:storeId/order',
+                element: <OrderPage />,
+            },
+            {
                 path: 'menu',
-                element: <MenuPage />,
-            },
-            {
-                path: 'cart',
-                element: <CartPage />,
-            },
-            {
-                path: 'info',
-                element: <InfoStorePage />,
-            },
-            {
-                path: 'payment',
-                element: <PaymentPage />,
+                element: <Menu />,
             },
         ],
     },
