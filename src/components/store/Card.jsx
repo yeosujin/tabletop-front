@@ -51,7 +51,7 @@ const Card = ({ store, render }) => {
 
     return (
         <div className="card">
-            <Chip label={storeTypeMap(store.storeType)} color="primary" />
+            <Chip label={storeTypeMap[store.storeType]} color="primary" />
             <div>
                 <IconButton 
                     aria-label="menu"
