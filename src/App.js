@@ -1,5 +1,5 @@
 import './App.css'
-import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom'
+import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import SiteHeader from './layouts/header'
 import SiteFooter from './layouts/footer'
 import ExamplePage from './pages/example'
@@ -8,7 +8,7 @@ import StoreListPage from './pages/seller/store/list'
 import StoreAddPage from './pages/seller/store/add'
 import StoreModifyPage from './pages/seller/store/modify'
 import OrderPage from './pages/seller/order'
-import MenuPage from './pages/consumer/menu/menu'
+import MenuPage from './pages/consumer/menu'
 import ConsumerLayout from './layouts/consumer'
 import CartPage from './pages/consumer/cart'
 import { Suspense } from 'react'
@@ -19,18 +19,20 @@ import { TableProvider } from './contexts/table-number'
 import ErrorBoundary from './components/ErrorBoundary'
 import Menu from './pages/seller/menu'
 
-const NotFound = () => <h1>404 - 페이지를 찾을 수 없습니다.</h1>;
+const NotFound = () => <h1>404 - 페이지를 찾을 수 없습니다.</h1>
 
 // Layout 컴포넌트 정의
 const Layout = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <SiteHeader />
-      <main style={{ flex: 1 }}>
-        <Outlet />
-      </main>
-      <SiteFooter />
+    <div
+        style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}
+    >
+        <SiteHeader />
+        <main style={{ flex: 1 }}>
+            <Outlet />
+        </main>
+        <SiteFooter />
     </div>
-  );
+)
 
 const router = createBrowserRouter([
     {
@@ -59,7 +61,7 @@ const router = createBrowserRouter([
                 element: <StoreModifyPage />,
             },
             {
-                path: 'storelist/:storeId/order',
+                path: 'sellers/:username/stores/:storeid/orders',
                 element: <OrderPage />,
             },
             {
@@ -82,7 +84,7 @@ const router = createBrowserRouter([
                 element: <CartPage />,
             },
             {
-                path: 'info',
+                path: 'details',
                 element: <InfoStorePage />,
             },
             {
