@@ -1,69 +1,167 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 const StoreAddPage = () => {
+    const navigate = useNavigate();
+
     // store type을 설정하는 radio button 값 저장
-    const [selectedOption, setSelectedOption] = useState('');
+    const [selectedType, setSelectedType] = useState('상시');
 
     const [image, setImage] = useState(null);
-    
-    const [registrationNumber, setRegistrationNumber] = useState('');
-    const [isValid, setIsValid] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        storeType: '상시',
+        corporateRegistrationNumber: '',
+        openDate: '',
+        closeDate: '',
+        openTime: '',
+        closeTime: '',
+        notice: '',
+        address: '',
+        description: '',
+        holidays: [],
+    });
+
+    // 사업자 등록번호 검증 관련
     const [validated, setValidated] = useState(false);
 
-    const [formData, setFormData] = useState({    businessNumber: '',    openingDate: '',    closingDate: ''  });
-
-
-    const handleOptionChange = (e) => {
-        setSelectedOption(e.target.value);
-    };
-    const handleInputChange = (e) => {    
-        const { name, value } = e.target;    
-        setFormData({      ...formData,      [name]: value    });  
+    // store type 변경
+    const handleTypeChange = (event) => {
+        setSelectedType(event.target.value);
+        handleInputChange(event);
     };
 
+    // form의 input 값 변경 시
+    const handleInputChange = (event) => {    
+        // console.log(event.target.name, event.target.value);
+        const { name, value } = event.target;
+        setFormData({...formData, [name]: value});
+    };
+
+    // holidays 변경
+    const handleHolidaysChange = (event, newHolidays) => {
+        setFormData(prevData => ({
+            ...prevData,
+            holidays: newHolidays
+        }));
+    };
+
+    // 이미지 변경 시
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
-        setImage(file);
+            setImage(file);
         }
+        handleInputChange(event);
     };
     
-      const handleImageDelete = () => {
+    // 이미지 삭제 시
+    const handleImageDelete = () => {
         setImage(null);
-      };
+    };
 
-      const validateNumber = () => {
-        // 입력된 번호가 10자리 숫자인지 확인
-        if (/^\d{10}$/.test(formData.registrationNumber)) {
-          // 외부 API를 호출하여 번호를 검증합니다 (여기서는 모의 API를 사용합니다)
-          fetch(`https://api.example.com/validate?number=${registrationNumber}`)
+    // 입력된 번호가 10자리 숫자인지 확인
+    const checkNumberLength = (num) => {
+        return (/^\d{10}$/.test(num)) ? true : false
+    };
+
+    // 사업자등록번호 중복 검사
+    const checkDuplicatedNumber = (num) => {
+        fetch(`http://localhost:8080/api/duplicationCheck/${num}`)
             .then(response => response.json())
             .then(data => {
-                if(data.valie = '01') setIsValid(data.valid);
-              setValidated(true);
+                return data.isDuplicated === "true";
             })
             .catch(error => {
-              console.error('Error validating number:', error);
-              setIsValid(false);
-              setValidated(true);
+                console.error('Error validating number(1):', error);
             });
-        } else {
-          alert('사업자 등록번호는 10자리 숫자여야 합니다.');
-          setIsValid(false);
-          setValidated(false);
-        }
-      };
-
-    // 유효성 검사 및 제출 로직 추가        
-    const handleSubmit = (e) => {    
-        e.preventDefault();      
     };
+
+    // 사업자등록번호 유효성 검사
+    const validateNumber = async (num) => {
+        // num = formData.corporateRegistrationNumber;
+        const url = 'https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=dykZa6G6kCjn6O0CuStT3mPDTe9Z7gKnGguk6FedQrB9wjbaCVfcZYDzAATjTXczqyg0EA7vDwNKAHIx3vLhFA%3D%3D&returnType=JSON';
+        const data = {
+            b_no: [num]
+        };
         
+        try {
+            // 국세청 API 호출
+            const response = await axios.post(url, data, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if(response.data.data[0].b_stt_cd === '01') {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            alert('유효하지 않은 사업자 등록번호입니다.');
+            console.error('validating error: ', error);
+        }        
+    };
+
+    // 사업자등록번호 검사
+    const checkCorporateRegistrationNumber = (event) => {
+        event.preventDefault();
+        const num = formData.corporateRegistrationNumber;
+
+        // 입력 값 검증에 성공하면
+        if (checkNumberLength(num)) {
+            // 중복 검사에 성공하면
+            if(!checkDuplicatedNumber(num)) {
+                // 유효성 검사에 성공하면
+                if(validateNumber(num)) {
+                    setValidated(true);
+                } else {
+                    alert('유효하지 않은 사업자 등록번호입니다.');
+                    setValidated(false);
+                }
+            } else {
+                alert('이미 등록된 사업자 등록번호입니다.');
+                setValidated(false);
+            }
+        } else {
+            alert('사업자 등록번호는 10자리 숫자여야 합니다.');
+            setValidated(false);
+        }
+    };
+
+    const handleSubmit = (event) => {    
+        event.preventDefault();  
+        console.log(formData);
+
+        // FormData 객체 생성
+        const formDataToSend = new FormData();
+        formDataToSend.append('storeData', new Blob([JSON.stringify(formData)], { type: 'application/json' }));
+        const imageFile = document.querySelector('input[type="file"]').files[0];
+        if (imageFile) {
+            formDataToSend.append('image', imageFile);
+        }
+
+        const url = `http://localhost:8080/api/store/YH`;
+
+        axios.post(url, formDataToSend)
+            .then(response => {
+                console.log('등록 성공', response);
+                navigate('/storelist');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });        
+    };
+    
     return (
         <form onSubmit={handleSubmit}>
             {image && (
                 <div className="image-preview">
-                    <img src={URL.createObjectURL(image)} alt="Preview" width="100" />
+                    <img src={URL.createObjectURL(image)} alt="미리보기" width="100" />
                 </div>
             )}
             <div>
@@ -71,66 +169,89 @@ const StoreAddPage = () => {
                 <button type="button" onClick={() => handleImageDelete()}>삭제</button>
             </div>
             <div>
-                <label>이름 </label><br />
-                <input type="text" value={formData.name} onChange={handleInputChange} />
+                <label>이름</label><br />
+                <input type="text" name="name" value={formData.name} onChange={handleInputChange} required />
             </div>
             <div>        
-
-                <label><input type="radio" value="상시" checked={selectedOption === '상시'} onChange={handleOptionChange} />상시</label>        
-                <label><input type="radio" value="임시" checked={selectedOption === '임시'} onChange={handleOptionChange} />임시</label>
+                <input type="radio" name="storeType" value="상시" checked={selectedType === '상시'} onChange={handleTypeChange} />
+                <label>상시</label>
+                <input type="radio" name="storeType" value="임시" checked={selectedType === '임시'} onChange={handleTypeChange} />
+                <label>임시</label>
             </div>
-            {selectedOption === '상시' && (        
+            {selectedType === '상시' && (       
                 <div>
-                    <label>사업자 등록번호: <input type="text" name="registrationNumber" value={formData.registrationNumber} onChange={handleInputChange} required /></label>        
-                    <button onClick={validateNumber}>검증</button>
-                    {validated && isValid && (
+                    <label>사업자 등록번호</label>
+                    <input type="text" name="corporateRegistrationNumber" value={formData.corporateRegistrationNumber} onChange={handleInputChange} placeholder="'-'없이 10자리 숫자만 입력하세요." required />
+                    {/* <button onClick={() => checkDuplicatedNumber(3646700101)}>test</button> */}
+                    <button onClick={checkCorporateRegistrationNumber}>검사</button>
+                    {validated && (
                         <>
                             <span className="checkmark">&#10004;</span>
                             <div className="tooltip">검증되었습니다.</div>
                         </>
                     )}
-                </div>      
+                </div>
             )}
-            {selectedOption === '임시' && (
+            {selectedType === '임시' && (
                 <div>
-                    <label>개업일: <input type="date" name="openDate" value={formData.openDate} onChange={handleInputChange} required /></label>
-                    <label>폐업일: <input type="date" name="closeDate" value={formData.closeDate} onChange={handleInputChange} required /></label>
+                    <label>개업일</label><br />
+                    <input type="date" name="openDate" value={formData.openDate} onChange={handleInputChange} required /><br />
+                    <label>폐업일</label><br />
+                    <input type="date" name="closeDate" value={formData.closeDate} onChange={handleInputChange} required />
                 </div>
             )}
             <div>
-                <label>가게 설명 </label><br />
+                <label>가게 설명</label><br />
                 <textarea
+                    name="description"
                     value={formData.description}
                     onChange={handleInputChange}
                     rows="5"
-                    cols="40"
+                    cols="100"
                 />
-            </div>
-            
+            </div>            
             <div>
-                <label>가게 주소 </label><br />
-                <input type="text" value={formData.address} onChange={handleInputChange} />
+                <label>가게 주소</label><br />
+                <input type="text" name="address" value={formData.address} onChange={handleInputChange} required />
             </div>
             <div>
-                <label>공지 </label><br />
+                <label>공지</label><br />
                 <textarea
+                    name="notice"
                     value={formData.notice}
                     onChange={handleInputChange}
                     rows="5"
-                    cols="40"
+                    cols="100"
                 />
             </div>
             <div>
-                <label>개점시간 </label><br />
-                <input type="time" value={formData.open_time} onChange={handleInputChange} />
+                <label>개점시간</label><br />
+                <input type="time" name="openTime" value={formData.openTime} onChange={handleInputChange} required />
             </div>
             <div>
-                <label>폐점시간 </label><br />
-                <input type="time" value={formData.close_time} onChange={handleInputChange} />
+                <label>폐점시간</label><br />
+                <input type="time" name="closeTime" value={formData.closeTime} onChange={handleInputChange} required />
             </div>
-            <button type="submit">제출</button>    
-        </form>  
+            <div>
+                <label>휴무일</label><br />
+                <ToggleButtonGroup
+                    value={formData.holidays || []}
+                    onChange={handleHolidaysChange}
+                    aria-label="day"
+                    multiple
+                >
+                    <ToggleButton value="monday" aria-label="Mon">월</ToggleButton>
+                    <ToggleButton value="tuesday" aria-label="Tue">화</ToggleButton>
+                    <ToggleButton value="wednesday" aria-label="Wed">수</ToggleButton>
+                    <ToggleButton value="thursday" aria-label="Thu">목</ToggleButton>
+                    <ToggleButton value="friday" aria-label="Fri">금</ToggleButton>
+                    <ToggleButton value="saturday" aria-label="Sat">토</ToggleButton>
+                    <ToggleButton value="sunday" aria-label="Sun">일</ToggleButton>
+                </ToggleButtonGroup>
+            </div>
+            <button type="submit">등록</button>
+        </form>
     );
 };
-        
+
 export default StoreAddPage;
