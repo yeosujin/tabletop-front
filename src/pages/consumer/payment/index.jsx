@@ -107,7 +107,6 @@ const PaymentPage = () => {
                         try {
                             const orderResult = await sendOrderToServer(rsp)
                             setPaymentStatus('success')
-                            // 여기서 주문 완료 후 추가 작업을 수행할 수 있습니다 (예: 장바구니 비우기, 주문 완료 페이지로 이동 등)
                         } catch (error) {
                             console.error('Order processing failed:', error)
                             setPaymentStatus('order_failure')
@@ -148,6 +147,12 @@ const PaymentPage = () => {
                 orderData
             )
             console.log('Order sent to server:', response.data)
+
+            await axios.post(
+                `http://localhost:8080/api/sse/notify/${storeId}`,
+                response.data
+            )
+
             clearCart()
             navigate(`/consumer/${storeId}/complete`, {
                 state: { orderData: response.data },
