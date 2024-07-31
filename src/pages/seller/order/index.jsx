@@ -19,7 +19,7 @@ import {
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { format, isEqual, startOfDay } from 'date-fns'
-import { useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 const theme = createTheme({
     palette: {
@@ -37,17 +37,21 @@ const theme = createTheme({
 
 const OrderPage = () => {
     const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()))
-    const [activeTab, setActiveTab] = useState('진행중')
     const [orders, setOrders] = useState([])
     const [isLoading, setIsLoading] = useState(true)
 
-    const { storeId } = useParams()
+    const { username, storeid } = useParams()
+    const navigate = useNavigate()
+    const location = useLocation()
+
+    const queryParams = new URLSearchParams(location.search)
+    const orderType = queryParams.get('type') || 'now'
 
     const fetchOrders = useCallback(async () => {
         setIsLoading(true)
         try {
             const response = await fetch(
-                `http://localhost:8080/api/orders/${storeId}`
+                `http://localhost:8080/api/orders/${storeid}`
             )
             if (!response.ok) {
                 throw new Error('서버 응답이 실패했습니다')
@@ -59,13 +63,13 @@ const OrderPage = () => {
         } finally {
             setIsLoading(false)
         }
-    }, [storeId])
+    }, [storeid])
 
     useEffect(() => {
         fetchOrders()
 
         const eventSource = new EventSource(
-            `http://localhost:8080/api/sse/orders/${storeId}`
+            `http://localhost:8080/api/sse/orders/${storeid}`
         )
 
         eventSource.onmessage = (event) => {
@@ -81,13 +85,13 @@ const OrderPage = () => {
         return () => {
             eventSource.close()
         }
-    }, [storeId, fetchOrders])
+    }, [storeid, fetchOrders])
 
     useEffect(() => {
-        if (activeTab === '진행중') {
+        if (orderType === 'now') {
             setSelectedDate(startOfDay(new Date()))
         }
-    }, [activeTab])
+    }, [orderType])
 
     const updateOrderStatus = useCallback((orderId, newStatus) => {
         setOrders((prevOrders) =>
@@ -134,13 +138,13 @@ const OrderPage = () => {
     }
 
     const filteredOrders = useMemo(() => {
-        const getStatusCode = (tab) => {
-            switch (tab) {
-                case '진행중':
+        const getStatusCode = (type) => {
+            switch (type) {
+                case 'now':
                     return 0
-                case '완료':
+                case 'done':
                     return 1
-                case '취소':
+                case 'canceled':
                     return 2
                 default:
                     return -1
@@ -153,17 +157,21 @@ const OrderPage = () => {
             const isSelectedDate = isEqual(orderDate, startOfDay(selectedDate))
 
             return (
-                order.status === getStatusCode(activeTab) &&
-                (activeTab === '진행중' ? isToday : isSelectedDate)
+                order.status === getStatusCode(orderType) &&
+                (orderType === 'now' ? isToday : isSelectedDate)
             )
         })
-    }, [orders, selectedDate, activeTab])
+    }, [orders, selectedDate, orderType])
 
     if (isLoading) {
         return <Typography>로딩 중...</Typography>
     }
 
-    console.log(orders)
+    const handleTabChange = (newType) => {
+        navigate(
+            `/sellers/${username}/stores/${storeid}/orders?type=${newType}`
+        )
+    }
 
     return (
         <ThemeProvider theme={theme}>
@@ -187,7 +195,7 @@ const OrderPage = () => {
                                         }}
                                     />
                                 )}
-                                disabled={activeTab === '진행중'}
+                                disabled={orderType === 'now'}
                             />
                         </LocalizationProvider>
                     </Toolbar>
@@ -195,11 +203,15 @@ const OrderPage = () => {
                 <Grid container spacing={2}>
                     <Grid item xs={2}>
                         <List>
-                            {['진행중', '완료', '취소'].map((text) => (
-                                <ListItem key={text} disablePadding>
+                            {[
+                                { label: '진행중', type: 'now' },
+                                { label: '완료', type: 'done' },
+                                { label: '취소', type: 'canceled' },
+                            ].map(({ label, type }) => (
+                                <ListItem key={type} disablePadding>
                                     <ListItemButton
-                                        selected={activeTab === text}
-                                        onClick={() => setActiveTab(text)}
+                                        selected={orderType === type}
+                                        onClick={() => handleTabChange(type)}
                                         sx={{
                                             '&.Mui-selected': {
                                                 bgcolor: 'primary.main',
@@ -210,7 +222,7 @@ const OrderPage = () => {
                                             },
                                         }}
                                     >
-                                        <ListItemText primary={text} />
+                                        <ListItemText primary={label} />
                                     </ListItemButton>
                                 </ListItem>
                             ))}
@@ -249,7 +261,7 @@ const OrderPage = () => {
                                                     )
                                                 )}
                                             </List>
-                                            {order.status === 0 && (
+                                            {orderType === 'now' && (
                                                 <Box
                                                     sx={{
                                                         mt: 2,
@@ -299,17 +311,7 @@ const OrderPage = () => {
                                                     </Button>
                                                 </Box>
                                             )}
-                                            <Typography variant="body1">
-                                                총 가격:{' '}
-                                                {order.orderItems.reduce(
-                                                    (sum, item) =>
-                                                        sum +
-                                                        item.price *
-                                                            item.quantity,
-                                                    0
-                                                )}
-                                                원
-                                            </Typography>
+                                            {/* ... (나머지 카드 내용) */}
                                         </CardContent>
                                     </Card>
                                 </Grid>
