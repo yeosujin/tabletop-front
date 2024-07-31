@@ -83,12 +83,11 @@ const router = createBrowserRouter([
             },
             {
                 path: 'sellers/:loginId/profile',
-                element: <MyProfilePage />,// Placeholder for nested routes
-                
+                element: <MyProfilePage />, // Placeholder for nested routes
             },
             {
                 path: 'sellers/:loginId/profile/modify',
-                element: <MyProfileModifyPage />,     
+                element: <MyProfileModifyPage />,
             },
             {
                 path: 'details',
@@ -115,12 +114,12 @@ const router = createBrowserRouter([
                         path: 'payment',
                         element: <PaymentPage />,
                     },
+                    {
+                        path: 'complete',
+                        element: <CompletePage />,
+                    },
                 ],
             },
-            {
-                path: 'complete',
-                element: <CompletePage />
-            }
         ],
     },
     {
