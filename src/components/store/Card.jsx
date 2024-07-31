@@ -13,6 +13,12 @@ const Card = ({ store, render }) => {
     const open = Boolean(anchorEl);
     const navigate = useNavigate();
 
+    // storeType 변환
+    const storeTypeMap = {
+        'ORDINARY': '상시',
+        'TEMPORARY': '임시'
+    };
+
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -45,7 +51,7 @@ const Card = ({ store, render }) => {
 
     return (
         <div className="card">
-            <Chip label={store.type} color="primary" />
+            <Chip label={storeTypeMap(store.storeType)} color="primary" />
             <div>
                 <IconButton 
                     aria-label="menu"
