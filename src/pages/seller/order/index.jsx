@@ -1,4 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { format, isEqual, startOfDay } from 'date-fns'
 import {
     AppBar,
     Avatar,
@@ -13,6 +15,7 @@ import {
     ListItem,
     ListItemButton,
     ListItemText,
+    Paper,
     TextField,
     ThemeProvider,
     Toolbar,
@@ -21,21 +24,13 @@ import {
 } from '@mui/material'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { format, isEqual, startOfDay } from 'date-fns'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Cancel, CheckCircle, Fastfood } from '@mui/icons-material'
 
 const theme = createTheme({
     palette: {
-        primary: {
-            main: '#ff9f1c',
-        },
-        secondary: {
-            main: '#ff9f1c',
-        },
-        background: {
-            default: '#fdfcdc',
-        },
+        primary: { main: '#ff9f1c' },
+        secondary: { main: '#ff9f1c' },
+        background: { default: '#fdfcdc' },
     },
 })
 
@@ -47,9 +42,7 @@ const OrderPage = () => {
     const { username, storeid } = useParams()
     const navigate = useNavigate()
     const location = useLocation()
-
-    const queryParams = new URLSearchParams(location.search)
-    const orderType = queryParams.get('type') || 'now'
+    const orderType = new URLSearchParams(location.search).get('type') || 'now'
 
     const fetchOrders = useCallback(async () => {
         setIsLoading(true)
@@ -57,9 +50,7 @@ const OrderPage = () => {
             const response = await fetch(
                 `http://localhost:8080/api/orders/${storeid}`
             )
-            if (!response.ok) {
-                throw new Error('서버 응답이 실패했습니다')
-            }
+            if (!response.ok) throw new Error('서버 응답이 실패했습니다')
             const data = await response.json()
             setOrders(data)
         } catch (error) {
@@ -71,30 +62,22 @@ const OrderPage = () => {
 
     useEffect(() => {
         fetchOrders()
-
         const eventSource = new EventSource(
             `http://localhost:8080/api/sse/orders/${storeid}`
         )
-
         eventSource.onmessage = (event) => {
             const newOrder = JSON.parse(event.data)
             setOrders((prevOrders) => [...prevOrders, newOrder])
         }
-
         eventSource.onerror = (error) => {
             console.error('SSE 에러:', error)
             eventSource.close()
         }
-
-        return () => {
-            eventSource.close()
-        }
+        return () => eventSource.close()
     }, [storeid, fetchOrders])
 
     useEffect(() => {
-        if (orderType === 'now') {
-            setSelectedDate(startOfDay(new Date()))
-        }
+        if (orderType === 'now') setSelectedDate(startOfDay(new Date()))
     }, [orderType])
 
     const updateOrderStatus = useCallback((orderId, newStatus) => {
@@ -107,39 +90,17 @@ const OrderPage = () => {
         )
     }, [])
 
-    const handleCancel = async (orderId, impUid) => {
+    const handleCancel = async (orderId) => {
         try {
-            // // 1. PortOne API를 통한 결제 취소
-            // const portOneResponse = await axios.post(
-            //     `https://api.portone.io/payments/${impUid}/cancel`,
-            //     { reason: '취소' },
-            //     {
-            //         headers: {
-            //             'Content-Type': 'application/json',
-            //             Authorization: `Basic ${btoa(process.env.REACT_APP_PORTONE_API_KEY + ':')}`,
-            //         },
-            //     }
-            // )
-
-            // if (portOneResponse.status === 200) {
-            // 2. Spring Boot 서버에 주문 취소 요청
             const response = await fetch(
                 `http://localhost:8080/api/orders/${orderId}/cancel`,
-                {
-                    method: 'PUT',
-                }
+                { method: 'PUT' }
             )
-
-            if (!response.ok) {
+            if (!response.ok)
                 throw new Error('서버에서 주문 취소에 실패했습니다')
-            }
             updateOrderStatus(orderId, 2)
-            // } else {
-            //     throw new Error('PortOne API 결제 취소에 실패했습니다')
-            // }
         } catch (error) {
             console.error('주문 취소 실패:', error)
-            // 사용자에게 에러 메시지 표시
         }
     }
 
@@ -147,54 +108,44 @@ const OrderPage = () => {
         try {
             const response = await fetch(
                 `http://localhost:8080/api/orders/${orderId}/complete`,
-                {
-                    method: 'PUT',
-                }
+                { method: 'PUT' }
             )
-            if (!response.ok) {
-                throw new Error('주문 완료 처리에 실패했습니다')
-            }
-            updateOrderStatus(orderId, 1) // 완료 상태로 업데이트
+            if (!response.ok) throw new Error('주문 완료 처리에 실패했습니다')
+            updateOrderStatus(orderId, 1)
         } catch (error) {
             console.error('주문 완료 처리 실패:', error)
         }
     }
 
-    const filteredOrders = useMemo(() => {
-        const getStatusCode = (type) => {
-            switch (type) {
-                case 'now':
-                    return 0
-                case 'done':
-                    return 1
-                case 'canceled':
-                    return 2
-                default:
-                    return -1
-            }
-        }
+    const filteredOrders = orders.filter((order) => {
+        const orderDate = startOfDay(new Date(order.createdAt))
+        const isToday = isEqual(orderDate, startOfDay(new Date()))
+        const isSelectedDate = isEqual(orderDate, startOfDay(selectedDate))
+        const statusCode = { now: 0, done: 1, canceled: 2 }[orderType] ?? -1
+        return (
+            order.status === statusCode &&
+            (orderType === 'now' ? isToday : isSelectedDate)
+        )
+    })
 
-        return orders.filter((order) => {
-            const orderDate = startOfDay(new Date(order.createdAt))
-            const isToday = isEqual(orderDate, startOfDay(new Date()))
-            const isSelectedDate = isEqual(orderDate, startOfDay(selectedDate))
+    const calculateOrderTotal = (order) =>
+        order.orderItems.reduce(
+            (total, item) => total + item.price * item.quantity,
+            0
+        )
 
-            return (
-                order.status === getStatusCode(orderType) &&
-                (orderType === 'now' ? isToday : isSelectedDate)
-            )
-        })
-    }, [orders, selectedDate, orderType])
-
-    if (isLoading) {
-        return <Typography>로딩 중...</Typography>
-    }
+    const tabTotal = filteredOrders.reduce(
+        (total, order) => total + calculateOrderTotal(order),
+        0
+    )
 
     const handleTabChange = (newType) => {
         navigate(
             `/sellers/${username}/stores/${storeid}/orders?type=${newType}`
         )
     }
+
+    if (isLoading) return <Typography>로딩 중...</Typography>
 
     return (
         <ThemeProvider theme={theme}>
@@ -217,9 +168,7 @@ const OrderPage = () => {
                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                             <DatePicker
                                 value={selectedDate}
-                                onChange={(newValue) =>
-                                    setSelectedDate(newValue)
-                                }
+                                onChange={setSelectedDate}
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
@@ -287,6 +236,24 @@ const OrderPage = () => {
                         </Card>
                     </Box>
                     <Box sx={{ flexGrow: 1 }}>
+                        {(orderType === 'done' || orderType === 'canceled') &&
+                            tabTotal > 0 && (
+                                <Paper
+                                    elevation={3}
+                                    sx={{
+                                        p: 2,
+                                        mb: 3,
+                                        bgcolor: 'secondary.main',
+                                        color: 'white',
+                                    }}
+                                >
+                                    <Typography variant="h6">
+                                        총{' '}
+                                        {orderType === 'done' ? '완료' : '취소'}{' '}
+                                        금액: {tabTotal.toLocaleString()}원
+                                    </Typography>
+                                </Paper>
+                            )}
                         <Grid container spacing={3}>
                             {filteredOrders.map((order) => (
                                 <Grid
@@ -367,6 +334,19 @@ const OrderPage = () => {
                                                     )
                                                 )}
                                             </Box>
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    mt: 2,
+                                                    textAlign: 'right',
+                                                }}
+                                            >
+                                                총 금액:{' '}
+                                                {calculateOrderTotal(
+                                                    order
+                                                ).toLocaleString()}
+                                                원
+                                            </Typography>
                                         </CardContent>
                                         {orderType === 'now' && (
                                             <Box
@@ -381,13 +361,10 @@ const OrderPage = () => {
                                                     variant="outlined"
                                                     onClick={() =>
                                                         handleCancel(
-                                                            order.orderId,
-                                                            order.imp_uid
+                                                            order.orderId
                                                         )
                                                     }
-                                                    sx={{
-                                                        flexGrow: 1,
-                                                    }}
+                                                    sx={{ flexGrow: 1 }}
                                                 >
                                                     취소
                                                 </Button>
@@ -399,9 +376,7 @@ const OrderPage = () => {
                                                         )
                                                     }
                                                     color="secondary"
-                                                    sx={{
-                                                        flexGrow: 2,
-                                                    }}
+                                                    sx={{ flexGrow: 3 }}
                                                 >
                                                     완료
                                                 </Button>
