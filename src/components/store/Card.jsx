@@ -32,7 +32,7 @@ const Card = ({ store, render }) => {
     };
 
     const moveToEditMenu = (storeId) => {
-        navigate('/menu', { state: { storeId } });
+        navigate('/sellers/:username/:storeId/menus', { state: { storeId } });
     };
 
     const deleteStore = async (storeId) => {

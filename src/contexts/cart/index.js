@@ -24,9 +24,19 @@ export const CartProvider = ({ children }) => {
     }
 
     const removeFromCart = (menuId) => {
-        setCartItems((prevItems) =>
-            prevItems.filter((item) => item.menuId !== menuId)
-        )
+        setCartItems((prevItems) => {
+            return prevItems.reduce((acc, item) => {
+                if (item.menuId === menuId) {
+                    if (item.quantity > 1) {
+                        acc.push({ ...item, quantity: item.quantity - 1 })
+                    }
+                    // 수량이 1일 때는 아이템을 제거합니다 (acc에 추가하지 않음)
+                } else {
+                    acc.push(item)
+                }
+                return acc
+            }, [])
+        })
     }
 
     const clearCart = () => {

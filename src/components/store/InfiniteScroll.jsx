@@ -17,13 +17,7 @@ const InfiniteScrollComponent = ({ loginId }) => {
 
     // 전체 데이터 가져오기
     const fetchStores = async () => {
-<<<<<<< Updated upstream
-        const url = `http://localhost:8080/api/stores/${loginId}`;
-
-        await axios.get(url)
-=======
         await getStoresAPI(loginId)
->>>>>>> Stashed changes
             .then(response => {
                 // const data = response.data.map(store => {
                 //     const base64Image = store.imageBase64;

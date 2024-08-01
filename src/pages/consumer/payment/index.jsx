@@ -1,15 +1,16 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useCart } from '../../../contexts/cart'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useTable } from '../../../contexts/table-number'
 import axios from 'axios'
+import { Box, Button, Container, Paper, Typography } from '@mui/material'
 
 const PaymentPage = () => {
     const [scriptsLoaded, setScriptsLoaded] = useState(false)
     const [paymentStatus, setPaymentStatus] = useState(null)
     const [isPaymentProcessing, setIsPaymentProcessing] = useState(false)
-    const { cartItems } = useCart()
-
+    const { cartItems, clearCart } = useCart()
+    const navigate = useNavigate()
     const { storeId } = useParams()
     const { tableNumber } = useTable()
 
@@ -40,13 +41,6 @@ const PaymentPage = () => {
 
         loadScripts()
     }, [])
-
-    const calculateTotalAmount = () => {
-        return cartItems.reduce(
-            (total, item) => total + item.price * item.quantity,
-            0
-        )
-    }
 
     const requestPay = useCallback(
         (paymentMethod) => {
@@ -113,7 +107,6 @@ const PaymentPage = () => {
                         try {
                             const orderResult = await sendOrderToServer(rsp)
                             setPaymentStatus('success')
-                            // 여기서 주문 완료 후 추가 작업을 수행할 수 있습니다 (예: 장바구니 비우기, 주문 완료 페이지로 이동 등)
                         } catch (error) {
                             console.error('Order processing failed:', error)
                             setPaymentStatus('order_failure')
@@ -136,8 +129,8 @@ const PaymentPage = () => {
     const sendOrderToServer = async (paymentData) => {
         try {
             const orderData = {
-                storeId: storeId, // 실제 스토어 ID로 변경해주세요
-                tableNumber: tableNumber, // 테이블 번호, 필요에 따라 변경하세요
+                storeId: storeId,
+                tableNumber: tableNumber,
                 orderItems: cartItems.map((item) => ({
                     menuId: item.menuId,
                     quantity: item.quantity,
@@ -149,20 +142,21 @@ const PaymentPage = () => {
                 },
             }
 
-            console.log('order Data :' + JSON.stringify(orderData))
-
             const response = await axios.post(
                 'http://localhost:8080/api/orders/',
                 orderData
             )
             console.log('Order sent to server:', response.data)
 
-            // SSE를 통해 주방에 알림 보내기
             await axios.post(
-                `http://localhost:8080/api/sse/notify/${orderData.storeId}`,
+                `http://localhost:8080/api/sse/notify/${storeId}`,
                 response.data
             )
-            console.log('SSE notification sent')
+
+            clearCart()
+            navigate(`/consumer/${storeId}/complete`, {
+                state: { orderData: response.data },
+            })
 
             return response.data
         } catch (error) {
@@ -171,65 +165,97 @@ const PaymentPage = () => {
         }
     }
 
+    const calculateTotalAmount = () => {
+        return cartItems.reduce(
+            (total, item) => total + item.price * item.quantity,
+            0
+        )
+    }
+
     return (
-        <div>
-            <h1>결제 페이지</h1>
+        <Container maxWidth="sm">
+            <Paper elevation={3} sx={{ p: 3, mt: 4 }}>
+                <Typography variant="h4" gutterBottom>
+                    결제 금액: {calculateTotalAmount().toLocaleString()}원
+                </Typography>
 
-            <h2>선택된 항목</h2>
-            <ul>
-                {cartItems.map((item, index) => (
-                    <li key={index}>
-                        메뉴 ID: {item.menuId}, 수량: {item.quantity}, 가격:{' '}
-                        {item.price * item.quantity}원
-                    </li>
-                ))}
-            </ul>
-            <p>총 결제 금액: {calculateTotalAmount()}원</p>
-
-            <button
-                onClick={() => handlePaymentClick('kakaopay')}
-                disabled={
-                    !scriptsLoaded ||
-                    isPaymentProcessing ||
-                    cartItems.length === 0
-                }
-            >
-                카카오페이로 결제하기
-            </button>
-            <button
-                onClick={() => handlePaymentClick('tosspay')}
-                disabled={
-                    !scriptsLoaded ||
-                    isPaymentProcessing ||
-                    cartItems.length === 0
-                }
-            >
-                토스로 결제하기
-            </button>
-            <button
-                onClick={() => handlePaymentClick('inicis')}
-                disabled={
-                    !scriptsLoaded ||
-                    isPaymentProcessing ||
-                    cartItems.length === 0
-                }
-            >
-                KG이니시스로 결제하기
-            </button>
-
-            {isPaymentProcessing && (
-                <p>
-                    결제 창을 확인해주세요. 결제가 완료되면 이 페이지로
-                    돌아옵니다.
-                </p>
-            )}
-            {paymentStatus === 'success' && <p>결제 성공</p>}
-            {paymentStatus === 'failure' && <p>결제 실패</p>}
-            {paymentStatus === 'script_error' && <p>스크립트 로딩 실패</p>}
-            {paymentStatus === 'imp_error' && <p>IMP 초기화 실패</p>}
-            {paymentStatus === 'order_failure' && <p>주문 처리 실패</p>}
-        </div>
+                <Box mt={3}>
+                    <Button
+                        fullWidth
+                        variant="contained"
+                        sx={{
+                            mb: 2,
+                            bgcolor: '#FEE500',
+                            color: 'black',
+                            '&:hover': { bgcolor: '#E6CF00' },
+                        }}
+                        onClick={() => handlePaymentClick('kakaopay')}
+                        disabled={
+                            !scriptsLoaded ||
+                            isPaymentProcessing ||
+                            cartItems.length === 0
+                        }
+                    >
+                        카카오페이
+                    </Button>
+                    <Button
+                        fullWidth
+                        variant="contained"
+                        sx={{
+                            mb: 2,
+                            bgcolor: '#3182F6', // 토스 색상 (밝은 파란색)
+                            '&:hover': { bgcolor: '#2B72DE' },
+                        }}
+                        onClick={() => handlePaymentClick('tosspay')}
+                        disabled={
+                            !scriptsLoaded ||
+                            isPaymentProcessing ||
+                            cartItems.length === 0
+                        }
+                    >
+                        토스
+                    </Button>
+                    <Button
+                        fullWidth
+                        variant="contained"
+                        sx={{
+                            mb: 2,
+                            bgcolor: '#E10000', // KG이니시스 색상 (빨간색)
+                            '&:hover': { bgcolor: '#C70000' },
+                        }}
+                        onClick={() => handlePaymentClick('inicis')}
+                        disabled={
+                            !scriptsLoaded ||
+                            isPaymentProcessing ||
+                            cartItems.length === 0
+                        }
+                    >
+                        KG이니시스
+                    </Button>
+                </Box>
+                {isPaymentProcessing && (
+                    <Typography sx={{ mt: 2 }}>
+                        결제 창을 확인해주세요. 결제가 완료되면 이 페이지로
+                        돌아옵니다.
+                    </Typography>
+                )}
+                {paymentStatus === 'success' && (
+                    <Typography sx={{ mt: 2 }}>결제 성공</Typography>
+                )}
+                {paymentStatus === 'failure' && (
+                    <Typography sx={{ mt: 2 }}>결제 실패</Typography>
+                )}
+                {paymentStatus === 'script_error' && (
+                    <Typography sx={{ mt: 2 }}>스크립트 로딩 실패</Typography>
+                )}
+                {paymentStatus === 'imp_error' && (
+                    <Typography sx={{ mt: 2 }}>IMP 초기화 실패</Typography>
+                )}
+                {paymentStatus === 'order_failure' && (
+                    <Typography sx={{ mt: 2 }}>주문 처리 실패</Typography>
+                )}
+            </Paper>
+        </Container>
     )
 }
-
 export default PaymentPage
