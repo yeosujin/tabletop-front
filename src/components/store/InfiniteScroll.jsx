@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import StoreList from './StoreList.jsx';
+import { getStoresAPI } from '../../apis/seller/SellerAPI.jsx';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -17,28 +17,29 @@ const InfiniteScrollComponent = ({ loginId }) => {
 
     // 전체 데이터 가져오기
     const fetchStores = async () => {
-        const url = `http://localhost:8080/api/stores/${loginId}`;
-
-        const TOKEN_TYPE = localStorage.getItem("tokenType");
-        const ACCESS_TOKEN = localStorage.getItem("accessToken");
-        let REFRESH_TOKEN = localStorage.getItem("refreshToken");
-
-        await axios.get(url, {
-            headers: {
-                'Authorization': `${TOKEN_TYPE} ${ACCESS_TOKEN}`,
-                'REFRESH_TOKEN': REFRESH_TOKEN
-            }
-        })
+        await getStoresAPI(loginId)
             .then(response => {
-                setAllStores(response.data);
-                setDisplayedStores(response.data.slice(0, ITEMS_PER_PAGE));
-                setHasMore(response.data.length > ITEMS_PER_PAGE);
+                // const data = response.data.map(store => {
+                //     const base64Image = store.imageBase64;
+                    
+                //     if (base64Image) {
+                //         const image = new Image();
+                //         image.src = 'data:image/jpeg;base64,' + base64Image;
+                //         store.image = image;
+                //     }
+
+                //     return store;
+                // });
+                // console.log(data.store[2].image);
+
+                setAllStores(response);
+                setDisplayedStores(response.slice(0, ITEMS_PER_PAGE));
+                setHasMore(response.length > ITEMS_PER_PAGE);
             })
             .catch(error => {
                 console.error('Error fetching stores:', error);
                 setHasMore(false);
             });
-        
     };
 
     // 전체 데이터에서 6개씩 더 가져오기

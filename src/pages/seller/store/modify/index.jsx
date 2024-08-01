@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import { getStoreDetailsAPI, modifyStoreAPI } from '../../../../apis/seller/SellerAPI';
 
 const StoreModifyPage = () => {
     const navigate = useNavigate();
@@ -22,27 +22,39 @@ const StoreModifyPage = () => {
 
     // 기존 store data 가져와서 formData에 저장
     useEffect(() => {
-        const url = `http://localhost:8080/api/stores/${storeId}/details`;
-        axios.get(url)
-            .then(response => {
-                console.log('store data 가져오기', formData);
+        async function fetchData() {
+
+            try {
+                const response = await getStoreDetailsAPI(storeId);
+                
+                const base64Image = response.imageBase64;
+
+                if (base64Image) {
+                    const image = new Image();
+                    image.src = 'data:image/jpeg;base64,' + base64Image;
+                    setImage(image);
+                }
+
                 setFormData({
-                    name: response.data.name || '',
-                    storeType: storeTypeMap[response.data.storeType] || '',
-                    corporateRegistrationNumber: response.data.corporateRegistrationNumber || '',
-                    openDate: response.data.openDate || '',
-                    closeDate: response.data.closeDate || '',
-                    openTime: response.data.openTime ? response.data.openTime.substring(0, 5) : '', // HH:MM 형식으로 변환
-                    closeTime: response.data.closeTime ? response.data.closeTime.substring(0, 5) : '', // HH:MM 형식으로 변환
-                    notice: response.data.notice || '',
-                    address: response.data.address || '',
-                    description: response.data.description || '',
-                    holidays: response.data.holidays || '',
+                    name: response.name || '',
+                    storeType: storeTypeMap[response.storeType] || '',
+                    corporateRegistrationNumber: response.corporateRegistrationNumber || '',
+                    openDate: response.openDate || '',
+                    closeDate: response.closeDate || '',
+                    openTime: response.openTime ? response.openTime.substring(0, 5) : '', // HH:MM 형식으로 변환
+                    closeTime: response.closeTime ? response.closeTime.substring(0, 5) : '', // HH:MM 형식으로 변환
+                    notice: response.notice || '',
+                    address: response.address || '',
+                    description: response.description || '',
+                    holidays: response.holidays || '',
                 });
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error fetching store data:', error);
-            });
+            }
+        }
+
+        fetchData();
+        
     }, [storeId]);
 
     // form의 input 값 변경 시
@@ -64,7 +76,9 @@ const StoreModifyPage = () => {
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
-            setImage(file);
+            const image = new Image();
+            image.src = URL.createObjectURL(file);
+            setImage(image);
         }
         handleInputChange(event);
     };
@@ -74,9 +88,8 @@ const StoreModifyPage = () => {
         setImage(null);
     };
     
-    const handleSubmit = (event) => {    
-        event.preventDefault();  
-        console.log('submit하는 data', formData);
+    const handleSubmit = async (event) => {    
+        event.preventDefault();
 
         // FormData 객체 생성
         const formDataToSend = new FormData();
@@ -86,23 +99,19 @@ const StoreModifyPage = () => {
             formDataToSend.append('image', imageFile);
         }
 
-        const url = `http://localhost:8080/api/stores/${storeId}`;
-
-        axios.put(url, formDataToSend)
-            .then(response => {
-                console.log('수정 성공', response);
+        try {
+            await modifyStoreAPI(storeId, formDataToSend);
             navigate('/storelist');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+        } catch (error) {
+            alert('가게 수정에 실패했습니다.', error);
+        }
     };  
 
     return (
         <form onSubmit={handleSubmit}>
             {image && (
                 <div className="image-preview">
-                    <img src={URL.createObjectURL(image)} alt="미리보기" width="100" />
+                    <img src={image.src} alt="미리보기" width="100" />
                 </div>
             )}
             <div>

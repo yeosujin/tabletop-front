@@ -12,10 +12,7 @@ const getTokenHeaders = () => {
 };
 
 export const SellerApi = axios.create({
-    baseURL: `http://localhost:8080`,
-    headers: {
-        'Content-Type' : 'application/json'
-    }
+    baseURL: `http://localhost:8080`
 });
 
 const refreshAccessToken = async () => {
@@ -80,4 +77,53 @@ export const deleteSeller = async (loginId) => {
         headers: getTokenHeaders()
     });
     return response;
+};
+
+// 사업자등록번호 중복 검사
+export const isDuplicatedAPI = async (num) => {
+    const response = await SellerApi.get(`/api/duplicationCheck/${num}`, {
+        headers: getTokenHeaders()
+    });
+    return response.data;
+};
+
+// 가게 목록 조회
+export const getStoresAPI = async (loginId) => {
+    const response = await SellerApi.get(`/api/stores/${loginId}`, {
+        headers: getTokenHeaders()
+    });
+    return response.data;
+};
+
+// 가게 등록
+export const addStoreAPI = async (loginId, data) => {
+    const response = await SellerApi.post(`/api/store/${loginId}`, data, {
+        headers: getTokenHeaders()
+    });
+    return response.data;
+};
+
+// 가게 상세 조회
+export const getStoreDetailsAPI = async (storeId) => {
+    const response = await SellerApi.get(`/api/stores/${storeId}/details`, {
+        headers: getTokenHeaders()
+    });
+    return response.data;
+};
+
+// 가게 수정
+export const modifyStoreAPI = async (storeId, data) => {
+    const response = await SellerApi.put(`/api/stores/${storeId}`, data, {
+        headers: getTokenHeaders()
+    });
+    return response.data;
+};
+
+// 가게 삭제
+export const deleteStoreAPI = async (storeId) => {
+    const response = await SellerApi.delete(`/api/stores/${storeId}`, {
+        headers: getTokenHeaders()
+    });
+    return response.data;
+};
 };
