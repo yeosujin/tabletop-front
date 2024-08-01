@@ -3,12 +3,10 @@ import { Box, Button, TextField, Typography, Divider, FormControlLabel, Radio, R
 import { styled } from '@mui/system';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getSellerInfo, deleteSeller } from '../../../apis/seller/SellerAPI';
-import LogoutButton from '../../../components/button/LogoutButton';
-import MyStoreButton from '../../../components/button/MyStoreButton';
 
 const Container = styled(Box)({
   display: 'flex',
-  height: '100vh',
+  height: '90vh',
   alignItems: 'center',
   justifyContent: 'center',
 });
@@ -19,7 +17,8 @@ const FormContainer = styled(Box)({
   alignItems: 'center',
   border: '1px solid #e0e0e0',
   borderRadius: '8px',
-  width: '60%',
+  width: '80%',
+  height: '70%',
   padding: '1.8rem',
   boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
 });
@@ -27,28 +26,22 @@ const FormContainer = styled(Box)({
 const Header = styled(Box)({
   width: '100%',
   display: 'flex',
-  justifyContent: 'space-between',
+  justifyContent: 'center', // Center align the header contents
   alignItems: 'center',
   marginBottom: '1rem',
 });
 
-const ServiceName = styled(Typography)({
-  fontSize: '24px',
+const MyProfileText = styled(Typography)({
+  fontSize: '32px', // Adjusted to h1 size
   fontWeight: 'bold',
-  textAlign: 'center',
-  marginBottom: '1rem',
-});
-
-const ButtonsBox = styled(Box)({
-  display: 'flex',
-  gap: '1rem',
+  textAlign: 'center', // Center align the text
 });
 
 const ModifyButton = styled(Button)({
   backgroundColor: '#1976d2',
   color: 'white',
-  marginTop: '1rem',
-  width: '50%',
+  marginTop: '1.5rem',
+  width: '10%',
   '&:hover': {
     backgroundColor: '#1565c0',
   },
@@ -57,15 +50,15 @@ const ModifyButton = styled(Button)({
 const DeleteButton = styled(Button)({
   backgroundColor: '#9C27B0',
   color: 'white',
-  marginTop: '1rem',
-  width: '50%',
+  marginTop: '1.5rem',
+  width: '10%',
   '&:hover': {
     backgroundColor: '#7B1FA2',
   },
 });
 
 const ReadOnlyInputField = styled(TextField)({
-  marginTop: '1rem',
+  marginTop: '1.5rem',
   marginBottom: '0.5rem',
   width: '50%',
 });
@@ -80,7 +73,7 @@ const ClickSettingBox = styled(Box)({
   display: 'flex',
   justifyContent: 'center',
   width: '100%',
-  marginTop: '0.5rem',
+  marginTop: '1rem',
 });
 
 const MyProfilePage = () => {
@@ -127,22 +120,15 @@ const MyProfilePage = () => {
   return (
     <Container>
       <FormContainer>
-        <ServiceName>자리부터Java</ServiceName>
         
         <Header>
-          <Typography variant="h6" component="h2">
-            My Profile
-          </Typography>
-          <ButtonsBox>
-            <MyStoreButton loginId={loginId} />
-            <LogoutButton loginId={loginId} />
-          </ButtonsBox>
+            <MyProfileText variant="h6">My Profile</MyProfileText>
         </Header>
 
-        <Divider sx={{ width: '100%', marginBottom: '2rem' }} />
+        <Divider sx={{ width: '100%', marginBottom: '4rem' }} />
         
         <ReadOnlyInputField
-          label="ID"
+          label="아이디"
           variant="outlined"
           fullWidth
           InputProps={{

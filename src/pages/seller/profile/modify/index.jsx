@@ -4,12 +4,10 @@ import { styled } from '@mui/system';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { validateEmail, sendVerificationCode, validatePhone } from '../../../../apis/auth/AuthAPI';
 import { updateSellerInfo } from '../../../../apis/seller/SellerAPI.jsx';
-import LogoutButton from '../../../../components/button/LogoutButton.jsx';
-import MyStoreButton from '../../../../components/button/MyStoreButton.jsx';
 
 const Container = styled(Box)({
   display: 'flex',
-  height: '100vh',
+  height: '90vh',
   alignItems: 'center',
   justifyContent: 'center',
 });
@@ -21,7 +19,7 @@ const FormContainer = styled(Box)({
   border: '1px solid #e0e0e0',
   borderRadius: '8px',
   width: '60%',
-  height: '860px',
+  height: '91%',
   padding: '1.8rem',
   boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
 });
@@ -29,28 +27,22 @@ const FormContainer = styled(Box)({
 const Header = styled(Box)({
   width: '100%',
   display: 'flex',
-  justifyContent: 'space-between',
+  justifyContent: 'center',
   alignItems: 'center',
   marginBottom: '1rem',
 });
 
-const ServiceName = styled(Typography)({
-  fontSize: '24px',
+const MyProfileModfiyText = styled(Typography)({
+  fontSize: '32px', // Adjusted to h1 size
   fontWeight: 'bold',
-  textAlign: 'center',
-  marginBottom: '1rem',
-});
-
-const ButtonsBox = styled(Box)({
-  display: 'flex',
-  gap: '1rem',
+  textAlign: 'center', // Center align the text
 });
 
 const SaveButton = styled(Button)({
   backgroundColor: '#1976d2',
   color: 'white',
-  marginTop: '1rem',
-  width: '50%',
+  marginTop: '1.5rem',
+  width: '10%',
   '&:hover': {
     backgroundColor: '#1565c0',
   },
@@ -64,7 +56,7 @@ const InputField = styled(TextField)({
 
 const ErrorMessage = styled(Typography)({
   color: 'red',
-  marginTop: '0.5rem',
+  marginTop: '1.5rem',
 });
 
 const MyProfileModifyPage = () => {
@@ -317,16 +309,11 @@ const MyProfileModifyPage = () => {
   return (
     <Container>
       <FormContainer>
-        <ServiceName>자리부터Java</ServiceName>
+
         <Header>
-          <Typography variant="h6" component="h2">
-            My Profile Modify
-          </Typography>
-          <ButtonsBox>
-            <MyStoreButton loginId={loginId} />
-            <LogoutButton loginId={loginId} />
-          </ButtonsBox>
+            <MyProfileModfiyText variant="h6">My Profile Modify</MyProfileModfiyText>
         </Header>
+
         <Divider sx={{ width: '100%', marginBottom: '2rem' }} />
 
         <InputField
@@ -396,7 +383,7 @@ const MyProfileModifyPage = () => {
           onBlur={handleBlur}
         />
         <InputField
-          label="판매자 이름"
+          label="이름"
           variant="outlined"
           name="username"
           value={formValues.username}
@@ -404,7 +391,7 @@ const MyProfileModifyPage = () => {
           onBlur={handleBlur}
         />
 
-        <Box sx={{ display: 'flex', alignItems: 'center', width: '50%' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', width: '50%', marginTop: '1rem' }}>
           <TextField
             label="전화번호"
             variant="outlined"
@@ -425,7 +412,7 @@ const MyProfileModifyPage = () => {
         </Box>
         {error && <ErrorMessage>{error}</ErrorMessage>}
 
-        <FormControl component="fieldset" sx={{ marginTop: '1rem' }}>
+        <FormControl component="fieldset" sx={{ marginTop: '1.5rem' }}>
           <RadioGroup
             aria-label="ordercompletion"
             name="orderCompletion"
@@ -450,7 +437,7 @@ const MyProfileModifyPage = () => {
           Save
         </SaveButton>
 
-        <Link to={`/sellers/${loginId}/profile`} style={{ textDecoration: 'none', marginTop: '1rem', color: '#1976d2' }}>
+        <Link to={`/sellers/${loginId}/profile`} style={{ textDecoration: 'none', marginTop: '1rem', color: '#1976d2', marginTop: '1.5rem' }}>
           뒤로가기
         </Link>
       </FormContainer>

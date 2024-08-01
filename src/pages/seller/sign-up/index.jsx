@@ -387,7 +387,7 @@ const SignUpPage = () => {
             onBlur={handleBlur}
           />
           <TextField
-            label="판매자 이름"
+            label="이름"
             variant="outlined"
             margin="normal"
             fullWidth
@@ -417,7 +417,7 @@ const SignUpPage = () => {
             sx={{ marginTop: '1rem' }}
             onClick={handleSignUp}
           >
-            회원가입
+            가입
           </Button>
           <Link to="/login" style={{ textDecoration: 'none', color: '#1976d2', marginTop: '1rem', textAlign: 'center' }}>
             뒤로가기
