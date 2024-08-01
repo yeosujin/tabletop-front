@@ -4,6 +4,7 @@ import {
     Box,
     Card,
     CardContent,
+    CardMedia,
     CircularProgress,
     Container,
     Divider,
@@ -20,10 +21,14 @@ const InfoStorePage = () => {
     const [error, setError] = useState(null)
     const { storeId } = useParams()
 
+    console.log(storeDetails)
+
     useEffect(() => {
         const fetchStoreDetails = async () => {
             try {
-                const response = await fetch(`/api/stores/${storeId}/details`)
+                const response = await fetch(
+                    `http://localhost:8080/api/stores/${storeId}/details`
+                )
                 if (!response.ok) {
                     throw new Error('Failed to fetch store details')
                 }
@@ -87,6 +92,26 @@ const InfoStorePage = () => {
                     {storeDetails.name}
                 </Typography>
                 <Card>
+                    {storeDetails.imageBase64 ? (
+                        <CardMedia
+                            component="img"
+                            height="200"
+                            image={`data:image/jpeg;base64,${storeDetails.imageBase64}`}
+                            alt={storeDetails.name}
+                        />
+                    ) : (
+                        <Box
+                            height="200"
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                            bgcolor="grey.300"
+                        >
+                            <Typography variant="body2" color="text.secondary">
+                                이미지가 없습니다
+                            </Typography>
+                        </Box>
+                    )}
                     <CardContent>
                         <List>
                             <ListItem>

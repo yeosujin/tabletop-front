@@ -103,20 +103,39 @@ const OrderPage = () => {
         )
     }, [])
 
-    const handleCancel = async (orderId) => {
+    const handleCancel = async (orderId, impUid) => {
         try {
+            // // 1. PortOne API를 통한 결제 취소
+            // const portOneResponse = await axios.post(
+            //     `https://api.portone.io/payments/${impUid}/cancel`,
+            //     { reason: '취소' },
+            //     {
+            //         headers: {
+            //             'Content-Type': 'application/json',
+            //             Authorization: `Basic ${btoa(process.env.REACT_APP_PORTONE_API_KEY + ':')}`,
+            //         },
+            //     }
+            // )
+
+            // if (portOneResponse.status === 200) {
+            // 2. Spring Boot 서버에 주문 취소 요청
             const response = await fetch(
                 `http://localhost:8080/api/orders/${orderId}/cancel`,
                 {
                     method: 'PUT',
                 }
             )
+
             if (!response.ok) {
-                throw new Error('주문 취소에 실패했습니다')
+                throw new Error('서버에서 주문 취소에 실패했습니다')
             }
-            updateOrderStatus(orderId, 2) // 취소 상태로 업데이트
+            updateOrderStatus(orderId, 2)
+            // } else {
+            //     throw new Error('PortOne API 결제 취소에 실패했습니다')
+            // }
         } catch (error) {
             console.error('주문 취소 실패:', error)
+            // 사용자에게 에러 메시지 표시
         }
     }
 
@@ -272,7 +291,8 @@ const OrderPage = () => {
                                                         variant="outlined"
                                                         onClick={() =>
                                                             handleCancel(
-                                                                order.orderId
+                                                                order.orderId,
+                                                                order.imp_uid
                                                             )
                                                         }
                                                         sx={{

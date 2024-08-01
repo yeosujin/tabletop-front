@@ -93,32 +93,32 @@ const router = createBrowserRouter([
                 path: 'details',
                 element: <InfoStorePage />,
             },
+        ],
+    },
+    {
+        path: '/consumer/:storeId',
+        element: <ConsumerLayout />,
+        errorElement: <ErrorBoundary />,
+        children: [
             {
-                path: '/consumer/:storeId',
-                element: <ConsumerLayout />,
-                errorElement: <ErrorBoundary />,
-                children: [
-                    {
-                        path: 'menu',
-                        element: <MenuPage />,
-                    },
-                    {
-                        path: 'cart',
-                        element: <CartPage />,
-                    },
-                    {
-                        path: 'info',
-                        element: <InfoStorePage />,
-                    },
-                    {
-                        path: 'payment',
-                        element: <PaymentPage />,
-                    },
-                    {
-                        path: 'complete',
-                        element: <CompletePage />,
-                    },
-                ],
+                path: 'menu',
+                element: <MenuPage />,
+            },
+            {
+                path: 'cart',
+                element: <CartPage />,
+            },
+            {
+                path: 'details',
+                element: <InfoStorePage />,
+            },
+            {
+                path: 'payment',
+                element: <PaymentPage />,
+            },
+            {
+                path: 'complete',
+                element: <CompletePage />,
             },
         ],
     },
