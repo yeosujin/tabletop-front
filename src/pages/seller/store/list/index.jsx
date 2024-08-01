@@ -6,7 +6,11 @@ import AddIcon from '@mui/icons-material/Add';
 
 const StoreListPage = () => {
     const navigate = useNavigate();
+<<<<<<< Updated upstream
     const loginId = 'YH'; // 임시
+=======
+    const loginId = localStorage.getItem('id');
+>>>>>>> Stashed changes
 
     const handleAddClick = () => {
         navigate('/addstore');
