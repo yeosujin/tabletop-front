@@ -7,7 +7,7 @@ import { updateSellerInfo } from '../../../../apis/seller/SellerAPI.jsx';
 
 const Container = styled(Box)({
   display: 'flex',
-  height: '90vh',
+  height: '89vh',
   alignItems: 'center',
   justifyContent: 'center',
 });
