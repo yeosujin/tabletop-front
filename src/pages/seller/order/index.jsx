@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
     AppBar,
+    Avatar,
     Box,
     Button,
     Card,
     CardContent,
+    Chip,
     createTheme,
     Grid,
     List,
@@ -14,12 +16,14 @@ import {
     TextField,
     ThemeProvider,
     Toolbar,
+    Tooltip,
     Typography,
 } from '@mui/material'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { format, isEqual, startOfDay } from 'date-fns'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Cancel, CheckCircle, Fastfood } from '@mui/icons-material'
 
 const theme = createTheme({
     palette: {
@@ -194,11 +198,22 @@ const OrderPage = () => {
 
     return (
         <ThemeProvider theme={theme}>
-            <Box sx={{ flexGrow: 1 }}>
-                <AppBar position="static">
+            <Box
+                sx={{
+                    flexGrow: 1,
+                    bgcolor: 'background.default',
+                    minHeight: '100vh',
+                }}
+            >
+                <AppBar position="static" color="primary" elevation={0}>
                     <Toolbar>
-                        <Button color="inherit">Sales</Button>
-                        <Box sx={{ flexGrow: 1 }} />
+                        <Typography
+                            variant="h6"
+                            component="div"
+                            sx={{ flexGrow: 1 }}
+                        >
+                            주문 관리
+                        </Typography>
                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                             <DatePicker
                                 value={selectedDate}
@@ -208,6 +223,8 @@ const OrderPage = () => {
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
+                                        variant="outlined"
+                                        size="small"
                                         sx={{
                                             bgcolor: 'white',
                                             borderRadius: 1,
@@ -219,36 +236,58 @@ const OrderPage = () => {
                         </LocalizationProvider>
                     </Toolbar>
                 </AppBar>
-                <Grid container spacing={2}>
-                    <Grid item xs={2}>
-                        <List>
-                            {[
-                                { label: '진행중', type: 'now' },
-                                { label: '완료', type: 'done' },
-                                { label: '취소', type: 'canceled' },
-                            ].map(({ label, type }) => (
-                                <ListItem key={type} disablePadding>
-                                    <ListItemButton
-                                        selected={orderType === type}
-                                        onClick={() => handleTabChange(type)}
-                                        sx={{
-                                            '&.Mui-selected': {
-                                                bgcolor: 'primary.main',
-                                                color: 'white',
-                                                '&:hover': {
-                                                    bgcolor: 'primary.dark',
+                <Box sx={{ display: 'flex', p: 3 }}>
+                    <Box sx={{ width: 200, flexShrink: 0, mr: 3 }}>
+                        <Card>
+                            <List>
+                                {[
+                                    {
+                                        label: '진행중',
+                                        type: 'now',
+                                        icon: <Fastfood />,
+                                    },
+                                    {
+                                        label: '완료',
+                                        type: 'done',
+                                        icon: <CheckCircle />,
+                                    },
+                                    {
+                                        label: '취소',
+                                        type: 'canceled',
+                                        icon: <Cancel />,
+                                    },
+                                ].map(({ label, type, icon }) => (
+                                    <ListItem key={type} disablePadding>
+                                        <ListItemButton
+                                            selected={orderType === type}
+                                            onClick={() =>
+                                                handleTabChange(type)
+                                            }
+                                            sx={{
+                                                '&.Mui-selected': {
+                                                    bgcolor: 'primary.main',
+                                                    color: 'white',
+                                                    '&:hover': {
+                                                        bgcolor: 'primary.dark',
+                                                    },
                                                 },
-                                            },
-                                        }}
-                                    >
-                                        <ListItemText primary={label} />
-                                    </ListItemButton>
-                                </ListItem>
-                            ))}
-                        </List>
-                    </Grid>
-                    <Grid item xs={10}>
-                        <Grid container spacing={2}>
+                                            }}
+                                        >
+                                            <ListItemText
+                                                primary={label}
+                                                primaryTypographyProps={{
+                                                    sx: { fontWeight: 'bold' },
+                                                }}
+                                            />
+                                            {icon}
+                                        </ListItemButton>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        </Card>
+                    </Box>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <Grid container spacing={3}>
                             {filteredOrders.map((order) => (
                                 <Grid
                                     item
@@ -257,88 +296,123 @@ const OrderPage = () => {
                                     md={4}
                                     key={order.orderId}
                                 >
-                                    <Card sx={{ bgcolor: '#fdfcdc' }}>
-                                        <CardContent>
-                                            <Typography variant="h6">
-                                                주문 #{order.orderId}
-                                            </Typography>
-                                            <Typography variant="body2">
+                                    <Card
+                                        elevation={3}
+                                        sx={{
+                                            height: '100%',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                        }}
+                                    >
+                                        <CardContent sx={{ flexGrow: 1 }}>
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    justifyContent:
+                                                        'space-between',
+                                                    alignItems: 'center',
+                                                    mb: 2,
+                                                }}
+                                            >
+                                                <Typography
+                                                    variant="h6"
+                                                    component="div"
+                                                >
+                                                    주문 #{order.orderId}
+                                                </Typography>
+                                                <Chip
+                                                    avatar={
+                                                        <Avatar>
+                                                            {
+                                                                order.orderItems
+                                                                    .length
+                                                            }
+                                                        </Avatar>
+                                                    }
+                                                    label="항목"
+                                                    color="secondary"
+                                                    size="small"
+                                                />
+                                            </Box>
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                                gutterBottom
+                                            >
                                                 {format(
                                                     new Date(order.createdAt),
                                                     'yyyy-MM-dd HH:mm:ss'
                                                 )}
                                             </Typography>
-                                            <List>
+                                            <Box
+                                                sx={{
+                                                    mt: 2,
+                                                    maxHeight: 150,
+                                                    overflowY: 'auto',
+                                                }}
+                                            >
                                                 {order.orderItems.map(
                                                     (menu, index) => (
-                                                        <ListItem key={index}>
-                                                            <ListItemText
-                                                                primary={`${menu.menuName} - ${menu.quantity}개`}
-                                                                secondary={`${menu.price}원`}
+                                                        <Tooltip
+                                                            key={index}
+                                                            title={`${menu.menuName} - ${menu.quantity}개, ${menu.price}원`}
+                                                            arrow
+                                                        >
+                                                            <Chip
+                                                                label={`${menu.menuName} x${menu.quantity}`}
+                                                                size="small"
+                                                                sx={{ m: 0.5 }}
                                                             />
-                                                        </ListItem>
+                                                        </Tooltip>
                                                     )
                                                 )}
-                                            </List>
-                                            {orderType === 'now' && (
-                                                <Box
+                                            </Box>
+                                        </CardContent>
+                                        {orderType === 'now' && (
+                                            <Box
+                                                sx={{
+                                                    p: 2,
+                                                    bgcolor:
+                                                        'background.default',
+                                                    display: 'flex',
+                                                }}
+                                            >
+                                                <Button
+                                                    variant="outlined"
+                                                    onClick={() =>
+                                                        handleCancel(
+                                                            order.orderId,
+                                                            order.imp_uid
+                                                        )
+                                                    }
                                                     sx={{
-                                                        mt: 2,
-                                                        display: 'flex',
+                                                        flexGrow: 1,
                                                     }}
                                                 >
-                                                    <Button
-                                                        variant="outlined"
-                                                        onClick={() =>
-                                                            handleCancel(
-                                                                order.orderId,
-                                                                order.imp_uid
-                                                            )
-                                                        }
-                                                        sx={{
-                                                            flex: 4,
-                                                            mr: 1,
-                                                            color: 'black',
-                                                            borderColor:
-                                                                'black',
-                                                            '&:hover': {
-                                                                backgroundColor:
-                                                                    'rgba(0, 0, 0, 0.04)',
-                                                                borderColor:
-                                                                    'black',
-                                                            },
-                                                        }}
-                                                    >
-                                                        Cancel
-                                                    </Button>
-                                                    <Button
-                                                        variant="contained"
-                                                        onClick={() =>
-                                                            handleDone(
-                                                                order.orderId
-                                                            )
-                                                        }
-                                                        sx={{
-                                                            flex: 6,
-                                                            bgcolor: '#ff9f1c',
-                                                            '&:hover': {
-                                                                bgcolor:
-                                                                    '#e58e1a',
-                                                            },
-                                                        }}
-                                                    >
-                                                        Done
-                                                    </Button>
-                                                </Box>
-                                            )}
-                                            {/* ... (나머지 카드 내용) */}
-                                        </CardContent>
+                                                    취소
+                                                </Button>
+                                                <Button
+                                                    variant="contained"
+                                                    onClick={() =>
+                                                        handleDone(
+                                                            order.orderId
+                                                        )
+                                                    }
+                                                    color="secondary"
+                                                    sx={{
+                                                        flexGrow: 2,
+                                                    }}
+                                                >
+                                                    완료
+                                                </Button>
+                                            </Box>
+                                        )}
                                     </Card>
                                 </Grid>
                             ))}
                         </Grid>
-                    </Grid>
-                </Grid>
+                    </Box>
+                </Box>
             </Box>
         </ThemeProvider>
     )
