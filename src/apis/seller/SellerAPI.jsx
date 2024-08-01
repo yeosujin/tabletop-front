@@ -126,4 +126,3 @@ export const deleteStoreAPI = async (storeId) => {
     });
     return response.data;
 };
-};
