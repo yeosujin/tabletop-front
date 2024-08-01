@@ -24,12 +24,14 @@ const CartPage = () => {
     const { storeId } = useParams()
 
     const handleIncreaseQuantity = (item) => {
-        addToCart(item)
+        addToCart(item, 1) // 수량을 1씩 증가
     }
 
     const handleDecreaseQuantity = (menuId) => {
         removeFromCart(menuId)
     }
+
+    console.log(cartItems)
 
     return (
         <Container maxWidth="md">

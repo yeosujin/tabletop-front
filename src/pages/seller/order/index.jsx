@@ -376,6 +376,7 @@ const OrderPage = () => {
                                                         )
                                                     }
                                                     color="secondary"
+                                                    z
                                                     sx={{ flexGrow: 3 }}
                                                 >
                                                     완료
