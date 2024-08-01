@@ -56,6 +56,11 @@ const SignUpPage = () => {
     mobile: '',
   });
 
+  const formatPhoneNumber = (value) => {
+    const cleaned = value.replace(/\D/g, '');
+    return cleaned.replace(/^(\d{2,3})(\d{3,4})(\d{4})$/g, "$1-$2-$3").replace(/(\-{1,2})$/g, "");
+  };
+
    // setError(''); -> 에러 메시지를 초기화
   // - 사용자가 비밀번호를 입력한 후 비밀번호 확인 입력 필드로 이동하여 올바른 비밀번호를 입력했을 때, 이전에 설정된 에러 메시지를 지워주는 역할 
   // - 사용자가 에러를 수정했을 때, 화면에 에러 메시지가 계속 남아 있지 않도록 하는 것
@@ -78,6 +83,13 @@ const SignUpPage = () => {
       setError('판매자 이름은 최소 2자 이상이어야 합니다.');
     } else if (name === 'loginId' && /[^a-zA-Z0-9]/.test(value)) {
       setError('아이디는 영어와 숫자만 사용할 수 있습니다.');
+    } else if (name === 'mobile') {
+      const formattedValue = formatPhoneNumber(value);
+      setFormValues({
+        ...formValues,
+        [name]: formattedValue,
+      });
+      return;
     } else {
       setError('');
     }
@@ -86,6 +98,16 @@ const SignUpPage = () => {
       ...formValues,
       [name]: value,
     });
+  };
+
+  const handlePhoneKeyDown = (e) => {
+    const { key } = e;
+    const { value } = e.target;
+    const cleaned = value.replace(/\D/g, '');
+
+    if (cleaned.length >= 11 && key !== 'Backspace' && key !== 'Delete') {
+      e.preventDefault();
+    }
   };
 
   const handleBlur = (e) => {
@@ -382,6 +404,7 @@ const SignUpPage = () => {
               name="mobile"
               value={formValues.mobile}
               onChange={handleChange}
+              onKeyDown={handlePhoneKeyDown}
             />
             <Button variant="contained" sx={{ marginLeft: '0.5rem', height: '56px' }} onClick={handlePhoneValidation}>
               확인
