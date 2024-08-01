@@ -89,6 +89,11 @@ const MyProfileModifyPage = () => {
   const [serverVerificationCode, setServerVerificationCode] = useState('');
   const [phoneValid, setPhoneValid] = useState(true);
 
+  const formatPhoneNumber = (value) => {
+    const cleaned = value.replace(/\D/g, '');
+    return cleaned.replace(/^(\d{2,3})(\d{3,4})(\d{4})$/g, "$1-$2-$3").replace(/(\-{1,2})$/g, "");
+  };
+
   const handleRadioChange = (e) => {
     setOrderCompletion(e.target.value);
   };
@@ -110,6 +115,13 @@ const MyProfileModifyPage = () => {
       }
     } else if (name === 'username' && value.length > 0 && value.length < 2) {
       setError('판매자 이름은 최소 2자 이상이어야 합니다.');
+    } else if (name === 'mobile') {
+      const formattedValue = formatPhoneNumber(value);
+      setFormValues({
+        ...formValues,
+        [name]: formattedValue,
+      });
+      return;
     } else {
       setError('');
     }
@@ -128,6 +140,16 @@ const MyProfileModifyPage = () => {
     // 전화번호 변경 시 유효성 초기화
     if (name === 'mobile') {
       setPhoneValid(value === seller.mobile);
+    }
+  };
+
+  const handlePhoneKeyDown = (e) => {
+    const { key } = e;
+    const { value } = e.target;
+    const cleaned = value.replace(/\D/g, '');
+
+    if (cleaned.length >= 11 && key !== 'Backspace' && key !== 'Delete') {
+      e.preventDefault();
     }
   };
 
@@ -389,6 +411,7 @@ const MyProfileModifyPage = () => {
             name="mobile"
             value={formValues.mobile}
             onChange={handleChange}
+            onKeyDown={handlePhoneKeyDown}
             sx={{ marginRight: '0.5rem', flexGrow: 1 }}
           />
           <Button
@@ -427,7 +450,7 @@ const MyProfileModifyPage = () => {
           Save
         </SaveButton>
 
-        <Link to={`/profile/${loginId}`} style={{ textDecoration: 'none', marginTop: '1rem', color: '#1976d2' }}>
+        <Link to={`/sellers/${loginId}/profile`} style={{ textDecoration: 'none', marginTop: '1rem', color: '#1976d2' }}>
           뒤로가기
         </Link>
       </FormContainer>

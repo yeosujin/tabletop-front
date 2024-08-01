@@ -76,6 +76,12 @@ const SignInPage = () => {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    }
+  };
+
   return (
     <Container>
       <FormContainer>
@@ -104,7 +110,8 @@ const SignInPage = () => {
             margin="normal" 
             fullWidth 
             onChange={handleChange} 
-            value={values.loginId} 
+            value={values.loginId}
+            onKeyDown={handleKeyDown}
           />
           <TextField 
             id="password" 
@@ -114,7 +121,8 @@ const SignInPage = () => {
             margin="normal" 
             fullWidth 
             onChange={handleChange} 
-            value={values.password} 
+            value={values.password}
+            onKeyDown={handleKeyDown}
           />
           <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
             <Link to="/signup" style={{ textDecoration: 'none', color: '#1976d2' }}>회원가입</Link>
