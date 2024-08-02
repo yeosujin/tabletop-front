@@ -61,10 +61,14 @@ const Card = ({ store, render, onModifyClick }) => {
                     <CardMedia
                         component="img"
                         image={
-                            s3Prefix + store.s3Url ||
-                            'https://via.placeholder.com/140x140?text=No+Image'
+                            store.s3Url ? s3Prefix + store.s3Url : 'https://via.placeholder.com/140x140?text=No+Image'
                         }
                         alt={store.name}
+                        sx={{
+                            objectFit: 'cover',
+                            height: '300px',
+                            width: '100%'
+                        }}
                     />
                     <CardContent>
                         <Box sx={{ mb: 1 }}>
