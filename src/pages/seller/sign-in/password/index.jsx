@@ -6,7 +6,7 @@ import { resetPassword } from '../../../../apis/auth/AuthAPI';
 
 const Container = styled(Box)({
   display: 'flex',
-  height: '80vh',
+  marginTop: '9rem',
   alignItems: 'center',
   justifyContent: 'center',
 });
@@ -129,3 +129,4 @@ const PasswordPage = () => {
 };
 
 export default PasswordPage;
+

@@ -7,7 +7,7 @@ import { updateSellerInfo } from '../../../../apis/seller/SellerAPI.jsx';
 
 const Container = styled(Box)({
   display: 'flex',
-  height: '89vh',
+  marginTop: '2rem',
   alignItems: 'center',
   justifyContent: 'center',
 });
@@ -19,7 +19,6 @@ const FormContainer = styled(Box)({
   border: '1px solid #e0e0e0',
   borderRadius: '8px',
   width: '60%',
-  height: '91%',
   padding: '1.8rem',
   boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
 });

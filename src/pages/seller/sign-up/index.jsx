@@ -7,7 +7,7 @@ import { signUp } from '../../../apis/seller/SellerAPI';
 
 const Container = styled(Box)({
   display: 'flex',
-  height: '80vh',
+  marginTop: '2rem',
   alignItems: 'center',
   justifyContent: 'center',
 });

@@ -6,7 +6,7 @@ import { login } from '../../../apis/auth/AuthAPI';
 
 const Container = styled(Box)({
   display: 'flex',
-  height: '80vh',
+  marginTop: '11rem',
   alignItems: 'center',
   justifyContent: 'center',
 });
@@ -126,13 +126,13 @@ const SignInPage = () => {
           />
           <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
             <Link to="/signup" style={{ textDecoration: 'none', color: '#1976d2' }}>회원가입</Link>
-            <Link to="/password" style={{ textDecoration: 'none', color: '#1976d2' }}>비밀번호 찾기</Link>
+            <Link to="/password" style={{ textDecoration: 'none', color: '#1976d2'}}>비밀번호 찾기</Link>
           </Box>
           <Button 
             variant="contained" 
             color="primary" 
             fullWidth 
-            sx={{ marginTop: '2rem' }}
+            sx={{ marginTop: '2rem'}}
             onClick={handleSubmit}
           >
             로그인
