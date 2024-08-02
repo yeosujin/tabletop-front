@@ -5,7 +5,7 @@ import { getStoresAPI } from '../../apis/seller/SellerAPI.jsx'
 
 const ITEMS_PER_PAGE = 6
 
-const InfiniteScrollComponent = ({ loginId, onModifyClick, isListChanged }) => {
+const InfiniteScrollComponent = ({ loginId, onModifyClick, isListChanged, setIsListChanged }) => {
     const [allStores, setAllStores] = useState([])
     const [displayedStores, setDisplayedStores] = useState([])
     const [hasMore, setHasMore] = useState(true)
@@ -53,6 +53,7 @@ const InfiniteScrollComponent = ({ loginId, onModifyClick, isListChanged }) => {
                 >
                     <StoreList
                         stores={displayedStores}
+                        render={setIsListChanged}
                         onModifyClick={onModifyClick}
                     />
                 </InfiniteScroll>
