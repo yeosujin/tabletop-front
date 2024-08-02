@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { getMenus, createMenu, updateMenu, deleteMenu } from '../../../apis/seller/menuAPI';
+import { TextField, Button as MuiButton } from '@mui/material';
 
 const Container = styled.div`
   padding: 1rem;
@@ -46,21 +47,6 @@ const ImageSection = styled.div`
 
 const InputSection = styled.div`
   flex: 2;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
-  font-size: 1rem;
-`;
-
-const Textarea = styled.textarea`
-  width: 100%;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
-  min-height: 100px;
-  font-size: 1rem;
 `;
 
 const ButtonContainer = styled.div`
@@ -155,6 +141,30 @@ const ModalContent = styled.div`
   max-width: 80%;
   max-height: 80%;
   overflow: auto;
+`;
+
+const FileInputContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  input[type='file'] {
+    display: none;
+  }
+
+  label {
+    background-color: #007bff;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  span {
+    margin-left: 1rem;
+    font-size: 1rem;
+  }
 `;
 
 const Menu = () => {
@@ -293,164 +303,213 @@ const Menu = () => {
   };
 
   return (
-      <Container>
-        <Title>메뉴 관리</Title>
-        <AddButton onClick={handleAddMenu}>+ 메뉴 추가</AddButton>
+    <Container>
+      <Title>메뉴 관리</Title>
+      <AddButton onClick={handleAddMenu}>+ 메뉴 추가</AddButton>
 
-        <MenuList>
-          {menuItems.map((item) => (
-              <MenuItem key={item.id}>
-                {item.image && <MenuImage src={item.image} alt={item.name} />}
-                <ItemName>{item.name}</ItemName>
-                <ItemPrice>{item.price}원</ItemPrice>
-                <ItemDescription>{item.description}</ItemDescription>
-                <ButtonContainer>
-                  <Button onClick={() => handleEdit(item)}>수정</Button>
-                  <DeleteButton onClick={() => handleDelete(item.id)} disabled={isDeleting}>
-                    {isDeleting ? '삭제 중...' : '삭제'}
-                  </DeleteButton>
-                </ButtonContainer>
-              </MenuItem>
-          ))}
-        </MenuList>
+      <MenuList>
+        {menuItems.map((item) => (
+          <MenuItem key={item.id}>
+            {item.image && <MenuImage src={item.image} alt={item.name} />}
+            <ItemName>{item.name}</ItemName>
+            <ItemPrice>{item.price}원</ItemPrice>
+            <ItemDescription>{item.description}</ItemDescription>
+            <ButtonContainer>
+              <Button onClick={() => handleEdit(item)}>수정</Button>
+              <DeleteButton onClick={() => handleDelete(item.id)} disabled={isDeleting}>
+                {isDeleting ? '삭제 중...' : '삭제'}
+              </DeleteButton>
+            </ButtonContainer>
+          </MenuItem>
+        ))}
+      </MenuList>
 
-        {showAddModal && (
-            <Modal>
-              <ModalContent>
-                <Form onSubmit={handleSubmit}>
-                  <ImageSection>
-                    <Input type="file" onChange={handleImageUpload} accept="image/*" />
-                    {newItem.image && (
-                        <>
-                          <ImagePreview src={newItem.image} alt="Preview" />
-                          <CropButton type="button" onClick={() => setShowCropModal(true)}>
-                            이미지 자르기
-                          </CropButton>
-                        </>
-                    )}
-                  </ImageSection>
-                  <InputSection>
-                    <Input
-                        type="text"
-                        name="name"
-                        value={newItem.name}
-                        onChange={handleInputChange}
-                        placeholder="메뉴 이름"
-                        required
-                    />
-                    <Input
-                        type="number"
-                        name="price"
-                        value={newItem.price}
-                        onChange={handleInputChange}
-                        placeholder="가격"
-                        required
-                    />
-                    <Textarea
-                        name="description"
-                        value={newItem.description}
-                        onChange={handleInputChange}
-                        placeholder="설명"
-                    />
-                    <ButtonContainer>
-                      <SaveButton type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? '저장 중...' : '저장'}
-                      </SaveButton>
-                      <Button type="button" onClick={(e) => {
-                        e.preventDefault();
-                        setShowAddModal(false);
-                      }}>
-                        닫기
-                      </Button>
-                    </ButtonContainer>
-                  </InputSection>
-                </Form>
-              </ModalContent>
-            </Modal>
-        )}
-
-        {showEditModal && (
-            <Modal>
-              <ModalContent>
-                <Form onSubmit={handleSubmit}>
-                  <ImageSection>
-                    <Input type="file" onChange={handleImageUpload} accept="image/*" />
-                    {(newItem.image || editImageUrl) && (
-                        <>
-                          <ImagePreview src={newItem.image || editImageUrl} alt="Preview" />
-                          <CropButton type="button" onClick={() => setShowCropModal(true)}>
-                            이미지 자르기
-                          </CropButton>
-                        </>
-                    )}
-                  </ImageSection>
-                  <InputSection>
-                    <Input
-                        type="text"
-                        name="name"
-                        value={newItem.name}
-                        onChange={handleInputChange}
-                        placeholder="메뉴 이름"
-                        required
-                    />
-                    <Input
-                        type="number"
-                        name="price"
-                        value={newItem.price}
-                        onChange={handleInputChange}
-                        placeholder="가격"
-                        required
-                    />
-                    <Textarea
-                        name="description"
-                        value={newItem.description}
-                        onChange={handleInputChange}
-                        placeholder="설명"
-                    />
-                    <ButtonContainer>
-                      <SaveButton type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? '저장 중...' : '저장'}
-                      </SaveButton>
-                      <DeleteButton type="button" onClick={(e) => {
-                        e.preventDefault();
-                        handleDelete(editingItemId);
-                      }} disabled={isDeleting}>
-                        {isDeleting ? '삭제 중...' : '삭제'}
-                      </DeleteButton>
-                      <Button type="button" onClick={(e) => {
-                        e.preventDefault();
-                        setShowEditModal(false);
-                        setEditImageUrl(null);
-                      }}>
-                        닫기
-                      </Button>
-                    </ButtonContainer>
-                  </InputSection>
-                </Form>
-              </ModalContent>
-            </Modal>
-        )}
-
-        {showCropModal && (
-            <Modal>
-              <ModalContent>
-                <ReactCrop
-                    src={newItem.image || editImageUrl}
-                    crop={crop}
-                    onChange={(_, percentCrop) => setCrop(percentCrop)}
-                    onImageLoaded={(img) => imgRef.current = img}
-                    onComplete={(c) => setCompletedCrop(c)}
+      {showAddModal && (
+        <Modal>
+          <ModalContent>
+            <Form onSubmit={handleSubmit}>
+              <ImageSection>
+                <FileInputContainer>
+                  <input type="file" id="fileInput" onChange={handleImageUpload} accept="image/*" />
+                  <label htmlFor="fileInput">파일 선택</label>
+                  <span>{newItem.image ? newItem.image.name : '선택된 파일 없음'}</span>
+                </FileInputContainer>
+                {newItem.image && (
+                  <>
+                    <ImagePreview src={URL.createObjectURL(newItem.image)} alt="Preview" />
+                    <CropButton type="button" onClick={() => setShowCropModal(true)}>
+                      이미지 자르기
+                    </CropButton>
+                  </>
+                )}
+              </ImageSection>
+              <InputSection>
+                <TextField
+                  fullWidth
+                  label="메뉴 이름"
+                  name="name"
+                  value={newItem.name}
+                  onChange={handleInputChange}
+                  required
+                  margin="normal"
+                />
+                <TextField
+                  fullWidth
+                  type="number"
+                  label="가격"
+                  name="price"
+                  value={newItem.price}
+                  onChange={handleInputChange}
+                  required
+                  margin="normal"
+                />
+                <TextField
+                  fullWidth
+                  label="설명"
+                  name="description"
+                  value={newItem.description}
+                  onChange={handleInputChange}
+                  multiline
+                  rows={4}
+                  margin="normal"
                 />
                 <ButtonContainer>
-                  <Button type="button" onClick={() => setShowCropModal(false)}>취소</Button>
+                  <MuiButton
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? '저장 중...' : '저장'}
+                  </MuiButton>
+                  <MuiButton
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowAddModal(false);
+                    }}
+                    variant="contained"
+                  >
+                    닫기
+                  </MuiButton>
                 </ButtonContainer>
-              </ModalContent>
-            </Modal>
-        )}
+              </InputSection>
+            </Form>
+          </ModalContent>
+        </Modal>
+      )}
 
-        {error && <Error>{error}</Error>}
-        {loading && <p>로딩 중...</p>}
-      </Container>
+      {showEditModal && (
+        <Modal>
+          <ModalContent>
+            <Form onSubmit={handleSubmit}>
+              <ImageSection>
+                <FileInputContainer>
+                  <input type="file" id="fileInputEdit" onChange={handleImageUpload} accept="image/*" />
+                  <label htmlFor="fileInputEdit">파일 선택</label>
+                  <span>{newItem.image ? newItem.image.name : '선택된 파일 없음'}</span>
+                </FileInputContainer>
+                {(newItem.image || editImageUrl) && (
+                  <>
+                    <ImagePreview src={newItem.image ? URL.createObjectURL(newItem.image) : editImageUrl} alt="Preview" />
+                    <CropButton type="button" onClick={() => setShowCropModal(true)}>
+                      이미지 자르기
+                    </CropButton>
+                  </>
+                )}
+              </ImageSection>
+              <InputSection>
+                <TextField
+                  fullWidth
+                  label="메뉴 이름"
+                  name="name"
+                  value={newItem.name}
+                  onChange={handleInputChange}
+                  required
+                  margin="normal"
+                />
+                <TextField
+                  fullWidth
+                  type="number"
+                  label="가격"
+                  name="price"
+                  value={newItem.price}
+                  onChange={handleInputChange}
+                  required
+                  margin="normal"
+                />
+                <TextField
+                  fullWidth
+                  label="설명"
+                  name="description"
+                  value={newItem.description}
+                  onChange={handleInputChange}
+                  multiline
+                  rows={4}
+                  margin="normal"
+                />
+                <ButtonContainer>
+                  <MuiButton
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? '저장 중...' : '저장'}
+                  </MuiButton>
+                  <MuiButton
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDelete(editingItemId);
+                    }}
+                    variant="contained"
+                    color="secondary"
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? '삭제 중...' : '삭제'}
+                  </MuiButton>
+                  <MuiButton
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowEditModal(false);
+                      setEditImageUrl(null);
+                    }}
+                    variant="contained"
+                  >
+                    닫기
+                  </MuiButton>
+                </ButtonContainer>
+              </InputSection>
+            </Form>
+          </ModalContent>
+        </Modal>
+      )}
+
+      {showCropModal && (
+        <Modal>
+          <ModalContent>
+            <ReactCrop
+              src={newItem.image || editImageUrl}
+              crop={crop}
+              onChange={(_, percentCrop) => setCrop(percentCrop)}
+              onImageLoaded={(img) => imgRef.current = img}
+              onComplete={(c) => setCompletedCrop(c)}
+            />
+            <ButtonContainer>
+              <MuiButton type="button" onClick={() => setShowCropModal(false)} variant="contained">
+                취소
+              </MuiButton>
+            </ButtonContainer>
+          </ModalContent>
+        </Modal>
+      )}
+
+      {error && <Error>{error}</Error>}
+      {loading && <p>로딩 중...</p>}
+    </Container>
   );
 }
+
 export default Menu;
