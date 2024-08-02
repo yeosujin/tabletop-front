@@ -24,20 +24,28 @@ const StoreModifyModal = ({ open, onClose, storeId, onSubmit }) => {
             if (storeId) {
                 const response = await getStoreDetailsAPI(storeId)
 
-            setFormData({
-                image: (response.s3Url ? s3Prefix + response.s3Url : 'https://via.placeholder.com/140x140?text=No+Image'),
-                name: response.name || '',
-                storeType: storeTypeMap[response.storeType] || '',
-                corporateRegistrationNumber: response.corporateRegistrationNumber || '',
-                openDate: response.openDate || '',
-                closeDate: response.closeDate || '',
-                openTime: response.openTime ? response.openTime.substring(0, 5) : '', // HH:MM 형식으로 변환
-                closeTime: response.closeTime ? response.closeTime.substring(0, 5) : '', // HH:MM 형식으로 변환
-                notice: response.notice || '',
-                address: response.address || '',
-                description: response.description || '',
-                holidays: response.holidays || '',
-            });
+                setFormData({
+                    image: response.s3Url
+                        ? s3Prefix + response.s3Url
+                        : 'https://via.placeholder.com/140x140?text=No+Image',
+                    name: response.name || '',
+                    storeType: storeTypeMap[response.storeType] || '',
+                    corporateRegistrationNumber:
+                        response.corporateRegistrationNumber || '',
+                    openDate: response.openDate || '',
+                    closeDate: response.closeDate || '',
+                    openTime: response.openTime
+                        ? response.openTime.substring(0, 5)
+                        : '', // HH:MM 형식으로 변환
+                    closeTime: response.closeTime
+                        ? response.closeTime.substring(0, 5)
+                        : '', // HH:MM 형식으로 변환
+                    notice: response.notice || '',
+                    address: response.address || '',
+                    description: response.description || '',
+                    holidays: response.holidays || '',
+                })
+            }
         }
     }
         fetchData()

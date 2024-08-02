@@ -176,9 +176,7 @@ const OrderPage = () => {
 
     const handleTabChange = useCallback(
         (newType) => {
-            navigate(
-                `/sellers/${username}/stores/${storeid}/orders?type=${newType}`
-            )
+            navigate(`/storelist/${storeid}/orders?type=${newType}`)
         },
         [navigate, username, storeid]
     )

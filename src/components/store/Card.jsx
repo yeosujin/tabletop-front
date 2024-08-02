@@ -74,7 +74,11 @@ const Card = ({ store, render, onModifyClick }) => {
                         <Box sx={{ mb: 1 }}>
                             <Chip
                                 label={storeTypeMap[store.storeType]}
-                                color="primary"
+                                color={
+                                    storeTypeMap[store.storeType] === '임시'
+                                        ? 'primary'
+                                        : 'secondary'
+                                }
                                 size="small"
                             />
                         </Box>
