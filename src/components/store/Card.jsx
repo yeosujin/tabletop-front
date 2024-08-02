@@ -20,7 +20,7 @@ const Card = ({ store, render, onModifyClick }) => {
     const open = Boolean(anchorEl)
     const navigate = useNavigate()
     const s3Prefix =
-        'https://tabletop-tabletop.s3.ap-northeast-2.amazonaws.com/tabletop/'
+        'https://tabletop-tabletop.s3.ap-northeast-2.amazonaws.com/tabletop/store_image/'
 
     const storeTypeMap = {
         ORDINARY: '상시',

@@ -41,6 +41,7 @@ const StoreListPage = () => {
                 loginId={loginId}
                 onModifyClick={handleModifyClick}
                 isListChanged={isListChanged}
+                setIsListChanged={setIsListChanged}
             />
             <Fab
                 color="primary"
