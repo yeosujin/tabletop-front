@@ -7,11 +7,7 @@ import { addStoreAPI, isDuplicatedAPI } from '../../../../apis/seller/SellerAPI'
 import { Dialog, DialogContent, DialogTitle } from '@mui/material'
 
 const StoreAddModal = ({ open, onSubmit, onClose }) => {
-    const navigate = useNavigate()
-
-    // store type을 설정하는 radio button 값 저장
-    const [selectedType, setSelectedType] = useState('상시')
-    const [formData, setFormData] = useState({
+    const initialFormState = {
         name: '',
         storeType: '상시',
         corporateRegistrationNumber: '',
@@ -23,7 +19,23 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
         address: '',
         description: '',
         holidays: [],
-    })
+        image: null,
+    }
+    const navigate = useNavigate()
+
+    // store type을 설정하는 radio button 값 저장
+    const [selectedType, setSelectedType] = useState('상시')
+    const [formData, setFormData] = useState(initialFormState)
+
+    const resetForm = () => {
+        setFormData(initialFormState)
+        setSelectedType('상시')
+        setValidated(false)
+        // 파일 입력 필드 초기화
+        if (document.querySelector('input[type="file"]')) {
+            document.querySelector('input[type="file"]').value = ''
+        }
+    }
 
     // 사업자 등록번호 검증 관련
     const [validated, setValidated] = useState(false)
@@ -151,13 +163,12 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
         try {
             const response = await addStoreAPI(loginId, formDataToSend)
             console.log(response)
-            navigate('/storelist')
+            resetForm() // 폼 초기화
+            onSubmit() // 부모 컴포넌트에 제출 완료 알림
+            onClose() // 모달 닫기
         } catch (error) {
             alert('가게 등록에 실패했습니다.', error)
         }
-
-        onSubmit() // 부모 컴포넌트에 제출 완료 알림
-        onClose() // 모달 닫기
     }
 
     return (
