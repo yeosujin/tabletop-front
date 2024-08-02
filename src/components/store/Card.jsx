@@ -12,6 +12,7 @@ const Card = ({ store, render }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const navigate = useNavigate();
+    const s3Prefix = 'https://tabletop-tabletop.s3.ap-northeast-2.amazonaws.com/tabletop/';
 
     // storeType 변환
     const storeTypeMap = {
@@ -44,9 +45,9 @@ const Card = ({ store, render }) => {
 
     return (
         <div className="card">
-            {store.image && (
-                <div>
-                    <img src={store.image.src || '이미지를 등록하세요.'} alt='대표 이미지' width="100" />
+            {store.s3Url && (
+                <div className="image-preview">
+                    <img src={s3Prefix + store.s3Url} alt='대표 이미지' width="100" />
                 </div>
             )}
             <Chip label={storeTypeMap[store.storeType]} color="primary" />

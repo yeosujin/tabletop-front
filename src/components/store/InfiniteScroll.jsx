@@ -19,19 +19,6 @@ const InfiniteScrollComponent = ({ loginId }) => {
     const fetchStores = async () => {
         await getStoresAPI(loginId)
             .then(response => {
-                // const data = response.data.map(store => {
-                //     const base64Image = store.imageBase64;
-                    
-                //     if (base64Image) {
-                //         const image = new Image();
-                //         image.src = 'data:image/jpeg;base64,' + base64Image;
-                //         store.image = image;
-                //     }
-
-                //     return store;
-                // });
-                // console.log(data.store[2].image);
-
                 setAllStores(response);
                 setDisplayedStores(response.slice(0, ITEMS_PER_PAGE));
                 setHasMore(response.length > ITEMS_PER_PAGE);
@@ -47,9 +34,10 @@ const InfiniteScrollComponent = ({ loginId }) => {
         const currentLength = displayedStores.length;
         const newStores = allStores.slice(currentLength, currentLength + ITEMS_PER_PAGE);
         setDisplayedStores(prevStores => [...prevStores, ...newStores]);
+        setHasMore(allStores.length > currentLength + newStores.length);
+
         console.log('loadMoreStores: newStores', newStores);
         console.log('loadMoreStores: displayedStores', displayedStores);
-        setHasMore(allStores.length > currentLength + newStores.length);
     };
 
     return (
