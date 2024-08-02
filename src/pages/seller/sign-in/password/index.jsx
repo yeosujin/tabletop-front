@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { styled } from '@mui/system';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { resetPassword } from '../../../../apis/auth/AuthAPI';
 
 const Container = styled(Box)({
   display: 'flex',
-  height: '100vh',
+  marginTop: '9rem',
   alignItems: 'center',
   justifyContent: 'center',
 });
@@ -33,11 +33,36 @@ const PasswordPage = () => {
     mobile: '',
   });
 
+  const formatPhoneNumber = (value) => {
+    const cleaned = value.replace(/\D/g, '');
+    return cleaned.replace(/^(\d{2,3})(\d{3,4})(\d{4})$/g, "$1-$2-$3").replace(/(\-{1,2})$/g, "");
+  };
+
   const handleChange = (e) => {
-    setValues({
-      ...values,
-      [e.target.id]: e.target.value,
-    });
+    const { id, value } = e.target;
+
+    if (id === 'mobile') {
+      const formattedValue = formatPhoneNumber(value);
+      setValues({
+        ...values,
+        [id]: formattedValue,
+      });
+    } else {
+      setValues({
+        ...values,
+        [id]: value,
+      });
+    }
+  };
+
+  const handlePhoneKeyDown = (e) => {
+    const { key } = e;
+    const { value } = e.target;
+    const cleaned = value.replace(/\D/g, '');
+
+    if (cleaned.length >= 11 && key !== 'Backspace' && key !== 'Delete') {
+      e.preventDefault();
+    }
   };
 
   const handleSubmit = async () => {
@@ -84,20 +109,24 @@ const PasswordPage = () => {
           label="전화번호" 
           variant="outlined" 
           fullWidth 
-          onChange={handleChange} 
+          onChange={handleChange}
+          onKeyDown={handlePhoneKeyDown} 
           value={values.mobile} 
         />
         <Button 
           variant="contained" 
           fullWidth 
-          sx={{ marginTop: '1rem', backgroundColor: '#00C73C' }}
           onClick={handleSubmit}
         >
           확인
         </Button>
+        <Link to="/login" style={{ textDecoration: 'none', color: '#1976d2', marginTop: '1rem', textAlign: 'center' }}>
+            뒤로가기
+        </Link>
       </FormContainer>
     </Container>
   );
 };
 
 export default PasswordPage;
+

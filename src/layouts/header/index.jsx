@@ -4,6 +4,7 @@ import { logout } from '../../apis/auth/AuthAPI';
 
 const SiteHeader = () => {
   const navigate = useNavigate();
+  const ACCESS_TOKEN = localStorage.getItem('accessToken');
   const loginId = localStorage.getItem('id'); // 로그인 아이디를 로컬스토리지에서 가져옴
 
   const handleProfileClick = () => {
@@ -30,10 +31,12 @@ const SiteHeader = () => {
     return (
         <header style={styles.header}>
           <div style={styles.logo}>자리부터잡아</div>
-          <div>
-            <button style={styles.button} onClick={handleProfileClick}>Profile</button>
-            <button style={styles.button} onClick={handleLogoutClick}>Log-out</button>
-          </div>
+          {ACCESS_TOKEN && (
+            <div>
+              <button style={styles.button} onClick={handleProfileClick}>Profile</button>
+              <button style={styles.button} onClick={handleLogoutClick}>Log-out</button>
+            </div>
+          )}
         </header>
       );
     };

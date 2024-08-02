@@ -6,7 +6,7 @@ import { login } from '../../../apis/auth/AuthAPI';
 
 const Container = styled(Box)({
   display: 'flex',
-  height: '100vh',
+  marginTop: '11rem',
   alignItems: 'center',
   justifyContent: 'center',
 });
@@ -76,6 +76,12 @@ const SignInPage = () => {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    }
+  };
+
   return (
     <Container>
       <FormContainer>
@@ -104,7 +110,8 @@ const SignInPage = () => {
             margin="normal" 
             fullWidth 
             onChange={handleChange} 
-            value={values.loginId} 
+            value={values.loginId}
+            onKeyDown={handleKeyDown}
           />
           <TextField 
             id="password" 
@@ -114,17 +121,18 @@ const SignInPage = () => {
             margin="normal" 
             fullWidth 
             onChange={handleChange} 
-            value={values.password} 
+            value={values.password}
+            onKeyDown={handleKeyDown}
           />
           <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
             <Link to="/signup" style={{ textDecoration: 'none', color: '#1976d2' }}>회원가입</Link>
-            <Link to="/password" style={{ textDecoration: 'none', color: '#1976d2' }}>비밀번호 찾기</Link>
+            <Link to="/password" style={{ textDecoration: 'none', color: '#1976d2'}}>비밀번호 찾기</Link>
           </Box>
           <Button 
             variant="contained" 
             color="primary" 
             fullWidth 
-            sx={{ marginTop: '2rem' }}
+            sx={{ marginTop: '2rem'}}
             onClick={handleSubmit}
           >
             로그인

@@ -27,7 +27,7 @@ const refreshAccessToken = async () => {
             // 리프레시 토큰이 만료된 경우 로그인 페이지로 이동
             alert(err.response.data.message);
             localStorage.clear();
-            window.location.href = '/signin'; // 로그인 페이지로 리디렉션
+            window.location.href = '/login'; // 로그인 페이지로 리디렉션
         }
     }
 };
@@ -125,5 +125,4 @@ export const deleteStoreAPI = async (storeId) => {
         headers: getTokenHeaders()
     });
     return response.data;
-};
 };

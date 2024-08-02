@@ -8,17 +8,17 @@ export const useCart = () => useContext(CartContext)
 export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([])
 
-    const addToCart = (item) => {
+    const addToCart = (item, incrementBy = item.quantity) => {
         setCartItems((prevItems) => {
             const existingItem = prevItems.find((i) => i.menuId === item.menuId)
             if (existingItem) {
                 return prevItems.map((i) =>
                     i.menuId === item.menuId
-                        ? { ...i, quantity: i.quantity + 1 }
+                        ? { ...i, quantity: i.quantity + incrementBy }
                         : i
                 )
             } else {
-                return [...prevItems, { ...item, quantity: 1 }]
+                return [...prevItems, item]
             }
         })
     }

@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import StoreList from './StoreList.jsx';
-import { getStoresAPI } from '../../apis/seller/SellerAPI.jsx';
+import React, { useEffect, useState } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import StoreList from './StoreList.jsx'
+import { getStoresAPI } from '../../apis/seller/SellerAPI.jsx'
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 6
 
 const InfiniteScrollComponent = ({ loginId }) => {
-    const [allStores, setAllStores] = useState([]);
-    const [displayedStores, setDisplayedStores] = useState([]);
-    const [hasMore, setHasMore] = useState(true);
-    const [isListChanged, setIsListChanged] = useState(false);
+    const [allStores, setAllStores] = useState([])
+    const [displayedStores, setDisplayedStores] = useState([])
+    const [hasMore, setHasMore] = useState(true)
+    const [isListChanged, setIsListChanged] = useState(false)
 
     useEffect(() => {
-        fetchStores();
-    }, [isListChanged]);
+        fetchStores()
+    }, [isListChanged])
 
     // 전체 데이터 가져오기
     const fetchStores = async () => {
@@ -23,11 +23,7 @@ const InfiniteScrollComponent = ({ loginId }) => {
                 setDisplayedStores(response.slice(0, ITEMS_PER_PAGE));
                 setHasMore(response.length > ITEMS_PER_PAGE);
             })
-            .catch(error => {
-                console.error('Error fetching stores:', error);
-                setHasMore(false);
-            });
-    };
+    }
 
     // 전체 데이터에서 6개씩 더 가져오기
     const loadMoreStores = () => {
@@ -50,12 +46,21 @@ const InfiniteScrollComponent = ({ loginId }) => {
                     next={loadMoreStores}
                     hasMore={hasMore}
                     loader={<h4>Loading...</h4>}
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        scrollbarWidth: 'none',
+                        overflow: 'hidden',
+                    }}
                 >
-                <StoreList stores={displayedStores} render={setIsListChanged}/>
+                    <StoreList
+                        stores={displayedStores}
+                        render={setIsListChanged}
+                    />
                 </InfiniteScroll>
             )}
         </>
-    );
-};
+    )
+}
 
-export default InfiniteScrollComponent;
+export default InfiniteScrollComponent
