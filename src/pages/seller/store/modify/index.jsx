@@ -26,7 +26,7 @@ const StoreModifyPage = () => {
             const response = await getStoreDetailsAPI(storeId);
 
             setFormData({
-                image: response.s3Url && s3Prefix + response.s3Url,
+                image: (response.s3Url ? s3Prefix + response.s3Url : 'https://via.placeholder.com/140x140?text=No+Image'),
                 name: response.name || '',
                 storeType: storeTypeMap[response.storeType] || '',
                 corporateRegistrationNumber: response.corporateRegistrationNumber || '',
@@ -38,7 +38,7 @@ const StoreModifyPage = () => {
                 address: response.address || '',
                 description: response.description || '',
                 holidays: response.holidays || '',
-            });     
+            });
         }
         fetchData();
     }, [storeId]);
@@ -102,7 +102,7 @@ const StoreModifyPage = () => {
         <form onSubmit={handleSubmit}>
             {formData.image && (
                 <div className="image-preview">
-                    <img src={formData.image || ''} alt="미리보기" width="100" />
+                    <img src={formData.image} alt="미리보기" width="100" />
                 </div>
             )}
             <div>
