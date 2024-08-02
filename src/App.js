@@ -41,7 +41,7 @@ const Layout = () => (
 const theme = createTheme({
     palette: {
         primary: { main: '#ff9f1c' },
-        secondary: { main: '#ff9f1c' },
+        secondary: { main: '#1c7cff' },
         background: { default: '#fdfcdc' },
     },
     components: {
