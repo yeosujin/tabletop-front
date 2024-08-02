@@ -11,7 +11,7 @@ const StoreModifyPage = () => {
     const location = useLocation();
     const { storeId } = location.state;
 
-    const [image, setImage] = useState(null);
+    const s3Prefix = 'https://tabletop-tabletop.s3.ap-northeast-2.amazonaws.com/tabletop/';
     const [formData, setFormData] = useState({});
 
     // storeType 변환
@@ -23,38 +23,24 @@ const StoreModifyPage = () => {
     // 기존 store data 가져와서 formData에 저장
     useEffect(() => {
         async function fetchData() {
+            const response = await getStoreDetailsAPI(storeId);
 
-            try {
-                const response = await getStoreDetailsAPI(storeId);
-                
-                const base64Image = response.imageBase64;
-
-                if (base64Image) {
-                    const image = new Image();
-                    image.src = 'data:image/jpeg;base64,' + base64Image;
-                    setImage(image);
-                }
-
-                setFormData({
-                    name: response.name || '',
-                    storeType: storeTypeMap[response.storeType] || '',
-                    corporateRegistrationNumber: response.corporateRegistrationNumber || '',
-                    openDate: response.openDate || '',
-                    closeDate: response.closeDate || '',
-                    openTime: response.openTime ? response.openTime.substring(0, 5) : '', // HH:MM 형식으로 변환
-                    closeTime: response.closeTime ? response.closeTime.substring(0, 5) : '', // HH:MM 형식으로 변환
-                    notice: response.notice || '',
-                    address: response.address || '',
-                    description: response.description || '',
-                    holidays: response.holidays || '',
-                });
-            } catch (error) {
-                console.error('Error fetching store data:', error);
-            }
+            setFormData({
+                image: response.s3Url && s3Prefix + response.s3Url,
+                name: response.name || '',
+                storeType: storeTypeMap[response.storeType] || '',
+                corporateRegistrationNumber: response.corporateRegistrationNumber || '',
+                openDate: response.openDate || '',
+                closeDate: response.closeDate || '',
+                openTime: response.openTime ? response.openTime.substring(0, 5) : '', // HH:MM 형식으로 변환
+                closeTime: response.closeTime ? response.closeTime.substring(0, 5) : '', // HH:MM 형식으로 변환
+                notice: response.notice || '',
+                address: response.address || '',
+                description: response.description || '',
+                holidays: response.holidays || '',
+            });     
         }
-
         fetchData();
-        
     }, [storeId]);
 
     // form의 input 값 변경 시
@@ -75,17 +61,22 @@ const StoreModifyPage = () => {
     // 이미지 변경 시
     const handleImageChange = (event) => {
         const file = event.target.files[0];
+
         if (file) {
-            const image = new Image();
-            image.src = URL.createObjectURL(file);
-            setImage(image);
+            console.log('URL:',URL.createObjectURL(file));
+            setFormData(prevData => ({
+                ...prevData,
+                image: URL.createObjectURL(file)
+            }));
         }
-        handleInputChange(event);
     };
     
     // 이미지 삭제 시
     const handleImageDelete = () => {
-        setImage(null);
+        setFormData(prevData => ({
+            ...prevData,
+            image: null
+        }));
     };
     
     const handleSubmit = async (event) => {    
@@ -109,9 +100,9 @@ const StoreModifyPage = () => {
 
     return (
         <form onSubmit={handleSubmit}>
-            {image && (
+            {formData.image && (
                 <div className="image-preview">
-                    <img src={image.src} alt="미리보기" width="100" />
+                    <img src={formData.image || ''} alt="미리보기" width="100" />
                 </div>
             )}
             <div>

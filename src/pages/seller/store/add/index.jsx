@@ -10,8 +10,6 @@ const StoreAddPage = () => {
 
     // store type을 설정하는 radio button 값 저장
     const [selectedType, setSelectedType] = useState('상시');
-
-    const [image, setImage] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
         storeType: '상시',
@@ -54,14 +52,19 @@ const StoreAddPage = () => {
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
-            setImage(file);
+            setFormData(prevData => ({
+                ...prevData,
+                image: URL.createObjectURL(file)
+            }));
         }
-        handleInputChange(event);
     };
     
     // 이미지 삭제 시
     const handleImageDelete = () => {
-        setImage(null);
+        setFormData(prevData => ({
+            ...prevData,
+            image: null
+        }));
     };
 
     // 입력된 번호가 10자리 숫자인지 확인
@@ -151,9 +154,9 @@ const StoreAddPage = () => {
     
     return (
         <form onSubmit={handleSubmit}>
-            {image && (
+            {formData.image && (
                 <div className="image-preview">
-                    <img src={URL.createObjectURL(image)} alt="미리보기" width="100" />
+                    <img src={formData.image} alt="미리보기" width="100" />
                 </div>
             )}
             <div>

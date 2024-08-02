@@ -18,42 +18,23 @@ const InfiniteScrollComponent = ({ loginId }) => {
     // 전체 데이터 가져오기
     const fetchStores = async () => {
         await getStoresAPI(loginId)
-            .then((response) => {
-                // const data = response.data.map(store => {
-                //     const base64Image = store.imageBase64;
-
-                //     if (base64Image) {
-                //         const image = new Image();
-                //         image.src = 'data:image/jpeg;base64,' + base64Image;
-                //         store.image = image;
-                //     }
-
-                //     return store;
-                // });
-                // console.log(data.store[2].image);
-
-                setAllStores(response)
-                setDisplayedStores(response.slice(0, ITEMS_PER_PAGE))
-                setHasMore(response.length > ITEMS_PER_PAGE)
-            })
-            .catch((error) => {
-                console.error('Error fetching stores:', error)
-                setHasMore(false)
+            .then(response => {
+                setAllStores(response);
+                setDisplayedStores(response.slice(0, ITEMS_PER_PAGE));
+                setHasMore(response.length > ITEMS_PER_PAGE);
             })
     }
 
     // 전체 데이터에서 6개씩 더 가져오기
     const loadMoreStores = () => {
-        const currentLength = displayedStores.length
-        const newStores = allStores.slice(
-            currentLength,
-            currentLength + ITEMS_PER_PAGE
-        )
-        setDisplayedStores((prevStores) => [...prevStores, ...newStores])
-        console.log('loadMoreStores: newStores', newStores)
-        console.log('loadMoreStores: displayedStores', displayedStores)
-        setHasMore(allStores.length > currentLength + newStores.length)
-    }
+        const currentLength = displayedStores.length;
+        const newStores = allStores.slice(currentLength, currentLength + ITEMS_PER_PAGE);
+        setDisplayedStores(prevStores => [...prevStores, ...newStores]);
+        setHasMore(allStores.length > currentLength + newStores.length);
+
+        console.log('loadMoreStores: newStores', newStores);
+        console.log('loadMoreStores: displayedStores', displayedStores);
+    };
 
     return (
         <>

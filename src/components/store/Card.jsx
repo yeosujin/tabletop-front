@@ -16,9 +16,11 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { deleteStoreAPI } from '../../apis/seller/SellerAPI'
 
 const Card = ({ store, render }) => {
-    const [anchorEl, setAnchorEl] = React.useState(null)
-    const open = Boolean(anchorEl)
-    const navigate = useNavigate()
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const open = Boolean(anchorEl);
+    const navigate = useNavigate();
+    const s3Prefix = 'https://tabletop-tabletop.s3.ap-northeast-2.amazonaws.com/tabletop/';
+
 
     const storeTypeMap = {
         ORDINARY: '상시',
@@ -59,7 +61,7 @@ const Card = ({ store, render }) => {
                     <CardMedia
                         component="img"
                         image={
-                            store.image?.src ||
+                            s3Prefix + store.s3Url ||
                             'https://via.placeholder.com/140x140?text=No+Image'
                         }
                         alt={store.name}
