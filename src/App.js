@@ -41,6 +41,18 @@ const Layout = () => (
 
 const router = createBrowserRouter([
     {
+        path: 'login',
+        element: <SignInPage />,
+    },
+    {
+        path: 'signup',
+        element: <SignUpPage />,
+    },
+    {
+        path: 'password',
+        element: <PasswordPage />,
+    },
+    {
         path: '/',
         element: <Layout />,
         errorElement: <ErrorBoundary />,
@@ -49,18 +61,7 @@ const router = createBrowserRouter([
                 index: true,
                 element: <ExamplePage />,
             },
-            {
-                path: 'login',
-                element: <SignInPage />,
-            },
-            {
-                path: 'signup',
-                element: <SignUpPage />,
-            },
-            {
-                path: 'password',
-                element: <PasswordPage />,
-            },
+
             {
                 path: 'storelist',
                 element: <StoreListPage />,
@@ -88,10 +89,6 @@ const router = createBrowserRouter([
             {
                 path: 'sellers/:loginId/profile/modify',
                 element: <MyProfileModifyPage />,
-            },
-            {
-                path: 'details',
-                element: <InfoStorePage />,
             },
         ],
     },
