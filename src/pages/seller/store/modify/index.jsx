@@ -46,8 +46,8 @@ const StoreModifyModal = ({ open, onClose, storeId, onSubmit }) => {
                     holidays: response.holidays || '',
                 })
             }
-            fetchData()
         }
+        fetchData()
     }, [storeId])
 
     // form의 input 값 변경 시
