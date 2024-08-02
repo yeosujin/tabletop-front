@@ -2,12 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { getMenus, createMenu, updateMenu, deleteMenu } from '../../../apis/seller/menuAPI';
-
 import MenuList from './list';
 import MenuAdd from './add';
 import MenuModify from './modify';
-
-import { TextField, Button as MuiButton } from '@mui/material';
 
 const Container = styled.div`
   padding: 1rem;
@@ -32,141 +29,9 @@ const AddButton = styled.button`
   margin-bottom: 1rem;
 `;
 
-
-const Form = styled.form`
-  display: flex;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 4px;
-`;
-
-const ImageSection = styled.div`
-  flex: 1;
-  margin-right: 1rem;
-`;
-
-const InputSection = styled.div`
-  flex: 2;
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
-`;
-
-const SaveButton = styled(Button)`
-  background-color: #ff9f1c;
-  color: white;
-`;
-
-const DeleteButton = styled(Button)`
-  background-color: #dc3545;
-  color: white;
-  margin-left: 0.5rem;
-`;
-
 const Error = styled.p`
   color: red;
   margin-bottom: 1rem;
-`;
-
-
-const MenuList = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-`;
-
-const MenuItem = styled.div`
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-`;
-
-const MenuImage = styled.img`
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  margin-bottom: 1rem;
-  border-radius: 4px;
-`;
-
-const ItemName = styled.h3`
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-`;
-
-const ItemPrice = styled.p`
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-`;
-
-const ItemDescription = styled.p`
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-`;
-
-const ImagePreview = styled.img`
-  max-width: 100%;
-  max-height: 300px;
-  object-fit: contain;
-  margin-bottom: 1rem;
-`;
-
-const CropButton = styled(Button)`
-  background-color: #17a2b8;
-  color: white;
-  margin-bottom: 1rem;
-`;
-
-const Modal = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-`;
-
-const ModalContent = styled.div`
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  max-width: 80%;
-  max-height: 80%;
-  overflow: auto;
-`;
-
-const FileInputContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-
-  input[type='file'] {
-    display: none;
-  }
-
-  label {
-    background-color: #007bff;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-  }
-
-  span {
-    margin-left: 1rem;
-    font-size: 1rem;
-  }
 `;
 
 const Menu = () => {
@@ -299,211 +164,45 @@ const Menu = () => {
   };
 
   return (
-    <Container>
-      <Title>메뉴 관리</Title>
-      <AddButton onClick={handleAddMenu}>+ 메뉴 추가</AddButton>
-      <MenuList>
-        {menuItems.map((item) => (
-          <MenuItem key={item.id}>
-            {item.image && <MenuImage src={item.image} alt={item.name} />}
-            <ItemName>{item.name}</ItemName>
-            <ItemPrice>{item.price}원</ItemPrice>
-            <ItemDescription>{item.description}</ItemDescription>
-            <ButtonContainer>
-              <Button onClick={() => handleEdit(item)}>수정</Button>
-              <DeleteButton onClick={() => handleDelete(item.id)} disabled={isDeleting}>
-                {isDeleting ? '삭제 중...' : '삭제'}
-              </DeleteButton>
-            </ButtonContainer>
-          </MenuItem>
-        ))}
-      </MenuList>
+      <Container>
+        <Title>메뉴 관리</Title>
+        <AddButton onClick={handleAddMenu}>+ 메뉴 추가</AddButton>
 
-      {showAddModal && (
-        <Modal>
-          <ModalContent>
-            <Form onSubmit={handleSubmit}>
-              <ImageSection>
-                <FileInputContainer>
-                  <input type="file" id="fileInput" onChange={handleImageUpload} accept="image/*" />
-                  <label htmlFor="fileInput">파일 선택</label>
-                  <span>{newItem.image ? newItem.image.name : '선택된 파일 없음'}</span>
-                </FileInputContainer>
-                {newItem.image && (
-                  <>
-                    <ImagePreview src={URL.createObjectURL(newItem.image)} alt="Preview" />
-                    <CropButton type="button" onClick={() => setShowCropModal(true)}>
-                      이미지 자르기
-                    </CropButton>
-                  </>
-                )}
-              </ImageSection>
-              <InputSection>
-                <TextField
-                  fullWidth
-                  label="메뉴 이름"
-                  name="name"
-                  value={newItem.name}
-                  onChange={handleInputChange}
-                  required
-                  margin="normal"
-                />
-                <TextField
-                  fullWidth
-                  type="number"
-                  label="가격"
-                  name="price"
-                  value={newItem.price}
-                  onChange={handleInputChange}
-                  required
-                  margin="normal"
-                />
-                <TextField
-                  fullWidth
-                  label="설명"
-                  name="description"
-                  value={newItem.description}
-                  onChange={handleInputChange}
-                  multiline
-                  rows={4}
-                  margin="normal"
-                />
-                <ButtonContainer>
-                  <MuiButton
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? '저장 중...' : '저장'}
-                  </MuiButton>
-                  <MuiButton
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setShowAddModal(false);
-                    }}
-                    variant="contained"
-                  >
-                    닫기
-                  </MuiButton>
-                </ButtonContainer>
-              </InputSection>
-            </Form>
-          </ModalContent>
-        </Modal>
-      )}
+        <MenuList
+            menuItems={menuItems}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            isDeleting={isDeleting}
+        />
 
-      {showEditModal && (
-        <Modal>
-          <ModalContent>
-            <Form onSubmit={handleSubmit}>
-              <ImageSection>
-                <FileInputContainer>
-                  <input type="file" id="fileInputEdit" onChange={handleImageUpload} accept="image/*" />
-                  <label htmlFor="fileInputEdit">파일 선택</label>
-                  <span>{newItem.image ? newItem.image.name : '선택된 파일 없음'}</span>
-                </FileInputContainer>
-                {(newItem.image || editImageUrl) && (
-                  <>
-                    <ImagePreview src={newItem.image ? URL.createObjectURL(newItem.image) : editImageUrl} alt="Preview" />
-                    <CropButton type="button" onClick={() => setShowCropModal(true)}>
-                      이미지 자르기
-                    </CropButton>
-                  </>
-                )}
-              </ImageSection>
-              <InputSection>
-                <TextField
-                  fullWidth
-                  label="메뉴 이름"
-                  name="name"
-                  value={newItem.name}
-                  onChange={handleInputChange}
-                  required
-                  margin="normal"
-                />
-                <TextField
-                  fullWidth
-                  type="number"
-                  label="가격"
-                  name="price"
-                  value={newItem.price}
-                  onChange={handleInputChange}
-                  required
-                  margin="normal"
-                />
-                <TextField
-                  fullWidth
-                  label="설명"
-                  name="description"
-                  value={newItem.description}
-                  onChange={handleInputChange}
-                  multiline
-                  rows={4}
-                  margin="normal"
-                />
-                <ButtonContainer>
-                  <MuiButton
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? '저장 중...' : '저장'}
-                  </MuiButton>
-                  <MuiButton
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleDelete(editingItemId);
-                    }}
-                    variant="contained"
-                    color="secondary"
-                    disabled={isDeleting}
-                  >
-                    {isDeleting ? '삭제 중...' : '삭제'}
-                  </MuiButton>
-                  <MuiButton
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setShowEditModal(false);
-                      setEditImageUrl(null);
-                    }}
-                    variant="contained"
-                  >
-                    닫기
-                  </MuiButton>
-                </ButtonContainer>
-              </InputSection>
-            </Form>
-          </ModalContent>
-        </Modal>
-      )}
+        <MenuAdd
+            showModal={showAddModal}
+            formData={formData}
+            image={image}
+            onSubmit={handleSubmit}
+            onChange={handleInputChange}
+            onImageChange={handleImageChange}
+            onClose={() => setShowAddModal(false)}
+            isSubmitting={isSubmitting}
+        />
 
-      {showCropModal && (
-        <Modal>
-          <ModalContent>
-            <ReactCrop
-              src={newItem.image || editImageUrl}
-              crop={crop}
-              onChange={(_, percentCrop) => setCrop(percentCrop)}
-              onImageLoaded={(img) => imgRef.current = img}
-              onComplete={(c) => setCompletedCrop(c)}
-            />
-            <ButtonContainer>
-              <MuiButton type="button" onClick={() => setShowCropModal(false)} variant="contained">
-                취소
-              </MuiButton>
-            </ButtonContainer>
-          </ModalContent>
-        </Modal>
-      )}
+        <MenuModify
+            showModal={showEditModal}
+            formData={formData}
+            image={image}
+            editImageUrl={editingItemId ? menuItems.find(item => item.id === editingItemId)?.s3MenuUrl : null}
+            onSubmit={handleSubmit}
+            onChange={handleInputChange}
+            onImageChange={handleImageChange}
+            onClose={() => setShowEditModal(false)}
+            onDelete={() => handleDelete(editingItemId)}
+            isSubmitting={isSubmitting}
+            isDeleting={isDeleting}
+        />
 
-      {error && <Error>{error}</Error>}
-      {loading && <p>로딩 중...</p>}
-    </Container>
+        {error && <Error>{error}</Error>}
+        {loading && <p>로딩 중...</p>}
+      </Container>
   );
 }
 
