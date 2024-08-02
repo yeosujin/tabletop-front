@@ -50,21 +50,22 @@ const styles = {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '1.5rem',
+        padding: '1.75rem',
         backgroundColor: '#f8f8f8',
     },
     logo: {
-        fontSize: '24px',
+        fontSize: '32px',
         fontWeight: 'bold',
     },
     button: {
         marginLeft: '1rem',
-        padding: '0.5rem 1rem',
+        padding: '0.75rem 1.25rem',
         backgroundColor: '#ff9f1c', // 버튼 색상을 #ff9f1c
         color: 'white',
         border: 'none',
         borderRadius: '4px',
         cursor: 'pointer',
+        fontSize: '1.2rem',
     },
 }
 
