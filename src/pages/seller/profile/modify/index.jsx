@@ -1,43 +1,52 @@
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, Divider, Radio, RadioGroup, FormControlLabel, FormControl } from '@mui/material';
-import { styled } from '@mui/system';
+import { styled, useTheme } from '@mui/system';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useMediaQuery } from '@mui/material';
 import { validateEmail, sendVerificationCode, validatePhone } from '../../../../apis/auth/AuthAPI';
 import { updateSellerInfo } from '../../../../apis/seller/SellerAPI.jsx';
 
-const Container = styled(Box)({
+const Container = styled(Box)(({ theme }) => ({
   display: 'flex',
   marginTop: '2rem',
   alignItems: 'center',
   justifyContent: 'center',
-});
+  [theme.breakpoints.down('md')]: {
+    marginTop: '5rem',
+    padding: '1rem',
+  },
+}));
 
-const FormContainer = styled(Box)({
+const FormContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
   border: '1px solid #e0e0e0',
   borderRadius: '8px',
-  width: '60%',
+  width: '50%',
   padding: '1.8rem',
   boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+    padding: '1rem',
+  },
+}));
 
-const Header = styled(Box)({
+const Header = styled(Box)(({ theme }) => ({
   width: '100%',
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
   marginBottom: '1rem',
-});
+}));
 
-const MyProfileModfiyText = styled(Typography)({
-  fontSize: '32px', // Adjusted to h1 size
+const MyProfileModifyText = styled(Typography)(({ theme }) => ({
+  fontSize: '32px',
   fontWeight: 'bold',
-  textAlign: 'center', // Center align the text
-});
+  textAlign: 'center',
+}));
 
-const SaveButton = styled(Button)({
+const SaveButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#1976d2',
   color: 'white',
   marginTop: '1.5rem',
@@ -45,24 +54,32 @@ const SaveButton = styled(Button)({
   '&:hover': {
     backgroundColor: '#1565c0',
   },
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+  },
+}));
 
-const InputField = styled(TextField)({
+const InputField = styled(TextField)(({ theme }) => ({
   marginTop: '1rem',
   marginBottom: '1rem',
   width: '50%',
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+  },
+}));
 
-const ErrorMessage = styled(Typography)({
+const ErrorMessage = styled(Typography)(({ theme }) => ({
   color: 'red',
   marginTop: '1.5rem',
-});
+}));
 
 const MyProfileModifyPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { seller } = location.state;
   const loginId = localStorage.getItem('id');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [orderCompletion, setOrderCompletion] = useState(seller.doneClickCountSetting ? 'true' : 'false');
   const [formValues, setFormValues] = useState({
@@ -310,7 +327,7 @@ const MyProfileModifyPage = () => {
       <FormContainer>
 
         <Header>
-            <MyProfileModfiyText variant="h6">My Profile Modify</MyProfileModfiyText>
+          <MyProfileModifyText variant="h6">My Profile Modify</MyProfileModifyText>
         </Header>
 
         <Divider sx={{ width: '100%', marginBottom: '2rem' }} />
@@ -336,7 +353,7 @@ const MyProfileModifyPage = () => {
         <Button
           variant="contained"
           color="primary"
-          sx={{ width: '50%', marginBottom: '1rem' }}
+          sx={{ width: isMobile ? '100%' : '50%', marginBottom: '1rem' }}
           onClick={handleEmailValidation}
           disabled={!formValues.email || formValues.email === seller.email}
         >
@@ -390,7 +407,7 @@ const MyProfileModifyPage = () => {
           onBlur={handleBlur}
         />
 
-        <Box sx={{ display: 'flex', alignItems: 'center', width: '50%', marginTop: '1rem' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', width: isMobile ? '100%' : '50%', marginTop: '1rem' }}>
           <TextField
             label="전화번호"
             variant="outlined"
@@ -436,7 +453,7 @@ const MyProfileModifyPage = () => {
           Save
         </SaveButton>
 
-        <Link to={`/sellers/${loginId}/profile`} style={{ textDecoration: 'none', marginTop: '1rem', color: '#1976d2', marginTop: '1.5rem' }}>
+        <Link to={`/sellers/${loginId}/profile`} style={{ textDecoration: 'none', marginTop: '1rem', color: '#1976d2' }}>
           뒤로가기
         </Link>
       </FormContainer>

@@ -1,42 +1,51 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, TextField, Typography, Divider, FormControlLabel, Radio, RadioGroup } from '@mui/material';
-import { styled } from '@mui/system';
+import { styled, useTheme } from '@mui/system';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useMediaQuery } from '@mui/material';
 import { getSellerInfo, deleteSeller } from '../../../apis/seller/SellerAPI';
 
-const Container = styled(Box)({
+const Container = styled(Box)(({ theme }) => ({
   display: 'flex',
   marginTop: '2rem',
   alignItems: 'center',
   justifyContent: 'center',
-});
+  [theme.breakpoints.down('md')]: {
+    marginTop: '5rem',
+    padding: '1rem',
+  },
+}));
 
-const FormContainer = styled(Box)({
+const FormContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
   border: '1px solid #e0e0e0',
   borderRadius: '8px',
-  width: '60%',
+  width: '50%',
   padding: '1.8rem',
   boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+    padding: '1rem',
+  },
+}));
 
-const Header = styled(Box)({
+const Header = styled(Box)(({ theme }) => ({
   width: '100%',
   display: 'flex',
-  justifyContent: 'center', // Center align the header contents
+  justifyContent: 'center',
   alignItems: 'center',
   marginBottom: '1rem',
-});
+}));
 
-const MyProfileText = styled(Typography)({
-  fontSize: '32px', // Adjusted to h1 size
+const MyProfileText = styled(Typography)(({ theme }) => ({
+  fontSize: '32px',
   fontWeight: 'bold',
-  textAlign: 'center', // Center align the text
-});
+  textAlign: 'center',
+}));
 
-const ModifyButton = styled(Button)({
+const ModifyButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#1976d2',
   color: 'white',
   marginTop: '1.5rem',
@@ -44,9 +53,12 @@ const ModifyButton = styled(Button)({
   '&:hover': {
     backgroundColor: '#1565c0',
   },
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+  },
+}));
 
-const DeleteButton = styled(Button)({
+const DeleteButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#9C27B0',
   color: 'white',
   marginTop: '1.5rem',
@@ -54,13 +66,19 @@ const DeleteButton = styled(Button)({
   '&:hover': {
     backgroundColor: '#7B1FA2',
   },
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+  },
+}));
 
-const ReadOnlyInputField = styled(TextField)({
+const ReadOnlyInputField = styled(TextField)(({ theme }) => ({
   marginTop: '1.5rem',
   marginBottom: '0.5rem',
   width: '50%',
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+  },
+}));
 
 const ReadOnlyRadio = styled(Radio)({
   '&.Mui-disabled': {
@@ -68,16 +86,20 @@ const ReadOnlyRadio = styled(Radio)({
   },
 });
 
-const ClickSettingBox = styled(Box)({
+const ClickSettingBox = styled(Box)(({ theme }) => ({
   display: 'flex',
   justifyContent: 'center',
   width: '100%',
   marginTop: '1rem',
-});
+}));
 
 const MyProfilePage = () => {
   const { loginId } = useParams();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  console.log(isMobile);
+
   const [seller, setSeller] = useState({
     loginId: '',
     username: '',
@@ -109,7 +131,7 @@ const MyProfilePage = () => {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         alert('판매자 계정이 성공적으로 삭제되었습니다.');
-        navigate('/login'); // 삭제 후 로그인 페이지로 이동
+        navigate('/login');
       }
     } catch (err) {
       alert(err.response.data.message);
@@ -119,13 +141,12 @@ const MyProfilePage = () => {
   return (
     <Container>
       <FormContainer>
-        
         <Header>
-            <MyProfileText variant="h6">My Profile</MyProfileText>
+          <MyProfileText variant="h6">My Profile</MyProfileText>
         </Header>
 
         <Divider sx={{ width: '100%', marginBottom: '4rem' }} />
-        
+
         <ReadOnlyInputField
           label="아이디"
           variant="outlined"
@@ -162,7 +183,7 @@ const MyProfilePage = () => {
           }}
           value={seller.mobile}
         />
-        
+
         <ClickSettingBox>
           <RadioGroup row>
             <FormControlLabel
@@ -185,7 +206,6 @@ const MyProfilePage = () => {
         <DeleteButton variant="contained" fullWidth onClick={handleDeleteClick}>
           탈퇴하기
         </DeleteButton>
-        
       </FormContainer>
     </Container>
   );

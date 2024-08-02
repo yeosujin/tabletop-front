@@ -7,8 +7,6 @@ import SignInPage from './pages/seller/sign-in'
 import SignUpPage from './pages/seller/sign-up'
 import PasswordPage from './pages/seller/sign-in/password'
 import StoreListPage from './pages/seller/store/list'
-import StoreAddPage from './pages/seller/store/add'
-import StoreModifyPage from './pages/seller/store/modify'
 import OrderPage from './pages/seller/order'
 import MenuPage from './pages/consumer/menu'
 import ConsumerLayout from './layouts/consumer'
@@ -23,6 +21,7 @@ import Menu from './pages/seller/menu'
 import MyProfilePage from './pages/seller/profile'
 import MyProfileModifyPage from './pages/seller/profile/modify'
 import CompletePage from './pages/consumer/complete'
+import { createTheme, ThemeProvider } from '@mui/material'
 
 const NotFound = () => <h1>404 - 페이지를 찾을 수 없습니다.</h1>
 
@@ -39,7 +38,37 @@ const Layout = () => (
     </div>
 )
 
+const theme = createTheme({
+    palette: {
+        primary: { main: '#ff9f1c' },
+        secondary: { main: '#1c7cff' },
+        background: { default: '#fdfcdc' },
+    },
+    components: {
+        MuiButton: {
+            defaultProps: {
+                color: 'primary',
+                style: {
+                    color: 'white',
+                },
+            },
+        },
+    },
+})
+
 const router = createBrowserRouter([
+    {
+        path: 'login',
+        element: <SignInPage />,
+    },
+    {
+        path: 'signup',
+        element: <SignUpPage />,
+    },
+    {
+        path: 'password',
+        element: <PasswordPage />,
+    },
     {
         path: '/',
         element: <Layout />,
@@ -49,32 +78,13 @@ const router = createBrowserRouter([
                 index: true,
                 element: <ExamplePage />,
             },
-            {
-                path: 'login',
-                element: <SignInPage />,
-            },
-            {
-                path: 'signup',
-                element: <SignUpPage />,
-            },
-            {
-                path: 'password',
-                element: <PasswordPage />,
-            },
+
             {
                 path: 'storelist',
                 element: <StoreListPage />,
             },
             {
-                path: 'addstore',
-                element: <StoreAddPage />,
-            },
-            {
-                path: 'modifystore',
-                element: <StoreModifyPage />,
-            },
-            {
-                path: 'sellers/:username/stores/:storeid/orders',
+                path: 'storelist/:storeid/orders',
                 element: <OrderPage />,
             },
             {
@@ -88,10 +98,6 @@ const router = createBrowserRouter([
             {
                 path: 'sellers/:loginId/profile/modify',
                 element: <MyProfileModifyPage />,
-            },
-            {
-                path: 'details',
-                element: <InfoStorePage />,
             },
         ],
     },
@@ -130,13 +136,15 @@ const router = createBrowserRouter([
 
 function App() {
     return (
-        <TableProvider>
-            <CartProvider>
-                <Suspense fallback={<div>Loading...</div>}>
-                    <RouterProvider router={router} />
-                </Suspense>
-            </CartProvider>
-        </TableProvider>
+        <ThemeProvider theme={theme}>
+            <TableProvider>
+                <CartProvider>
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <RouterProvider router={router} />
+                    </Suspense>
+                </CartProvider>
+            </TableProvider>
+        </ThemeProvider>
     )
 }
 

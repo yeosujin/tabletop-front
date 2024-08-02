@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography } from '@mui/material';
-import { styled } from '@mui/system';
+import { styled, useTheme } from '@mui/system';
 import { Link, useNavigate } from 'react-router-dom';
+import { useMediaQuery } from '@mui/material';
 import { login } from '../../../apis/auth/AuthAPI';
 
-const Container = styled(Box)({
+const Container = styled(Box)(({ theme }) => ({
   display: 'flex',
-  marginTop: '11rem',
   alignItems: 'center',
   justifyContent: 'center',
-});
+  height: '100vh',
+  [theme.breakpoints.down('md')]: {
+    padding: '1rem',
+  },
+}));
 
-const FormContainer = styled(Box)({
+const FormContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
   border: '1px solid #e0e0e0',
@@ -19,29 +23,47 @@ const FormContainer = styled(Box)({
   width: '60%',
   padding: '2rem',
   boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-});
+  [theme.breakpoints.down('md')]: {
+    flexDirection: 'column',
+    width: '100%',
+    padding: '1rem',
+  },
+}));
 
-const LogoBox = styled(Box)({
+const LogoBox = styled(Box)(({ theme }) => ({
   width: '50%',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   borderRight: '1px solid #e0e0e0',
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+    borderRight: 'none',
+    borderBottom: '1px solid #e0e0e0',
+    marginBottom: '1rem',
+  },
+}));
 
-const FormBox = styled(Box)({
+const FormBox = styled(Box)(({ theme }) => ({
   width: '50%',
   padding: '0 2rem',
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+    padding: '0',
+  },
+}));
 
 const SignInPage = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
   const [values, setValues] = useState({
-    loginId: "",
-    password: "",
+    loginId: '',
+    password: '',
   });
 
   const handleChange = (e) => {
@@ -69,7 +91,6 @@ const SignInPage = () => {
       localStorage.setItem('accessToken', response.accessToken);
       localStorage.setItem('refreshToken', response.refreshToken);
 
-      const loginId = localStorage.getItem('id');
       navigate(`/storelist`);
     } catch (err) {
       alert(err.response.data.message);
@@ -88,8 +109,8 @@ const SignInPage = () => {
         <LogoBox>
           <Box
             sx={{
-              width: '200px',
-              height: '200px',
+              width: isMobile ? '150px' : '200px',
+              height: isMobile ? '150px' : '200px',
               backgroundColor: '#e0e0e0',
               display: 'flex',
               alignItems: 'center',

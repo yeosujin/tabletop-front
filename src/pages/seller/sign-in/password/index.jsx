@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography } from '@mui/material';
-import { styled } from '@mui/system';
+import { styled, useTheme } from '@mui/system';
 import { Link, useNavigate } from 'react-router-dom';
+import { useMediaQuery } from '@mui/material';
 import { resetPassword } from '../../../../apis/auth/AuthAPI';
 
-const Container = styled(Box)({
+const Container = styled(Box)(({ theme }) => ({
   display: 'flex',
   marginTop: '9rem',
   alignItems: 'center',
   justifyContent: 'center',
-});
+  [theme.breakpoints.down('md')]: {
+    marginTop: '5rem',
+    padding: '1rem',
+  },
+}));
 
-const FormContainer = styled(Box)({
+const FormContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   border: '1px solid #e0e0e0',
@@ -19,14 +24,22 @@ const FormContainer = styled(Box)({
   width: '30%', 
   padding: '2rem',
   boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+    padding: '1rem',
+  },
+}));
 
-const CustomTextField = styled(TextField)({
-  marginBottom: '1.5rem', 
-});
+const CustomTextField = styled(TextField)(({ theme }) => ({
+  marginBottom: '1.5rem',
+}));
 
 const PasswordPage = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  console.log(isMobile);
+
   const [values, setValues] = useState({
     loginId: '',
     email: '',
@@ -121,7 +134,7 @@ const PasswordPage = () => {
           확인
         </Button>
         <Link to="/login" style={{ textDecoration: 'none', color: '#1976d2', marginTop: '1rem', textAlign: 'center' }}>
-            뒤로가기
+          뒤로가기
         </Link>
       </FormContainer>
     </Container>
@@ -129,4 +142,3 @@ const PasswordPage = () => {
 };
 
 export default PasswordPage;
-
