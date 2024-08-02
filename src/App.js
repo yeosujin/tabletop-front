@@ -74,7 +74,7 @@ const router = createBrowserRouter([
                 element: <StoreModifyPage />,
             },
             {
-                path: 'sellers/:username/stores/:storeid/orders',
+                path: 'storelist/:storeid/orders',
                 element: <OrderPage />,
             },
             {
