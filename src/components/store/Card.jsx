@@ -15,12 +15,12 @@ import {
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { deleteStoreAPI } from '../../apis/seller/SellerAPI'
 
-const Card = ({ store, render }) => {
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const open = Boolean(anchorEl);
-    const navigate = useNavigate();
-    const s3Prefix = 'https://tabletop-tabletop.s3.ap-northeast-2.amazonaws.com/tabletop/';
-
+const Card = ({ store, render, onModifyClick }) => {
+    const [anchorEl, setAnchorEl] = React.useState(null)
+    const open = Boolean(anchorEl)
+    const navigate = useNavigate()
+    const s3Prefix =
+        'https://tabletop-tabletop.s3.ap-northeast-2.amazonaws.com/tabletop/'
 
     const storeTypeMap = {
         ORDINARY: '상시',
@@ -38,7 +38,7 @@ const Card = ({ store, render }) => {
     }
 
     const moveToModifyStore = (storeId) => {
-        navigate('/modifystore', { state: { storeId } })
+        onModifyClick(storeId)
     }
 
     const moveToEditMenu = (storeId) => {

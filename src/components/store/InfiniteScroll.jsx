@@ -5,11 +5,10 @@ import { getStoresAPI } from '../../apis/seller/SellerAPI.jsx'
 
 const ITEMS_PER_PAGE = 6
 
-const InfiniteScrollComponent = ({ loginId }) => {
+const InfiniteScrollComponent = ({ loginId, onModifyClick, isListChanged }) => {
     const [allStores, setAllStores] = useState([])
     const [displayedStores, setDisplayedStores] = useState([])
     const [hasMore, setHasMore] = useState(true)
-    const [isListChanged, setIsListChanged] = useState(false)
 
     useEffect(() => {
         fetchStores()
@@ -17,24 +16,23 @@ const InfiniteScrollComponent = ({ loginId }) => {
 
     // 전체 데이터 가져오기
     const fetchStores = async () => {
-        await getStoresAPI(loginId)
-            .then(response => {
-                setAllStores(response);
-                setDisplayedStores(response.slice(0, ITEMS_PER_PAGE));
-                setHasMore(response.length > ITEMS_PER_PAGE);
-            })
+        await getStoresAPI(loginId).then((response) => {
+            setAllStores(response)
+            setDisplayedStores(response.slice(0, ITEMS_PER_PAGE))
+            setHasMore(response.length > ITEMS_PER_PAGE)
+        })
     }
 
     // 전체 데이터에서 6개씩 더 가져오기
     const loadMoreStores = () => {
-        const currentLength = displayedStores.length;
-        const newStores = allStores.slice(currentLength, currentLength + ITEMS_PER_PAGE);
-        setDisplayedStores(prevStores => [...prevStores, ...newStores]);
-        setHasMore(allStores.length > currentLength + newStores.length);
-
-        console.log('loadMoreStores: newStores', newStores);
-        console.log('loadMoreStores: displayedStores', displayedStores);
-    };
+        const currentLength = displayedStores.length
+        const newStores = allStores.slice(
+            currentLength,
+            currentLength + ITEMS_PER_PAGE
+        )
+        setDisplayedStores((prevStores) => [...prevStores, ...newStores])
+        setHasMore(allStores.length > currentLength + newStores.length)
+    }
 
     return (
         <>
@@ -55,7 +53,7 @@ const InfiniteScrollComponent = ({ loginId }) => {
                 >
                     <StoreList
                         stores={displayedStores}
-                        render={setIsListChanged}
+                        onModifyClick={onModifyClick}
                     />
                 </InfiniteScroll>
             )}

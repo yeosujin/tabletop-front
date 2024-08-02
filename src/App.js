@@ -7,7 +7,6 @@ import SignInPage from './pages/seller/sign-in'
 import SignUpPage from './pages/seller/sign-up'
 import PasswordPage from './pages/seller/sign-in/password'
 import StoreListPage from './pages/seller/store/list'
-import StoreModifyPage from './pages/seller/store/modify'
 import OrderPage from './pages/seller/order'
 import MenuPage from './pages/consumer/menu'
 import ConsumerLayout from './layouts/consumer'
@@ -83,10 +82,6 @@ const router = createBrowserRouter([
             {
                 path: 'storelist',
                 element: <StoreListPage />,
-            },
-            {
-                path: 'modifystore',
-                element: <StoreModifyPage />,
             },
             {
                 path: 'storelist/:storeid/orders',

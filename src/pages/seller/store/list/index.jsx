@@ -1,32 +1,47 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import InfiniteScrollComponent from '../../../../components/store/InfiniteScroll'
 import Fab from '@mui/material/Fab'
 import AddIcon from '@mui/icons-material/Add'
 import StoreAddModal from '../add'
+import StoreModifyModal from '../modify'
 
 const StoreListPage = () => {
-    const navigate = useNavigate()
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+    const [isModifyModalOpen, setIsModifyModalOpen] = useState(false)
+    const [selectedStoreId, setSelectedStoreId] = useState(null)
+    const [isListChanged, setIsListChanged] = useState(false)
     const loginId = localStorage.getItem('id')
-    const [isModalOpen, setIsModalOpen] = useState(false)
 
     const handleAddClick = () => {
-        setIsModalOpen(true)
+        setIsAddModalOpen(true)
     }
 
-    const handleCloseModal = () => {
-        setIsModalOpen(false)
+    const handleModifyClick = (storeId) => {
+        setSelectedStoreId(storeId)
+        setIsModifyModalOpen(true)
+    }
+
+    const handleCloseAddModal = () => {
+        setIsAddModalOpen(false)
+    }
+
+    const handleCloseModifyModal = () => {
+        setIsModifyModalOpen(false)
+        setSelectedStoreId(null)
     }
 
     const handleSubmitSuccess = () => {
-        // 가게 목록을 새로고침하는 로직을 여기에 추가
-        // 예: InfiniteScrollComponent를 리렌더링하거나 데이터를 다시 불러오는 등
+        setIsListChanged((prev) => !prev)
     }
 
     return (
         <div className="StoreListPage">
             <h1>My Stores</h1>
-            <InfiniteScrollComponent loginId={loginId} />
+            <InfiniteScrollComponent
+                loginId={loginId}
+                onModifyClick={handleModifyClick}
+                isListChanged={isListChanged}
+            />
             <Fab
                 color="primary"
                 aria-label="add"
@@ -41,8 +56,14 @@ const StoreListPage = () => {
                 <AddIcon />
             </Fab>
             <StoreAddModal
-                open={isModalOpen}
-                onClose={handleCloseModal}
+                open={isAddModalOpen}
+                onClose={handleCloseAddModal}
+                onSubmit={handleSubmitSuccess}
+            />
+            <StoreModifyModal
+                open={isModifyModalOpen}
+                onClose={handleCloseModifyModal}
+                storeId={selectedStoreId}
                 onSubmit={handleSubmitSuccess}
             />
         </div>
