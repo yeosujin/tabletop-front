@@ -46,39 +46,61 @@ MenuApi.interceptors.response.use((response) => {
     return Promise.reject(error);
 });
 
-// 메뉴 목록 조회
-export const getMenus = async (storeId, lastMenuId, limit) => {
-    const response = await MenuApi.get(`/api/stores/${storeId}/menus`, {
-        params: { lastMenuId, limit },
-        headers: getTokenHeaders()
-    });
-    return response.data;
-};
 
 // 메뉴 등록
 export const createMenu = async (storeId, menuData) => {
-    const response = await MenuApi.post(`/api/stores/${storeId}/menus`, menuData, {
-        headers: {
-            ...getTokenHeaders(),
-        }
-    });
-    return response.data;
+    try {
+        const response = await MenuApi.post(`/api/stores/${storeId}/menus`, menuData, {
+            headers: {
+                ...getTokenHeaders()
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error creating menu:', error);
+        throw error;
+    }
 };
 
 // 메뉴 수정
 export const updateMenu = async (storeId, menuId, menuData) => {
-    const response = await MenuApi.put(`/api/stores/${storeId}/menus/${menuId}`, menuData, {
-        headers: {
-            ...getTokenHeaders()
-        }
-    });
-    return response.data;
+    try {
+        const response = await MenuApi.put(`/api/stores/${storeId}/menus/${menuId}`, menuData, {
+            headers: {
+                ...getTokenHeaders(),
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error updating menu:', error);
+        throw error;
+    }
+};
+
+// 메뉴 조회
+export const getMenus = async (storeId, lastMenuId, limit) => {
+    try {
+        const response = await MenuApi.get(`/api/stores/${storeId}/menus`, {
+            params: { lastMenuId, limit },
+            headers: getTokenHeaders()
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching menus:', error);
+        throw error;
+    }
 };
 
 // 메뉴 삭제
 export const deleteMenu = async (storeId, menuId) => {
-    const response = await MenuApi.delete(`/api/stores/${storeId}/menus/${menuId}`, {
-        headers: getTokenHeaders()
-    });
-    return response.data;
+    try {
+        const response = await MenuApi.delete(`/api/stores/${storeId}/menus/${menuId}`, {
+            headers: getTokenHeaders()
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting menu:', error);
+        throw error;
+    }
 };
