@@ -1,37 +1,36 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { format, isEqual, startOfDay } from 'date-fns'
 import {
     AppBar,
+    Avatar,
     Box,
     Button,
     Card,
     CardContent,
+    Chip,
     createTheme,
     Grid,
     List,
     ListItem,
     ListItemButton,
     ListItemText,
+    Paper,
     TextField,
     ThemeProvider,
     Toolbar,
+    Tooltip,
     Typography,
 } from '@mui/material'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { format, isEqual, startOfDay } from 'date-fns'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Cancel, CheckCircle, Fastfood } from '@mui/icons-material'
 
 const theme = createTheme({
     palette: {
-        primary: {
-            main: '#ff9f1c',
-        },
-        secondary: {
-            main: '#ff9f1c',
-        },
-        background: {
-            default: '#fdfcdc',
-        },
+        primary: { main: '#ff9f1c' },
+        secondary: { main: '#ff9f1c' },
+        background: { default: '#fdfcdc' },
     },
 })
 
@@ -43,9 +42,7 @@ const OrderPage = () => {
     const { username, storeid } = useParams()
     const navigate = useNavigate()
     const location = useLocation()
-
-    const queryParams = new URLSearchParams(location.search)
-    const orderType = queryParams.get('type') || 'now'
+    const orderType = new URLSearchParams(location.search).get('type') || 'now'
 
     const fetchOrders = useCallback(async () => {
         setIsLoading(true)
@@ -53,9 +50,7 @@ const OrderPage = () => {
             const response = await fetch(
                 `http://localhost:8080/api/orders/${storeid}`
             )
-            if (!response.ok) {
-                throw new Error('서버 응답이 실패했습니다')
-            }
+            if (!response.ok) throw new Error('서버 응답이 실패했습니다')
             const data = await response.json()
             setOrders(data)
         } catch (error) {
@@ -65,32 +60,47 @@ const OrderPage = () => {
         }
     }, [storeid])
 
+    const handleSSEMessage = useCallback((event) => {
+        const newOrder = JSON.parse(event.data)
+        setOrders((prevOrders) => [...prevOrders, newOrder])
+    }, [])
+
+    const handleSSEUnsubscribe = async () => {
+        try {
+            console.log('Unsubscribing from SSE...')
+            const response = await fetch(
+                `http://localhost:8080/api/sse/orders/unsubscribe/${storeid}`,
+                { method: 'GET' }
+            )
+            if (!response.ok) throw new Error('Unsubscribe failed')
+            console.log('Successfully unsubscribed from SSE')
+        } catch (error) {
+            console.error('Failed to unsubscribe from SSE:', error)
+        }
+    }
+
     useEffect(() => {
         fetchOrders()
-
         const eventSource = new EventSource(
-            `http://localhost:8080/api/sse/orders/${storeid}`
+            `http://localhost:8080/api/sse/orders/subscribe/${storeid}`
         )
-
-        eventSource.onmessage = (event) => {
-            const newOrder = JSON.parse(event.data)
-            setOrders((prevOrders) => [...prevOrders, newOrder])
-        }
-
+        eventSource.onmessage = handleSSEMessage
         eventSource.onerror = (error) => {
             console.error('SSE 에러:', error)
             eventSource.close()
+            handleSSEUnsubscribe()
         }
-
         return () => {
+            console.log('Component unmounting, closing SSE connection...')
             eventSource.close()
+            handleSSEUnsubscribe().then(() => {
+                console.log('SSE cleanup completed')
+            })
         }
-    }, [storeid, fetchOrders])
+    }, [storeid, fetchOrders, handleSSEMessage])
 
     useEffect(() => {
-        if (orderType === 'now') {
-            setSelectedDate(startOfDay(new Date()))
-        }
+        if (orderType === 'now') setSelectedDate(startOfDay(new Date()))
     }, [orderType])
 
     const updateOrderStatus = useCallback((orderId, newStatus) => {
@@ -103,92 +113,195 @@ const OrderPage = () => {
         )
     }, [])
 
-    const handleCancel = async (orderId) => {
-        try {
-            const response = await fetch(
-                `http://localhost:8080/api/orders/${orderId}/cancel`,
-                {
-                    method: 'PUT',
-                }
-            )
-            if (!response.ok) {
-                throw new Error('주문 취소에 실패했습니다')
+    const handleCancel = useCallback(
+        async (orderId) => {
+            try {
+                const response = await fetch(
+                    `http://localhost:8080/api/orders/${orderId}/cancel`,
+                    { method: 'PUT' }
+                )
+                if (!response.ok)
+                    throw new Error('서버에서 주문 취소에 실패했습니다')
+                updateOrderStatus(orderId, 2)
+            } catch (error) {
+                console.error('주문 취소 실패:', error)
             }
-            updateOrderStatus(orderId, 2) // 취소 상태로 업데이트
-        } catch (error) {
-            console.error('주문 취소 실패:', error)
-        }
-    }
+        },
+        [updateOrderStatus]
+    )
 
-    const handleDone = async (orderId) => {
-        try {
-            const response = await fetch(
-                `http://localhost:8080/api/orders/${orderId}/complete`,
-                {
-                    method: 'PUT',
-                }
-            )
-            if (!response.ok) {
-                throw new Error('주문 완료 처리에 실패했습니다')
+    const handleDone = useCallback(
+        async (orderId) => {
+            try {
+                const response = await fetch(
+                    `http://localhost:8080/api/orders/${orderId}/complete`,
+                    { method: 'PUT' }
+                )
+                if (!response.ok)
+                    throw new Error('주문 완료 처리에 실패했습니다')
+                updateOrderStatus(orderId, 1)
+            } catch (error) {
+                console.error('주문 완료 처리 실패:', error)
             }
-            updateOrderStatus(orderId, 1) // 완료 상태로 업데이트
-        } catch (error) {
-            console.error('주문 완료 처리 실패:', error)
-        }
-    }
+        },
+        [updateOrderStatus]
+    )
+
+    const calculateOrderTotal = useCallback((order) => {
+        return order.orderItems.reduce(
+            (total, item) => total + item.price * item.quantity,
+            0
+        )
+    }, [])
 
     const filteredOrders = useMemo(() => {
-        const getStatusCode = (type) => {
-            switch (type) {
-                case 'now':
-                    return 0
-                case 'done':
-                    return 1
-                case 'canceled':
-                    return 2
-                default:
-                    return -1
-            }
-        }
-
         return orders.filter((order) => {
             const orderDate = startOfDay(new Date(order.createdAt))
             const isToday = isEqual(orderDate, startOfDay(new Date()))
             const isSelectedDate = isEqual(orderDate, startOfDay(selectedDate))
-
+            const statusCode = { now: 0, done: 1, canceled: 2 }[orderType] ?? -1
             return (
-                order.status === getStatusCode(orderType) &&
+                order.status === statusCode &&
                 (orderType === 'now' ? isToday : isSelectedDate)
             )
         })
     }, [orders, selectedDate, orderType])
 
-    if (isLoading) {
-        return <Typography>로딩 중...</Typography>
-    }
-
-    const handleTabChange = (newType) => {
-        navigate(
-            `/sellers/${username}/stores/${storeid}/orders?type=${newType}`
+    const tabTotal = useMemo(() => {
+        return filteredOrders.reduce(
+            (total, order) => total + calculateOrderTotal(order),
+            0
         )
-    }
+    }, [filteredOrders, calculateOrderTotal])
+
+    const handleTabChange = useCallback(
+        (newType) => {
+            navigate(
+                `/sellers/${username}/stores/${storeid}/orders?type=${newType}`
+            )
+        },
+        [navigate, username, storeid]
+    )
+
+    const OrderItem = React.memo(({ order }) => (
+        <Card
+            elevation={3}
+            sx={{
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+            }}
+        >
+            <CardContent sx={{ flexGrow: 1 }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        mb: 2,
+                    }}
+                >
+                    <Typography variant="h6" component="div">
+                        주문 #{order.orderId}
+                    </Typography>
+                    <Chip
+                        avatar={<Avatar>{order.orderItems.length}</Avatar>}
+                        label="항목"
+                        color="secondary"
+                        size="small"
+                    />
+                </Box>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                    {format(new Date(order.createdAt), 'yyyy-MM-dd HH:mm:ss')}
+                </Typography>
+                <Box
+                    sx={{
+                        mt: 2,
+                        maxHeight: 150,
+                        overflowY: 'auto',
+                    }}
+                >
+                    {order.orderItems.map((menu, index) => (
+                        <Tooltip
+                            key={index}
+                            title={`${menu.menuName} - ${menu.quantity}개, ${menu.price}원`}
+                            arrow
+                        >
+                            <Chip
+                                label={`${menu.menuName} x${menu.quantity}`}
+                                size="small"
+                                sx={{ m: 0.5 }}
+                            />
+                        </Tooltip>
+                    ))}
+                </Box>
+                <Typography
+                    variant="h6"
+                    sx={{
+                        mt: 2,
+                        textAlign: 'right',
+                    }}
+                >
+                    총 금액: {calculateOrderTotal(order).toLocaleString()}원
+                </Typography>
+            </CardContent>
+            {orderType === 'now' && (
+                <Box
+                    sx={{
+                        p: 2,
+                        bgcolor: 'background.default',
+                        display: 'flex',
+                    }}
+                >
+                    <Button
+                        variant="outlined"
+                        onClick={() => handleCancel(order.orderId)}
+                        sx={{ flexGrow: 1 }}
+                    >
+                        취소
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={() => handleDone(order.orderId)}
+                        color="secondary"
+                        sx={{ flexGrow: 3 }}
+                    >
+                        완료
+                    </Button>
+                </Box>
+            )}
+        </Card>
+    ))
+
+    if (isLoading) return <Typography>로딩 중...</Typography>
 
     return (
         <ThemeProvider theme={theme}>
-            <Box sx={{ flexGrow: 1 }}>
-                <AppBar position="static">
+            <Box
+                sx={{
+                    flexGrow: 1,
+                    bgcolor: 'background.default',
+                    minHeight: '100vh',
+                }}
+            >
+                <AppBar position="static" color="primary" elevation={0}>
                     <Toolbar>
-                        <Button color="inherit">Sales</Button>
-                        <Box sx={{ flexGrow: 1 }} />
+                        <Typography
+                            variant="h6"
+                            component="div"
+                            sx={{ flexGrow: 1 }}
+                        >
+                            주문 관리
+                        </Typography>
                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                             <DatePicker
                                 value={selectedDate}
-                                onChange={(newValue) =>
-                                    setSelectedDate(newValue)
-                                }
+                                onChange={setSelectedDate}
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
+                                        variant="outlined"
+                                        size="small"
                                         sx={{
                                             bgcolor: 'white',
                                             borderRadius: 1,
@@ -200,36 +313,76 @@ const OrderPage = () => {
                         </LocalizationProvider>
                     </Toolbar>
                 </AppBar>
-                <Grid container spacing={2}>
-                    <Grid item xs={2}>
-                        <List>
-                            {[
-                                { label: '진행중', type: 'now' },
-                                { label: '완료', type: 'done' },
-                                { label: '취소', type: 'canceled' },
-                            ].map(({ label, type }) => (
-                                <ListItem key={type} disablePadding>
-                                    <ListItemButton
-                                        selected={orderType === type}
-                                        onClick={() => handleTabChange(type)}
-                                        sx={{
-                                            '&.Mui-selected': {
-                                                bgcolor: 'primary.main',
-                                                color: 'white',
-                                                '&:hover': {
-                                                    bgcolor: 'primary.dark',
+                <Box sx={{ display: 'flex', p: 3 }}>
+                    <Box sx={{ width: 200, flexShrink: 0, mr: 3 }}>
+                        <Card>
+                            <List>
+                                {[
+                                    {
+                                        label: '진행중',
+                                        type: 'now',
+                                        icon: <Fastfood />,
+                                    },
+                                    {
+                                        label: '완료',
+                                        type: 'done',
+                                        icon: <CheckCircle />,
+                                    },
+                                    {
+                                        label: '취소',
+                                        type: 'canceled',
+                                        icon: <Cancel />,
+                                    },
+                                ].map(({ label, type, icon }) => (
+                                    <ListItem key={type} disablePadding>
+                                        <ListItemButton
+                                            selected={orderType === type}
+                                            onClick={() =>
+                                                handleTabChange(type)
+                                            }
+                                            sx={{
+                                                '&.Mui-selected': {
+                                                    bgcolor: 'primary.main',
+                                                    color: 'white',
+                                                    '&:hover': {
+                                                        bgcolor: 'primary.dark',
+                                                    },
                                                 },
-                                            },
-                                        }}
-                                    >
-                                        <ListItemText primary={label} />
-                                    </ListItemButton>
-                                </ListItem>
-                            ))}
-                        </List>
-                    </Grid>
-                    <Grid item xs={10}>
-                        <Grid container spacing={2}>
+                                            }}
+                                        >
+                                            <ListItemText
+                                                primary={label}
+                                                primaryTypographyProps={{
+                                                    sx: { fontWeight: 'bold' },
+                                                }}
+                                            />
+                                            {icon}
+                                        </ListItemButton>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        </Card>
+                    </Box>
+                    <Box sx={{ flexGrow: 1 }}>
+                        {(orderType === 'done' || orderType === 'canceled') &&
+                            tabTotal > 0 && (
+                                <Paper
+                                    elevation={3}
+                                    sx={{
+                                        p: 2,
+                                        mb: 3,
+                                        bgcolor: 'secondary.main',
+                                        color: 'white',
+                                    }}
+                                >
+                                    <Typography variant="h6">
+                                        총{' '}
+                                        {orderType === 'done' ? '완료' : '취소'}{' '}
+                                        금액: {tabTotal.toLocaleString()}원
+                                    </Typography>
+                                </Paper>
+                            )}
+                        <Grid container spacing={3}>
                             {filteredOrders.map((order) => (
                                 <Grid
                                     item
@@ -238,87 +391,12 @@ const OrderPage = () => {
                                     md={4}
                                     key={order.orderId}
                                 >
-                                    <Card sx={{ bgcolor: '#fdfcdc' }}>
-                                        <CardContent>
-                                            <Typography variant="h6">
-                                                주문 #{order.orderId}
-                                            </Typography>
-                                            <Typography variant="body2">
-                                                {format(
-                                                    new Date(order.createdAt),
-                                                    'yyyy-MM-dd HH:mm:ss'
-                                                )}
-                                            </Typography>
-                                            <List>
-                                                {order.orderItems.map(
-                                                    (menu, index) => (
-                                                        <ListItem key={index}>
-                                                            <ListItemText
-                                                                primary={`${menu.menuName} - ${menu.quantity}개`}
-                                                                secondary={`${menu.price}원`}
-                                                            />
-                                                        </ListItem>
-                                                    )
-                                                )}
-                                            </List>
-                                            {orderType === 'now' && (
-                                                <Box
-                                                    sx={{
-                                                        mt: 2,
-                                                        display: 'flex',
-                                                    }}
-                                                >
-                                                    <Button
-                                                        variant="outlined"
-                                                        onClick={() =>
-                                                            handleCancel(
-                                                                order.orderId
-                                                            )
-                                                        }
-                                                        sx={{
-                                                            flex: 4,
-                                                            mr: 1,
-                                                            color: 'black',
-                                                            borderColor:
-                                                                'black',
-                                                            '&:hover': {
-                                                                backgroundColor:
-                                                                    'rgba(0, 0, 0, 0.04)',
-                                                                borderColor:
-                                                                    'black',
-                                                            },
-                                                        }}
-                                                    >
-                                                        Cancel
-                                                    </Button>
-                                                    <Button
-                                                        variant="contained"
-                                                        onClick={() =>
-                                                            handleDone(
-                                                                order.orderId
-                                                            )
-                                                        }
-                                                        sx={{
-                                                            flex: 6,
-                                                            bgcolor: '#ff9f1c',
-                                                            '&:hover': {
-                                                                bgcolor:
-                                                                    '#e58e1a',
-                                                            },
-                                                        }}
-                                                    >
-                                                        Done
-                                                    </Button>
-                                                </Box>
-                                            )}
-                                            {/* ... (나머지 카드 내용) */}
-                                        </CardContent>
-                                    </Card>
+                                    <OrderItem order={order} />
                                 </Grid>
                             ))}
                         </Grid>
-                    </Grid>
-                </Grid>
+                    </Box>
+                </Box>
             </Box>
         </ThemeProvider>
     )

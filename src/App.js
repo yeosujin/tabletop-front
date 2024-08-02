@@ -83,44 +83,43 @@ const router = createBrowserRouter([
             },
             {
                 path: 'sellers/:loginId/profile',
-                element: <MyProfilePage />,// Placeholder for nested routes
-                
+                element: <MyProfilePage />, // Placeholder for nested routes
             },
             {
                 path: 'sellers/:loginId/profile/modify',
-                element: <MyProfileModifyPage />,     
+                element: <MyProfileModifyPage />,
+            },
+            {
+                path: 'details',
+                element: <InfoStorePage />,
+            },
+        ],
+    },
+    {
+        path: '/consumer/:storeId',
+        element: <ConsumerLayout />,
+        errorElement: <ErrorBoundary />,
+        children: [
+            {
+                path: 'menu',
+                element: <MenuPage />,
+            },
+            {
+                path: 'cart',
+                element: <CartPage />,
             },
             {
                 path: 'details',
                 element: <InfoStorePage />,
             },
             {
-                path: '/consumer/:storeId',
-                element: <ConsumerLayout />,
-                errorElement: <ErrorBoundary />,
-                children: [
-                    {
-                        path: 'menu',
-                        element: <MenuPage />,
-                    },
-                    {
-                        path: 'cart',
-                        element: <CartPage />,
-                    },
-                    {
-                        path: 'info',
-                        element: <InfoStorePage />,
-                    },
-                    {
-                        path: 'payment',
-                        element: <PaymentPage />,
-                    },
-                ],
+                path: 'payment',
+                element: <PaymentPage />,
             },
             {
                 path: 'complete',
-                element: <CompletePage />
-            }
+                element: <CompletePage />,
+            },
         ],
     },
     {

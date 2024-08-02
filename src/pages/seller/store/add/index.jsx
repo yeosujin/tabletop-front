@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import { addStoreAPI, isDuplicatedAPI } from '../../../../apis/seller/SellerAPI';
 
 const StoreAddPage = () => {
     const navigate = useNavigate();
@@ -22,7 +23,7 @@ const StoreAddPage = () => {
         notice: '',
         address: '',
         description: '',
-        holidays: [],
+        holidays: []
     });
 
     // 사업자 등록번호 검증 관련
@@ -69,20 +70,13 @@ const StoreAddPage = () => {
     };
 
     // 사업자등록번호 중복 검사
-    const checkDuplicatedNumber = (num) => {
-        fetch(`http://localhost:8080/api/duplicationCheck/${num}`)
-            .then(response => response.json())
-            .then(data => {
-                return data.isDuplicated === "true";
-            })
-            .catch(error => {
-                console.error('Error validating number(1):', error);
-            });
+    const checkDuplicatedNumber = async (num) => {
+        const response = await isDuplicatedAPI(num);
+        return response.isDuplicated === "true";
     };
 
     // 사업자등록번호 유효성 검사
     const validateNumber = async (num) => {
-        // num = formData.corporateRegistrationNumber;
         const url = 'https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=dykZa6G6kCjn6O0CuStT3mPDTe9Z7gKnGguk6FedQrB9wjbaCVfcZYDzAATjTXczqyg0EA7vDwNKAHIx3vLhFA%3D%3D&returnType=JSON';
         const data = {
             b_no: [num]
@@ -133,9 +127,8 @@ const StoreAddPage = () => {
         }
     };
 
-    const handleSubmit = (event) => {    
+    const handleSubmit = async (event) => {    
         event.preventDefault();  
-        console.log(formData);
 
         // FormData 객체 생성
         const formDataToSend = new FormData();
@@ -145,16 +138,15 @@ const StoreAddPage = () => {
             formDataToSend.append('image', imageFile);
         }
 
-        const url = `http://localhost:8080/api/store/YH`;
-
-        axios.post(url, formDataToSend)
-            .then(response => {
-                console.log('등록 성공', response);
-                navigate('/storelist');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });        
+        const loginId = localStorage.getItem('id');
+        
+        try {
+            const response = await addStoreAPI(loginId, formDataToSend);
+            console.log(response);
+            navigate('/storelist');
+        } catch (error) {
+            alert('가게 등록에 실패했습니다.', error);
+        }
     };
     
     return (
@@ -182,12 +174,11 @@ const StoreAddPage = () => {
                 <div>
                     <label>사업자 등록번호</label>
                     <input type="text" name="corporateRegistrationNumber" value={formData.corporateRegistrationNumber} onChange={handleInputChange} placeholder="'-'없이 10자리 숫자만 입력하세요." required />
-                    {/* <button onClick={() => checkDuplicatedNumber(3646700101)}>test</button> */}
-                    <button onClick={checkCorporateRegistrationNumber}>검사</button>
+                    <button onClick={checkCorporateRegistrationNumber}>검사</button><br />
                     {validated && (
                         <>
-                            <span className="checkmark">&#10004;</span>
-                            <div className="tooltip">검증되었습니다.</div>
+                            {/* <span className="checkmark">&#10004;</span> */}
+                            <div className="tooltip">&#10004; 검증되었습니다.</div>
                         </>
                     )}
                 </div>

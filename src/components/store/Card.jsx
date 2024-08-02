@@ -1,5 +1,4 @@
 import React from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -7,6 +6,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Fade from '@mui/material/Fade';
 import { Chip } from '@mui/material';
+import { deleteStoreAPI } from '../../apis/seller/SellerAPI';
 
 const Card = ({ store, render }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -35,22 +35,20 @@ const Card = ({ store, render }) => {
         navigate('/sellers/:username/:storeId/menus', { state: { storeId } });
     };
 
-    const deleteStore = (storeId) => {
-        const url = `http://localhost:8080/api/stores/${storeId}`;
-
-        axios.delete(url)
-            .then(response => {
-                console.log('삭제 성공', response);
-                render(prevState => !prevState);
-                navigate('/storelist');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+    const deleteStore = async (storeId) => {
+        await deleteStoreAPI(storeId);
+        
+        render(prevState => !prevState);
+        navigate('/storelist');
     };
 
     return (
         <div className="card">
+            {store.image && (
+                <div>
+                    <img src={store.image.src || '이미지를 등록하세요.'} alt='대표 이미지' width="100" />
+                </div>
+            )}
             <Chip label={storeTypeMap[store.storeType]} color="primary" />
             <div>
                 <IconButton 
