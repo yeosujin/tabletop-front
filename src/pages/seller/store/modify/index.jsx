@@ -47,9 +47,9 @@ const StoreModifyModal = ({ open, onClose, storeId, onSubmit }) => {
                 })
             }
         }
-    }
+
         fetchData()
-    }, [storeId]);
+    }, [storeId])
 
     // form의 input 값 변경 시
     const handleInputChange = (event) => {
@@ -193,7 +193,7 @@ const StoreModifyModal = ({ open, onClose, storeId, onSubmit }) => {
                                 type="date"
                                 name="openDate"
                                 value={formData.openDate || ''}
-                                readOnly 
+                                readOnly
                             />
                             <br />
                             <label>폐업일</label>

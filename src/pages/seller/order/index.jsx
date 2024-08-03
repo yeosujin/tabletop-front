@@ -9,7 +9,6 @@ import {
     Card,
     CardContent,
     Chip,
-    createTheme,
     Grid,
     List,
     ListItem,
@@ -17,7 +16,6 @@ import {
     ListItemText,
     Paper,
     TextField,
-    ThemeProvider,
     Toolbar,
     Tooltip,
     Typography,
@@ -25,14 +23,6 @@ import {
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { Cancel, CheckCircle, Fastfood } from '@mui/icons-material'
-
-const theme = createTheme({
-    palette: {
-        primary: { main: '#ff9f1c' },
-        secondary: { main: '#ff9f1c' },
-        background: { default: '#fdfcdc' },
-    },
-})
 
 const OrderPage = () => {
     const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()))
@@ -112,6 +102,11 @@ const OrderPage = () => {
             )
         )
     }, [])
+
+    const moveToSalas = () => {
+        const id = localStorage.getItem('id')
+        navigate(`/sellers/${id}/stores/${storeid}/charts`)
+    }
 
     const handleCancel = useCallback(
         async (orderId) => {
@@ -274,129 +269,132 @@ const OrderPage = () => {
     if (isLoading) return <Typography>로딩 중...</Typography>
 
     return (
-        <ThemeProvider theme={theme}>
-            <Box
-                sx={{
-                    flexGrow: 1,
-                    bgcolor: 'background.default',
-                    minHeight: '100vh',
-                }}
-            >
-                <AppBar position="static" color="primary" elevation={0}>
-                    <Toolbar>
-                        <Typography
-                            variant="h6"
-                            component="div"
-                            sx={{ flexGrow: 1 }}
-                        >
-                            주문 관리
-                        </Typography>
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                            <DatePicker
-                                value={selectedDate}
-                                onChange={setSelectedDate}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        variant="outlined"
-                                        size="small"
-                                        sx={{
-                                            bgcolor: 'white',
-                                            borderRadius: 1,
-                                        }}
-                                    />
-                                )}
-                                disabled={orderType === 'now'}
-                            />
-                        </LocalizationProvider>
-                    </Toolbar>
-                </AppBar>
-                <Box sx={{ display: 'flex', p: 3 }}>
-                    <Box sx={{ width: 200, flexShrink: 0, mr: 3 }}>
-                        <Card>
-                            <List>
-                                {[
-                                    {
-                                        label: '진행중',
-                                        type: 'now',
-                                        icon: <Fastfood />,
-                                    },
-                                    {
-                                        label: '완료',
-                                        type: 'done',
-                                        icon: <CheckCircle />,
-                                    },
-                                    {
-                                        label: '취소',
-                                        type: 'canceled',
-                                        icon: <Cancel />,
-                                    },
-                                ].map(({ label, type, icon }) => (
-                                    <ListItem key={type} disablePadding>
-                                        <ListItemButton
-                                            selected={orderType === type}
-                                            onClick={() =>
-                                                handleTabChange(type)
-                                            }
-                                            sx={{
-                                                '&.Mui-selected': {
-                                                    bgcolor: 'primary.main',
-                                                    color: 'white',
-                                                    '&:hover': {
-                                                        bgcolor: 'primary.dark',
-                                                    },
-                                                },
-                                            }}
-                                        >
-                                            <ListItemText
-                                                primary={label}
-                                                primaryTypographyProps={{
-                                                    sx: { fontWeight: 'bold' },
-                                                }}
-                                            />
-                                            {icon}
-                                        </ListItemButton>
-                                    </ListItem>
-                                ))}
-                            </List>
-                        </Card>
-                    </Box>
-                    <Box sx={{ flexGrow: 1 }}>
-                        {(orderType === 'done' || orderType === 'canceled') &&
-                            tabTotal > 0 && (
-                                <Paper
-                                    elevation={3}
+        <Box
+            sx={{
+                flexGrow: 1,
+                bgcolor: 'background.default',
+                minHeight: '100vh',
+            }}
+        >
+            <AppBar position="static" color="primary" elevation={0}>
+                <Toolbar>
+                    <Typography
+                        variant="h6"
+                        component="div"
+                        sx={{ flexGrow: 1 }}
+                    >
+                        주문 관리
+                    </Typography>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            value={selectedDate}
+                            onChange={setSelectedDate}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    variant="outlined"
+                                    size="small"
                                     sx={{
-                                        p: 2,
-                                        mb: 3,
-                                        bgcolor: 'secondary.main',
-                                        color: 'white',
+                                        bgcolor: 'white',
+                                        borderRadius: 1,
                                     }}
-                                >
-                                    <Typography variant="h6">
-                                        총{' '}
-                                        {orderType === 'done' ? '완료' : '취소'}{' '}
-                                        금액: {tabTotal.toLocaleString()}원
-                                    </Typography>
-                                </Paper>
+                                />
                             )}
-                        <Grid container spacing={3}>
-                            {filteredOrders.map((order) => (
-                                <Grid
-                                    item
-                                    xs={12}
-                                    sm={6}
-                                    md={4}
-                                    key={order.orderId}
-                                >
-                                    <OrderItem order={order} />
-                                </Grid>
+                            disabled={orderType === 'now'}
+                        />
+                    </LocalizationProvider>
+                    <Button
+                        color="secondary"
+                        variant="contained"
+                        sx={{ color: 'white', marginX: '24px' }}
+                        onClick={moveToSalas}
+                    >
+                        Salas
+                    </Button>
+                </Toolbar>
+            </AppBar>
+            <Box sx={{ display: 'flex', p: 3 }}>
+                <Box sx={{ width: 200, flexShrink: 0, mr: 3 }}>
+                    <Card>
+                        <List>
+                            {[
+                                {
+                                    label: '진행중',
+                                    type: 'now',
+                                    icon: <Fastfood />,
+                                },
+                                {
+                                    label: '완료',
+                                    type: 'done',
+                                    icon: <CheckCircle />,
+                                },
+                                {
+                                    label: '취소',
+                                    type: 'canceled',
+                                    icon: <Cancel />,
+                                },
+                            ].map(({ label, type, icon }) => (
+                                <ListItem key={type} disablePadding>
+                                    <ListItemButton
+                                        selected={orderType === type}
+                                        onClick={() => handleTabChange(type)}
+                                        sx={{
+                                            '&.Mui-selected': {
+                                                bgcolor: 'primary.main',
+                                                color: 'white',
+                                                '&:hover': {
+                                                    bgcolor: 'primary.dark',
+                                                },
+                                            },
+                                        }}
+                                    >
+                                        <ListItemText
+                                            primary={label}
+                                            primaryTypographyProps={{
+                                                sx: { fontWeight: 'bold' },
+                                            }}
+                                        />
+                                        {icon}
+                                    </ListItemButton>
+                                </ListItem>
                             ))}
-                        </Grid>
-                    </Box>
+                        </List>
+                    </Card>
+                </Box>
+                <Box sx={{ flexGrow: 1 }}>
+                    {(orderType === 'done' || orderType === 'canceled') &&
+                        tabTotal > 0 && (
+                            <Paper
+                                elevation={3}
+                                sx={{
+                                    p: 2,
+                                    mb: 3,
+                                    bgcolor: 'secondary.main',
+                                    color: 'white',
+                                }}
+                            >
+                                <Typography variant="h6">
+                                    총 {orderType === 'done' ? '완료' : '취소'}{' '}
+                                    금액: {tabTotal.toLocaleString()}원
+                                </Typography>
+                            </Paper>
+                        )}
+                    <Grid container spacing={3}>
+                        {filteredOrders.map((order) => (
+                            <Grid
+                                item
+                                xs={12}
+                                sm={6}
+                                md={4}
+                                key={order.orderId}
+                            >
+                                <OrderItem order={order} />
+                            </Grid>
+                        ))}
+                    </Grid>
                 </Box>
             </Box>
-        </ThemeProvider>
+        </Box>
     )
 }
 
