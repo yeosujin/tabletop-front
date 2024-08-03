@@ -35,7 +35,8 @@ const Error = styled.p`
 `;
 
 const Menu = () => {
-  const { storeId } = useParams();
+  const { loginId, storeId } = useParams();
+  console.log("loginId:", loginId, "storeId:", storeId);
   const [menuItems, setMenuItems] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);

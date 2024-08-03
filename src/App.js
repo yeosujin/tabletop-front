@@ -88,7 +88,7 @@ const router = createBrowserRouter([
                 element: <OrderPage />,
             },
             {
-                path: 'sellers/:username/:storeId/menus',
+                path: 'sellers/:loginId/:storeId/menus',
                 element: <Menu />,
             },
             {
