@@ -22,6 +22,7 @@ import MyProfilePage from './pages/seller/profile'
 import MyProfileModifyPage from './pages/seller/profile/modify'
 import CompletePage from './pages/consumer/complete'
 import { createTheme, ThemeProvider } from '@mui/material'
+import Dashboard from './pages/seller/sales/pages/dashboard'
 
 const NotFound = () => <h1>404 - 페이지를 찾을 수 없습니다.</h1>
 
@@ -98,6 +99,10 @@ const router = createBrowserRouter([
             {
                 path: 'sellers/:loginId/profile/modify',
                 element: <MyProfileModifyPage />,
+            },
+            {
+                path: 'sellers/:loginId/stores/:storeId/charts',
+                element: <Dashboard />,
             },
         ],
     },
