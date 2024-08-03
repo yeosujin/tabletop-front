@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { getMenus, createMenu, updateMenu, deleteMenu } from '../../../apis/seller/menuAPI';
+import { getMenus, createMenu, updateMenu, deleteMenu } from '../../../apis/seller/MenuAPI';
 import MenuList from './list';
 import MenuAdd from './add';
 import MenuModify from './modify';
@@ -80,9 +80,11 @@ const Menu = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    const newValue = name === 'isAvailable' ? value === 'true' : value;
+    console.log(`Updating ${name} to:`, newValue); // 추가된 로그
     setFormData(prevData => ({
       ...prevData,
-      [name]: value
+      [name]: newValue
     }));
   };
 

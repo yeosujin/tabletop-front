@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { createMenu, deleteMenu, updateMenu } from '../../../../apis/seller/menuAPI';
+import { createMenu, deleteMenu, updateMenu } from '../../../../apis/seller/MenuAPI';
 
 const MenuList = styled.div`
   display: grid;

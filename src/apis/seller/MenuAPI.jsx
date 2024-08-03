@@ -11,13 +11,13 @@ const getTokenHeaders = () => {
     }
 }
 
-export const MenuApi = axios.create({
+export const MenuAPI = axios.create({
     baseURL: `http://localhost:8080`,
 })
 
 const refreshAccessToken = async () => {
     try {
-        const response = await MenuApi.post(`/api/auth/token/refresh`, null, {
+        const response = await MenuAPI.post(`/api/auth/token/refresh`, null, {
             headers: getTokenHeaders(),
         })
         const ACCESS_TOKEN = response.data
@@ -31,7 +31,7 @@ const refreshAccessToken = async () => {
     }
 }
 
-MenuApi.interceptors.response.use(
+MenuAPI.interceptors.response.use(
     (response) => {
         return response
     },
@@ -43,7 +43,7 @@ MenuApi.interceptors.response.use(
             await refreshAccessToken()
             originalRequest.headers['Authorization'] =
                 `${localStorage.getItem('tokenType')} ${localStorage.getItem('accessToken')}`
-            return MenuApi(originalRequest)
+            return MenuAPI(originalRequest)
         }
 
         return Promise.reject(error)
@@ -53,7 +53,7 @@ MenuApi.interceptors.response.use(
 
 // 메뉴 목록 조회
 export const getMenus = async (storeId, lastMenuId, limit) => {
-    const response = await MenuApi.get(`/api/stores/${storeId}/menus`, {
+    const response = await MenuAPI.get(`/api/stores/${storeId}/menus`, {
         params: { lastMenuId, limit },
         headers: getTokenHeaders(),
     })
@@ -62,7 +62,7 @@ export const getMenus = async (storeId, lastMenuId, limit) => {
 
 // 메뉴 등록
 export const createMenu = async (storeId, menuData) => {
-    const response = await MenuApi.post(
+    const response = await MenuAPI.post(
         `/api/stores/${storeId}/menus`,
         menuData,
         {
@@ -76,7 +76,8 @@ export const createMenu = async (storeId, menuData) => {
 
 // 메뉴 수정
 export const updateMenu = async (storeId, menuId, menuData) => {
-    const response = await MenuApi.put(
+    console.log('Updating menu with data:', menuData);
+    const response = await MenuAPI.put(
         `/api/stores/${storeId}/menus/${menuId}`,
         menuData,
         {
@@ -90,7 +91,7 @@ export const updateMenu = async (storeId, menuId, menuData) => {
 
 // 메뉴 삭제
 export const deleteMenu = async (storeId, menuId) => {
-    const response = await MenuApi.delete(
+    const response = await MenuAPI.delete(
         `/api/stores/${storeId}/menus/${menuId}`,
         {
             headers: getTokenHeaders(),
