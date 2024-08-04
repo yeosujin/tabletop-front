@@ -81,10 +81,9 @@ const Menu = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     const newValue = name === 'isAvailable' ? value === 'true' : value;
-    console.log(`Updating ${name} to:`, newValue); // 추가된 로그
     setFormData(prevData => ({
       ...prevData,
-      [name]: newValue
+      [name]: name === 'isAvailable' ? Boolean(newValue) : newValue
     }));
   };
 
@@ -101,10 +100,23 @@ const Menu = () => {
     setError(null);
 
     const formDataToSend = new FormData();
-    formDataToSend.append('menuData', new Blob([JSON.stringify(formData)], { type: 'application/json' }));
+    const jsonData = {
+      ...formData,
+      price: Number(formData.price),
+      isAvailable: Boolean(formData.isAvailable)
+    };
+
+    console.log('Submitting data:', jsonData); // 디버깅용 로그
+
+    formDataToSend.append('menuData', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
 
     if (image) {
       formDataToSend.append('image', image);
+    }
+
+    // FormData 내용 확인을 위한 로그
+    for (let [key, value] of formDataToSend.entries()) {
+      console.log(key, value);
     }
 
     try {
@@ -122,8 +134,8 @@ const Menu = () => {
       setFormData({ name: '', price: '', description: '', isAvailable: true });
       setImage(null);
     } catch (error) {
+      console.error('Error details:', error.response?.data); // 더 자세한 에러 정보
       setError('메뉴 저장에 실패했습니다: ' + (error.response?.data?.message || error.message));
-      console.error('메뉴 저장 오류:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -148,6 +160,7 @@ const Menu = () => {
   };
 
   const handleEdit = (item) => {
+    console.log('Editing item:', item);
     setFormData({
       name: item.name,
       price: item.price,

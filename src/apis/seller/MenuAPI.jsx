@@ -76,7 +76,7 @@ export const createMenu = async (storeId, menuData) => {
 
 // 메뉴 수정
 export const updateMenu = async (storeId, menuId, menuData) => {
-    console.log('Updating menu with data:', menuData);
+    console.log(`Updating menu: storeId=${storeId}, menuId=${menuId}`);
     const response = await MenuAPI.put(
         `/api/stores/${storeId}/menus/${menuId}`,
         menuData,
