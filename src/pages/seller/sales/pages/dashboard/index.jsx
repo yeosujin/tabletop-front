@@ -1,25 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom'
+import { SalesAPI } from '../../../../../apis/seller/SalesAPI';
 import DailyComparison from '../../charts/dailycomparison';
 import MenuSales from '../../charts/menusales';
-import Monthly from '../../charts/monthly';
-import Weekly from '../../charts/weekly';
-import WeeklyDaily from '../../charts/weekly-daily';
+import MonthlySales from '../../charts/monthly';
+import WeeklySales from '../../charts/weekly';
+import WeeklyDailySales from '../../charts/weekly-daily';
 
 const Dashboard = () => {
+    // const [storeId, setStoreId] = useState(1);
+    const { storeId } = useParams();
     const [activeChart, setActiveChart] = useState('dailyComparison');
+    const [dailyComparisonData, setDailyComparisonData] = useState(null);
+    const [menuSalesData, setMenuSalesData] = useState(null);
+    const [monthlySalesData, setMonthlySalesData] = useState(null);
+    const [weeklySalesData, setWeeklySalesData] = useState(null);
+    const [weeklyDailySalesData, setWeeklyDailySalesData] = useState(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!storeId) {
+                console.error('StoreId is not available');
+                return;
+            }
+            try {
+                const dailyComparison = await SalesAPI.getDailyComparison(storeId);
+                setDailyComparisonData(dailyComparison);
+
+                const menuSales = await SalesAPI.getMenuSales(storeId);
+                setMenuSalesData(menuSales);
+
+                const monthlySales = await SalesAPI.getMonthlySales(storeId);
+                setMonthlySalesData(monthlySales);
+
+                const weeklySales = await SalesAPI.getWeeklySales(storeId);
+                setWeeklySalesData(weeklySales);
+
+                const weeklyDailySales = await SalesAPI.getWeeklyDailySales(storeId);
+                setWeeklyDailySalesData(weeklyDailySales);
+            } catch (error) {
+                console.error('Error fetching sales data:', error);
+            }
+        };
+        const id = localStorage.getItem('storeId');
+        // setStoreId(id);
+        fetchData();
+    }, [storeId]);
 
     const renderChart = () => {
         switch (activeChart) {
             case 'dailyComparison':
-                return <DailyComparison />;
+                return dailyComparisonData && <DailyComparison data={dailyComparisonData} />;
             case 'menuSales':
-                return <MenuSales />;
-            case 'monthly':
-                return <Monthly />;
-            case 'weekly':
-                return <Weekly />;
-            case 'weeklyDaily':
-                return <WeeklyDaily />;
+                return menuSalesData && <MenuSales data={menuSalesData} />;
+            case 'monthlySales':
+                return monthlySalesData && <MonthlySales data={monthlySalesData} />;
+            case 'weeklySales':
+                return weeklySalesData && <WeeklySales data={weeklySalesData} />;
+            case 'weeklyDailySales':
+                return weeklyDailySalesData && <WeeklyDailySales data={weeklyDailySalesData} />;
             default:
                 return null;
         }
@@ -27,13 +66,14 @@ const Dashboard = () => {
 
     return (
         <div>
-            <nav>
+            <h1>Sales Dashboard</h1>
+            <div>
                 <button onClick={() => setActiveChart('dailyComparison')}>일일 비교</button>
-                <button onClick={() => setActiveChart('menuSales')}>메뉴 판매량</button>
-                <button onClick={() => setActiveChart('monthly')}>월별 매출</button>
-                <button onClick={() => setActiveChart('weekly')}>주별 매출</button>
-                <button onClick={() => setActiveChart('weeklyDaily')}>주간 일별 매출</button>
-            </nav>
+                <button onClick={() => setActiveChart('menuSales')}>메뉴별 판매량</button>
+                <button onClick={() => setActiveChart('monthlySales')}>월별 매출</button>
+                <button onClick={() => setActiveChart('weeklySales')}>주별 매출</button>
+                <button onClick={() => setActiveChart('weeklyDailySales')}>주간 일별 매출</button>
+            </div>
             <div className="chart-container">
                 {renderChart()}
             </div>
