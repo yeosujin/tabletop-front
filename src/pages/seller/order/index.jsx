@@ -29,16 +29,17 @@ const OrderPage = () => {
     const [orders, setOrders] = useState([])
     const [isLoading, setIsLoading] = useState(true)
 
-    const { username, storeid } = useParams()
+    const { loginId, storeId } = useParams()
     const navigate = useNavigate()
     const location = useLocation()
-    const orderType = new URLSearchParams(location.search).get('type') || 'received'
+    const orderType =
+        new URLSearchParams(location.search).get('type') || 'received'
 
     const fetchOrders = useCallback(async () => {
         setIsLoading(true)
         try {
             const response = await fetch(
-                `http://localhost:8080/api/orders/${storeid}`
+                `http://localhost:8080/api/orders/${storeId}`
             )
             if (!response.ok) throw new Error('서버 응답이 실패했습니다')
             const data = await response.json()
@@ -48,7 +49,7 @@ const OrderPage = () => {
         } finally {
             setIsLoading(false)
         }
-    }, [storeid])
+    }, [storeId])
 
     const handleSSEMessage = useCallback((event) => {
         const newOrder = JSON.parse(event.data)
@@ -59,7 +60,7 @@ const OrderPage = () => {
         try {
             console.log('Unsubscribing from SSE...')
             const response = await fetch(
-                `http://localhost:8080/api/sse/orders/unsubscribe/${storeid}`,
+                `http://localhost:8080/api/sse/orders/unsubscribe/${storeId}`,
                 { method: 'GET' }
             )
             if (!response.ok) throw new Error('Unsubscribe failed')
@@ -72,7 +73,7 @@ const OrderPage = () => {
     useEffect(() => {
         fetchOrders()
         const eventSource = new EventSource(
-            `http://localhost:8080/api/sse/orders/subscribe/${storeid}`
+            `http://localhost:8080/api/sse/orders/subscribe/${storeId}`
         )
         eventSource.onmessage = handleSSEMessage
         eventSource.onerror = (error) => {
@@ -87,7 +88,7 @@ const OrderPage = () => {
                 console.log('SSE cleanup completed')
             })
         }
-    }, [storeid, fetchOrders, handleSSEMessage])
+    }, [storeId, fetchOrders, handleSSEMessage])
 
     useEffect(() => {
         if (orderType === 'received') setSelectedDate(startOfDay(new Date()))
@@ -104,7 +105,7 @@ const OrderPage = () => {
     }, [])
 
     const moveToSalas = () => {
-        navigate(`/sellers/${username}/stores/${storeid}/charts`)
+        navigate(`/sellers/${loginId}/stores/${storeId}/charts`)
     }
 
     const handleCancel = useCallback(
@@ -153,7 +154,8 @@ const OrderPage = () => {
             const orderDate = startOfDay(new Date(order.createdAt))
             const isToday = isEqual(orderDate, startOfDay(new Date()))
             const isSelectedDate = isEqual(orderDate, startOfDay(selectedDate))
-            const statusCode = { received: 0, done: 1, canceled: 2 }[orderType] ?? -1
+            const statusCode =
+                { received: 0, done: 1, canceled: 2 }[orderType] ?? -1
             return (
                 order.status === statusCode &&
                 (orderType === 'received' ? isToday : isSelectedDate)
@@ -172,7 +174,7 @@ const OrderPage = () => {
         (newType) => {
             navigate(`?type=${newType}`)
         },
-        [navigate, username, storeid]
+        [navigate, loginId, storeId]
     )
 
     const OrderItem = React.memo(({ order }) => (
