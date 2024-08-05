@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom'
 import { SalesAPI } from '../../../../../apis/seller/SalesAPI';
 import DailyComparison from '../../charts/dailycomparison';
 import MenuSales from '../../charts/menusales';
@@ -6,7 +7,9 @@ import MonthlySales from '../../charts/monthly';
 import WeeklySales from '../../charts/weekly';
 import WeeklyDailySales from '../../charts/weekly-daily';
 
-const Dashboard = ({ storeId }) => {
+const Dashboard = () => {
+    // const [storeId, setStoreId] = useState(1);
+    const { storeId } = useParams();
     const [activeChart, setActiveChart] = useState('dailyComparison');
     const [dailyComparisonData, setDailyComparisonData] = useState(null);
     const [menuSalesData, setMenuSalesData] = useState(null);
@@ -16,6 +19,10 @@ const Dashboard = ({ storeId }) => {
 
     useEffect(() => {
         const fetchData = async () => {
+            if (!storeId) {
+                console.error('StoreId is not available');
+                return;
+            }
             try {
                 const dailyComparison = await SalesAPI.getDailyComparison(storeId);
                 setDailyComparisonData(dailyComparison);
@@ -35,7 +42,8 @@ const Dashboard = ({ storeId }) => {
                 console.error('Error fetching sales data:', error);
             }
         };
-
+        const id = localStorage.getItem('storeId');
+        // setStoreId(id);
         fetchData();
     }, [storeId]);
 

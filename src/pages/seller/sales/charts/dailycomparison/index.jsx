@@ -1,14 +1,17 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
-const DailyComparison = ({ data }) => {
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+const DailyComparison = ({data}) => {
     const chartData = {
         labels: ['어제', '오늘'],
         datasets: [
             {
                 label: '일일 매출 비교',
                 data: [data.yesterday, data.today],
-                backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(54, 162, 235, 0.5)'],
+                backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(53, 162, 235, 0.5)'],
             },
         ],
     };
@@ -26,7 +29,7 @@ const DailyComparison = ({ data }) => {
         },
     };
 
-    return <Bar data={chartData} options={options} />;
+    return  <Bar data={chartData} options={options} />;
 };
 
 export default DailyComparison;

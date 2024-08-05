@@ -1,6 +1,17 @@
 import axios from 'axios';
 
-const BASE_URL = '/api/sales';
+const getTokenHeaders = () => {
+    const TOKEN_TYPE = localStorage.getItem("tokenType");
+    const ACCESS_TOKEN = localStorage.getItem("accessToken");
+    let REFRESH_TOKEN = localStorage.getItem("refreshToken");
+
+    return {
+        'Authorization': `${TOKEN_TYPE} ${ACCESS_TOKEN}`,
+        'REFRESH_TOKEN': REFRESH_TOKEN
+    };
+};
+
+const BASE_URL = 'http://localhost:8080/api/sales';
 
 export const SalesAPI = {
     getDailyComparison: async (storeId) => {
