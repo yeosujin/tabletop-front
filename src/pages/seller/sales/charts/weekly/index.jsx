@@ -1,16 +1,13 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
-const Weekly = () => {
-    const data = {
-        labels: ['1주차', '2주차', '3주차', '4주차'],
+const WeeklySales = ({ data }) => {
+    const chartData = {
+        labels: data.map(item => item.week),
         datasets: [
             {
                 label: '주별 매출',
-                data: [15000, 20000, 18000, 22000], // 예시 데이터
+                data: data.map(item => item.totalSales),
                 backgroundColor: 'rgba(153, 102, 255, 0.5)',
             },
         ],
@@ -29,7 +26,7 @@ const Weekly = () => {
         },
     };
 
-    return <Bar options={options} data={data} />;
+    return <Bar data={chartData} options={options} />;
 };
 
-export default Weekly;
+export default WeeklySales;

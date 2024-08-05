@@ -1,16 +1,13 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
-
-const WeeklyDaily = () => {
-    const data = {
-        labels: ['월', '화', '수', '목', '금', '토', '일'],
+const WeeklyDailySales = ({ data }) => {
+    const chartData = {
+        labels: data.map(item => item.day),
         datasets: [
             {
                 label: '일별 매출',
-                data: [3000, 3500, 4000, 4200, 4800, 5500, 5000], // 예시 데이터
+                data: data.map(item => item.totalSales),
                 borderColor: 'rgb(255, 99, 132)',
                 tension: 0.1,
             },
@@ -30,7 +27,7 @@ const WeeklyDaily = () => {
         },
     };
 
-    return <Line options={options} data={data} />;
+    return <Line data={chartData} options={options} />;
 };
 
-export default WeeklyDaily;
+export default WeeklyDailySales;
