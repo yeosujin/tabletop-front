@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography } from '@mui/material';
-import { styled } from '@mui/system';
-import { Link, useNavigate } from 'react-router-dom'; 
+import { styled, useTheme } from '@mui/system';
+import { Link, useNavigate } from 'react-router-dom';
+import { useMediaQuery } from '@mui/material';
 import { validateEmail, validatePhone, sendVerificationCode, checkLoginId } from '../../../apis/auth/AuthAPI';
 import { signUp } from '../../../apis/seller/SellerAPI';
 
-const Container = styled(Box)({
+const Container = styled(Box)(({ theme }) => ({
   display: 'flex',
-  height: '100vh',
   alignItems: 'center',
   justifyContent: 'center',
-});
+  height: '100vh',
+  [theme.breakpoints.down('md')]: {
+    padding: '1rem',
+  },
+}));
 
-const FormContainer = styled(Box)({
+const FormContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
   border: '1px solid #e0e0e0',
@@ -20,33 +24,50 @@ const FormContainer = styled(Box)({
   width: '60%',
   padding: '2rem',
   boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-});
+  [theme.breakpoints.down('md')]: {
+    flexDirection: 'column',
+    width: '100%',
+    padding: '1rem',
+  },
+}));
 
-const LogoBox = styled(Box)({
+const LogoBox = styled(Box)(({ theme }) => ({
   width: '50%',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   borderRight: '1px solid #e0e0e0',
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+    borderRight: 'none',
+    borderBottom: '1px solid #e0e0e0',
+    marginBottom: '1rem',
+  },
+}));
 
-const FormBox = styled(Box)({
+const FormBox = styled(Box)(({ theme }) => ({
   width: '50%',
   padding: '0 2rem',
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+    padding: '0',
+  },
+}));
 
 const SignUpPage = () => {
   const navigate = useNavigate();
-  const [idValid, setIdValid] = useState(false); // 최종 아이디 검증 여부 저장
-  const [emailValid, setEmailValid] = useState(false); // 최종 이메일 검증 여부 저장
-  const [phoneValid, setPhoneValid] = useState(false); // 최종 전화번호 검증 여부 저장
-  const [verificationSent, setVerificationSent] = useState(false); // 인증 코드 이메일 전송 여부 저장
-  const [verificationCode, setVerificationCode] = useState(''); // 인증 코드 상태 추가
-  const [serverVerificationCode, setServerVerificationCode] = useState(''); // 서버에서 받은 인증 코드 저장
-  const [error, setError] = useState(''); // 입력 창 에러 메시지
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [idValid, setIdValid] = useState(false);
+  const [emailValid, setEmailValid] = useState(false);
+  const [phoneValid, setPhoneValid] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
+  const [serverVerificationCode, setServerVerificationCode] = useState('');
+  const [error, setError] = useState('');
   const [formValues, setFormValues] = useState({
     loginId: '',
     email: '',
@@ -56,9 +77,11 @@ const SignUpPage = () => {
     mobile: '',
   });
 
-   // setError(''); -> 에러 메시지를 초기화
-  // - 사용자가 비밀번호를 입력한 후 비밀번호 확인 입력 필드로 이동하여 올바른 비밀번호를 입력했을 때, 이전에 설정된 에러 메시지를 지워주는 역할 
-  // - 사용자가 에러를 수정했을 때, 화면에 에러 메시지가 계속 남아 있지 않도록 하는 것
+  const formatPhoneNumber = (value) => {
+    const cleaned = value.replace(/\D/g, '');
+    return cleaned.replace(/^(\d{2,3})(\d{3,4})(\d{4})$/g, "$1-$2-$3").replace(/(\-{1,2})$/g, "");
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -78,6 +101,13 @@ const SignUpPage = () => {
       setError('판매자 이름은 최소 2자 이상이어야 합니다.');
     } else if (name === 'loginId' && /[^a-zA-Z0-9]/.test(value)) {
       setError('아이디는 영어와 숫자만 사용할 수 있습니다.');
+    } else if (name === 'mobile') {
+      const formattedValue = formatPhoneNumber(value);
+      setFormValues({
+        ...formValues,
+        [name]: formattedValue,
+      });
+      return;
     } else {
       setError('');
     }
@@ -86,6 +116,16 @@ const SignUpPage = () => {
       ...formValues,
       [name]: value,
     });
+  };
+
+  const handlePhoneKeyDown = (e) => {
+    const { key } = e;
+    const { value } = e.target;
+    const cleaned = value.replace(/\D/g, '');
+
+    if (cleaned.length >= 11 && key !== 'Backspace' && key !== 'Delete') {
+      e.preventDefault();
+    }
   };
 
   const handleBlur = (e) => {
@@ -139,8 +179,8 @@ const SignUpPage = () => {
       const response = await sendVerificationCode(formValues.email);
       if (response) {
         alert('이메일로 인증 코드가 전송되었습니다.');
-        setServerVerificationCode(response); // 서버에서 보낸 인증 코드 저장
-        setVerificationSent(true); // 인증 코드 전송 상태를 true로 설정
+        setServerVerificationCode(response);
+        setVerificationSent(true);
       } else {
         alert('인증 코드 전송에 실패했습니다.');
       }
@@ -266,8 +306,8 @@ const SignUpPage = () => {
         <LogoBox>
           <Box
             sx={{
-              width: '200px',
-              height: '200px',
+              width: isMobile ? '150px' : '200px',
+              height: isMobile ? '150px' : '200px',
               backgroundColor: '#e0e0e0',
               display: 'flex',
               alignItems: 'center',
@@ -365,7 +405,7 @@ const SignUpPage = () => {
             onBlur={handleBlur}
           />
           <TextField
-            label="판매자 이름"
+            label="이름"
             variant="outlined"
             margin="normal"
             fullWidth
@@ -382,6 +422,7 @@ const SignUpPage = () => {
               name="mobile"
               value={formValues.mobile}
               onChange={handleChange}
+              onKeyDown={handlePhoneKeyDown}
             />
             <Button variant="contained" sx={{ marginLeft: '0.5rem', height: '56px' }} onClick={handlePhoneValidation}>
               확인
@@ -394,7 +435,7 @@ const SignUpPage = () => {
             sx={{ marginTop: '1rem' }}
             onClick={handleSignUp}
           >
-            회원가입
+            가입
           </Button>
           <Link to="/login" style={{ textDecoration: 'none', color: '#1976d2', marginTop: '1rem', textAlign: 'center' }}>
             뒤로가기

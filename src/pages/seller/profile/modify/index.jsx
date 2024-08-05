@@ -1,77 +1,85 @@
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, Divider, Radio, RadioGroup, FormControlLabel, FormControl } from '@mui/material';
-import { styled } from '@mui/system';
+import { styled, useTheme } from '@mui/system';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useMediaQuery } from '@mui/material';
 import { validateEmail, sendVerificationCode, validatePhone } from '../../../../apis/auth/AuthAPI';
 import { updateSellerInfo } from '../../../../apis/seller/SellerAPI.jsx';
-import LogoutButton from '../../../../components/button/LogoutButton.jsx';
-import MyStoreButton from '../../../../components/button/MyStoreButton.jsx';
 
-const Container = styled(Box)({
+const Container = styled(Box)(({ theme }) => ({
   display: 'flex',
-  height: '100vh',
+  marginTop: '2rem',
   alignItems: 'center',
   justifyContent: 'center',
-});
+  [theme.breakpoints.down('md')]: {
+    marginTop: '5rem',
+    padding: '1rem',
+  },
+}));
 
-const FormContainer = styled(Box)({
+const FormContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
   border: '1px solid #e0e0e0',
   borderRadius: '8px',
-  width: '60%',
-  height: '860px',
+  width: '50%',
   padding: '1.8rem',
   boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+    padding: '1rem',
+  },
+}));
 
-const Header = styled(Box)({
+const Header = styled(Box)(({ theme }) => ({
   width: '100%',
   display: 'flex',
-  justifyContent: 'space-between',
+  justifyContent: 'center',
   alignItems: 'center',
   marginBottom: '1rem',
-});
+}));
 
-const ServiceName = styled(Typography)({
-  fontSize: '24px',
+const MyProfileModifyText = styled(Typography)(({ theme }) => ({
+  fontSize: '32px',
   fontWeight: 'bold',
   textAlign: 'center',
-  marginBottom: '1rem',
-});
+}));
 
-const ButtonsBox = styled(Box)({
-  display: 'flex',
-  gap: '1rem',
-});
-
-const SaveButton = styled(Button)({
+const SaveButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#1976d2',
   color: 'white',
-  marginTop: '1rem',
-  width: '50%',
+  marginTop: '1.5rem',
+  width: '10%',
   '&:hover': {
     backgroundColor: '#1565c0',
   },
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+  },
+}));
 
-const InputField = styled(TextField)({
+const InputField = styled(TextField)(({ theme }) => ({
   marginTop: '1rem',
   marginBottom: '1rem',
   width: '50%',
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+  },
+}));
 
-const ErrorMessage = styled(Typography)({
+const ErrorMessage = styled(Typography)(({ theme }) => ({
   color: 'red',
-  marginTop: '0.5rem',
-});
+  marginTop: '1.5rem',
+}));
 
 const MyProfileModifyPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { seller } = location.state;
   const loginId = localStorage.getItem('id');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [orderCompletion, setOrderCompletion] = useState(seller.doneClickCountSetting ? 'true' : 'false');
   const [formValues, setFormValues] = useState({
@@ -88,6 +96,11 @@ const MyProfileModifyPage = () => {
   const [verificationCode, setVerificationCode] = useState('');
   const [serverVerificationCode, setServerVerificationCode] = useState('');
   const [phoneValid, setPhoneValid] = useState(true);
+
+  const formatPhoneNumber = (value) => {
+    const cleaned = value.replace(/\D/g, '');
+    return cleaned.replace(/^(\d{2,3})(\d{3,4})(\d{4})$/g, "$1-$2-$3").replace(/(\-{1,2})$/g, "");
+  };
 
   const handleRadioChange = (e) => {
     setOrderCompletion(e.target.value);
@@ -110,6 +123,13 @@ const MyProfileModifyPage = () => {
       }
     } else if (name === 'username' && value.length > 0 && value.length < 2) {
       setError('판매자 이름은 최소 2자 이상이어야 합니다.');
+    } else if (name === 'mobile') {
+      const formattedValue = formatPhoneNumber(value);
+      setFormValues({
+        ...formValues,
+        [name]: formattedValue,
+      });
+      return;
     } else {
       setError('');
     }
@@ -128,6 +148,16 @@ const MyProfileModifyPage = () => {
     // 전화번호 변경 시 유효성 초기화
     if (name === 'mobile') {
       setPhoneValid(value === seller.mobile);
+    }
+  };
+
+  const handlePhoneKeyDown = (e) => {
+    const { key } = e;
+    const { value } = e.target;
+    const cleaned = value.replace(/\D/g, '');
+
+    if (cleaned.length >= 11 && key !== 'Backspace' && key !== 'Delete') {
+      e.preventDefault();
     }
   };
 
@@ -295,16 +325,11 @@ const MyProfileModifyPage = () => {
   return (
     <Container>
       <FormContainer>
-        <ServiceName>자리부터Java</ServiceName>
+
         <Header>
-          <Typography variant="h6" component="h2">
-            My Profile Modify
-          </Typography>
-          <ButtonsBox>
-            <MyStoreButton loginId={loginId} />
-            <LogoutButton loginId={loginId} />
-          </ButtonsBox>
+          <MyProfileModifyText variant="h6">My Profile Modify</MyProfileModifyText>
         </Header>
+
         <Divider sx={{ width: '100%', marginBottom: '2rem' }} />
 
         <InputField
@@ -328,7 +353,7 @@ const MyProfileModifyPage = () => {
         <Button
           variant="contained"
           color="primary"
-          sx={{ width: '50%', marginBottom: '1rem' }}
+          sx={{ width: isMobile ? '100%' : '50%', marginBottom: '1rem' }}
           onClick={handleEmailValidation}
           disabled={!formValues.email || formValues.email === seller.email}
         >
@@ -374,7 +399,7 @@ const MyProfileModifyPage = () => {
           onBlur={handleBlur}
         />
         <InputField
-          label="판매자 이름"
+          label="이름"
           variant="outlined"
           name="username"
           value={formValues.username}
@@ -382,13 +407,14 @@ const MyProfileModifyPage = () => {
           onBlur={handleBlur}
         />
 
-        <Box sx={{ display: 'flex', alignItems: 'center', width: '50%' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', width: isMobile ? '100%' : '50%', marginTop: '1rem' }}>
           <TextField
             label="전화번호"
             variant="outlined"
             name="mobile"
             value={formValues.mobile}
             onChange={handleChange}
+            onKeyDown={handlePhoneKeyDown}
             sx={{ marginRight: '0.5rem', flexGrow: 1 }}
           />
           <Button
@@ -402,7 +428,7 @@ const MyProfileModifyPage = () => {
         </Box>
         {error && <ErrorMessage>{error}</ErrorMessage>}
 
-        <FormControl component="fieldset" sx={{ marginTop: '1rem' }}>
+        <FormControl component="fieldset" sx={{ marginTop: '1.5rem' }}>
           <RadioGroup
             aria-label="ordercompletion"
             name="orderCompletion"
@@ -427,7 +453,7 @@ const MyProfileModifyPage = () => {
           Save
         </SaveButton>
 
-        <Link to={`/profile/${loginId}`} style={{ textDecoration: 'none', marginTop: '1rem', color: '#1976d2' }}>
+        <Link to={`/sellers/${loginId}/profile`} style={{ textDecoration: 'none', marginTop: '1rem', color: '#1976d2' }}>
           뒤로가기
         </Link>
       </FormContainer>

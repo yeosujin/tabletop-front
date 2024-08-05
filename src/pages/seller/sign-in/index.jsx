@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography } from '@mui/material';
-import { styled } from '@mui/system';
+import { styled, useTheme } from '@mui/system';
 import { Link, useNavigate } from 'react-router-dom';
+import { useMediaQuery } from '@mui/material';
 import { login } from '../../../apis/auth/AuthAPI';
 
-const Container = styled(Box)({
+const Container = styled(Box)(({ theme }) => ({
   display: 'flex',
-  height: '100vh',
   alignItems: 'center',
   justifyContent: 'center',
-});
+  height: '100vh',
+  [theme.breakpoints.down('md')]: {
+    padding: '1rem',
+  },
+}));
 
-const FormContainer = styled(Box)({
+const FormContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
   border: '1px solid #e0e0e0',
@@ -19,29 +23,47 @@ const FormContainer = styled(Box)({
   width: '60%',
   padding: '2rem',
   boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-});
+  [theme.breakpoints.down('md')]: {
+    flexDirection: 'column',
+    width: '100%',
+    padding: '1rem',
+  },
+}));
 
-const LogoBox = styled(Box)({
+const LogoBox = styled(Box)(({ theme }) => ({
   width: '50%',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   borderRight: '1px solid #e0e0e0',
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+    borderRight: 'none',
+    borderBottom: '1px solid #e0e0e0',
+    marginBottom: '1rem',
+  },
+}));
 
-const FormBox = styled(Box)({
+const FormBox = styled(Box)(({ theme }) => ({
   width: '50%',
   padding: '0 2rem',
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
-});
+  [theme.breakpoints.down('md')]: {
+    width: '100%',
+    padding: '0',
+  },
+}));
 
 const SignInPage = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
   const [values, setValues] = useState({
-    loginId: "",
-    password: "",
+    loginId: '',
+    password: '',
   });
 
   const handleChange = (e) => {
@@ -69,14 +91,16 @@ const SignInPage = () => {
       localStorage.setItem('accessToken', response.accessToken);
       localStorage.setItem('refreshToken', response.refreshToken);
 
-<<<<<<< Updated upstream
       const loginId = localStorage.getItem('id');
-      navigate(`/storelist`);
-=======
       navigate(`/sellers/${loginId}/stores`);
->>>>>>> Stashed changes
     } catch (err) {
       alert(err.response.data.message);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
     }
   };
 
@@ -86,8 +110,8 @@ const SignInPage = () => {
         <LogoBox>
           <Box
             sx={{
-              width: '200px',
-              height: '200px',
+              width: isMobile ? '150px' : '200px',
+              height: isMobile ? '150px' : '200px',
               backgroundColor: '#e0e0e0',
               display: 'flex',
               alignItems: 'center',
@@ -108,7 +132,8 @@ const SignInPage = () => {
             margin="normal" 
             fullWidth 
             onChange={handleChange} 
-            value={values.loginId} 
+            value={values.loginId}
+            onKeyDown={handleKeyDown}
           />
           <TextField 
             id="password" 
@@ -118,17 +143,18 @@ const SignInPage = () => {
             margin="normal" 
             fullWidth 
             onChange={handleChange} 
-            value={values.password} 
+            value={values.password}
+            onKeyDown={handleKeyDown}
           />
           <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
             <Link to="/signup" style={{ textDecoration: 'none', color: '#1976d2' }}>회원가입</Link>
-            <Link to="/password" style={{ textDecoration: 'none', color: '#1976d2' }}>비밀번호 찾기</Link>
+            <Link to="/password" style={{ textDecoration: 'none', color: '#1976d2'}}>비밀번호 찾기</Link>
           </Box>
           <Button 
             variant="contained" 
             color="primary" 
             fullWidth 
-            sx={{ marginTop: '2rem' }}
+            sx={{ marginTop: '2rem'}}
             onClick={handleSubmit}
           >
             로그인
