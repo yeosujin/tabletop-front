@@ -6,9 +6,10 @@ import MenuSales from '../../charts/menusales';
 import MonthlySales from '../../charts/monthly';
 import WeeklySales from '../../charts/weekly';
 import WeeklyDailySales from '../../charts/weekly-daily';
+import { Box, Card, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
+import { BarChart, PieChart, Timeline, TrendingUp, DateRange } from '@mui/icons-material';
 
 const Dashboard = () => {
-    // const [storeId, setStoreId] = useState(1);
     const { storeId } = useParams();
     const [activeChart, setActiveChart] = useState('dailyComparison');
     const [dailyComparisonData, setDailyComparisonData] = useState(null);
@@ -65,19 +66,60 @@ const Dashboard = () => {
     };
 
     return (
-        <div>
-            <h1>Sales Dashboard</h1>
-            <div>
-                <button onClick={() => setActiveChart('dailyComparison')}>일일 비교</button>
-                <button onClick={() => setActiveChart('menuSales')}>메뉴별 판매량</button>
-                <button onClick={() => setActiveChart('monthlySales')}>월별 매출</button>
-                <button onClick={() => setActiveChart('weeklySales')}>주별 매출</button>
-                <button onClick={() => setActiveChart('weeklyDailySales')}>주간 일별 매출</button>
-            </div>
-            <div className="chart-container">
-                {renderChart()}
-            </div>
-        </div>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+            {/*<h1>Sales Dashboard</h1>*/}
+            <Box sx={{ width: 250, flexShrink: 0, mr: 3, mb: 2 }}>
+                <Card>
+                    <List>
+                        {[
+                            { label: '일일 비교', value: 'dailyComparison', icon: <BarChart /> },
+                            { label: '메뉴별 판매량', value: 'menuSales', icon: <PieChart /> },
+                            { label: '월별 매출', value: 'monthlySales', icon: <Timeline /> },
+                            { label: '주별 매출', value: 'weeklySales', icon: <TrendingUp /> },
+                            { label: '주간 일별 매출', value: 'weeklyDailySales', icon: <DateRange /> },
+                        ].map(({ label, value, icon }) => (
+                            <ListItem key={value} disablePadding>
+                                <ListItemButton
+                                    selected={activeChart === value}
+                                    onClick={() => setActiveChart(value)}
+                                    sx={{
+                                        '&.Mui-selected': {
+                                            bgcolor: 'primary.main',
+                                            color: 'white',
+                                            '&:hover': {
+                                                bgcolor: 'primary.dark',
+                                            },
+                                        },
+                                    }}
+                                >
+                                    <ListItemText
+                                        primary={label}
+                                        primaryTypographyProps={{
+                                            sx: {
+                                                fontWeight: 'bold',
+                                                fontSize: '1.15rem',
+                                            },
+                                        }}
+                                    />
+                                    {icon}
+                                </ListItemButton>
+                            </ListItem>
+                        ))}
+                    </List>
+                </Card>
+            </Box>
+            <Box sx={{ flexGrow: 1 }}>
+                <div style={{
+                    width: '100%',
+                    height: '400px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}>
+                    {renderChart()}
+                </div>
+            </Box>
+        </Box>
     );
 };
 
