@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Divider, Radio, RadioGroup, FormControlLabel, FormControl } from '@mui/material';
+import { Box, Button, TextField, Typography, Divider } from '@mui/material';
 import { styled, useTheme } from '@mui/system';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useMediaQuery } from '@mui/material';
 import { validateEmail, sendVerificationCode, validatePhone } from '../../../../apis/auth/AuthAPI';
 import { updateSellerInfo } from '../../../../apis/seller/SellerAPI.jsx';
@@ -37,7 +37,7 @@ const Header = styled(Box)(({ theme }) => ({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  marginBottom: '1rem',
+  marginBottom: '-1rem',
 }));
 
 const MyProfileModifyText = styled(Typography)(({ theme }) => ({
@@ -46,13 +46,13 @@ const MyProfileModifyText = styled(Typography)(({ theme }) => ({
   textAlign: 'center',
 }));
 
-const SaveButton = styled(Button)(({ theme }) => ({
-  backgroundColor: '#1976d2',
+const StyledButton = styled(Button)(({ theme }) => ({
+  backgroundColor: '#ff9800',
   color: 'white',
   marginTop: '1.5rem',
   width: '10%',
   '&:hover': {
-    backgroundColor: '#1565c0',
+    backgroundColor: '#e68900',
   },
   [theme.breakpoints.down('md')]: {
     width: '100%',
@@ -72,6 +72,51 @@ const ErrorMessage = styled(Typography)(({ theme }) => ({
   color: 'red',
   marginTop: '1.5rem',
 }));
+
+const ClickSettingBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'center',
+  width: '100%',
+  marginTop: '1rem',
+}));
+
+const RadioInputs = styled('div')({
+  position: 'relative',
+  display: 'flex',
+  flexWrap: 'wrap',
+  borderRadius: '0.5rem',
+  backgroundColor: '#EEE',
+  boxSizing: 'border-box',
+  boxShadow: '0 0 0px 1px rgba(0, 0, 0, 0.06)',
+  padding: '0.25rem',
+  width: '300px',
+  fontSize: '14px',
+});
+
+const RadioLabel = styled('label')({
+  flex: '1 1 auto',
+  textAlign: 'center',
+});
+
+const RadioInput = styled('input')({
+  display: 'none',
+});
+
+const RadioName = styled('span')({
+  display: 'flex',
+  cursor: 'pointer',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: '0.5rem',
+  border: 'none',
+  padding: '.5rem 0',
+  color: 'rgba(51, 65, 85, 1)',
+  transition: 'all .15s ease-in-out',
+  '&.checked': {
+    backgroundColor: '#fff',
+    fontWeight: 600,
+  },
+});
 
 const MyProfileModifyPage = () => {
   const location = useLocation();
@@ -330,6 +375,15 @@ const MyProfileModifyPage = () => {
           <MyProfileModifyText variant="h6">My Profile Modify</MyProfileModifyText>
         </Header>
 
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-start', marginBottom: '1rem' }}>
+          <StyledButton
+            variant="contained"
+            onClick={() => navigate(`/sellers/${loginId}/profile`)}
+          >
+            뒤로가기
+          </StyledButton>
+        </Box>
+
         <Divider sx={{ width: '100%', marginBottom: '2rem' }} />
 
         <InputField
@@ -428,34 +482,23 @@ const MyProfileModifyPage = () => {
         </Box>
         {error && <ErrorMessage>{error}</ErrorMessage>}
 
-        <FormControl component="fieldset" sx={{ marginTop: '1.5rem' }}>
-          <RadioGroup
-            aria-label="ordercompletion"
-            name="orderCompletion"
-            value={orderCompletion}
-            onChange={handleRadioChange}
-            row
-          >
-            <FormControlLabel
-              value="false"
-              control={<Radio color="primary" />}
-              label="한번 클릭 시 주문 완료 처리"
-            />
-            <FormControlLabel
-              value="true"
-              control={<Radio color="primary" />}
-              label="두번 클릭 시 주문 완료 처리"
-            />
-          </RadioGroup>
-        </FormControl>
+        <ClickSettingBox>
+          <RadioInputs>
+            <RadioLabel className="radio">
+              <RadioInput type="radio" name="orderCompletion" value="false" checked={orderCompletion === 'false'} onChange={handleRadioChange} />
+              <RadioName className={orderCompletion === 'false' ? 'name checked' : 'name'}>한번 클릭 시 주문 완료 처리</RadioName>
+            </RadioLabel>
+            <RadioLabel className="radio">
+              <RadioInput type="radio" name="orderCompletion" value="true" checked={orderCompletion === 'true'} onChange={handleRadioChange} />
+              <RadioName className={orderCompletion === 'true' ? 'name checked' : 'name'}>두번 클릭 시 주문 완료 처리</RadioName>
+            </RadioLabel>
+          </RadioInputs>
+        </ClickSettingBox>
 
-        <SaveButton variant="contained" onClick={handleSave}>
-          Save
-        </SaveButton>
+        <StyledButton variant="contained" onClick={handleSave}>
+          저장
+        </StyledButton>
 
-        <Link to={`/sellers/${loginId}/profile`} style={{ textDecoration: 'none', marginTop: '1rem', color: '#1976d2' }}>
-          뒤로가기
-        </Link>
       </FormContainer>
     </Container>
   );

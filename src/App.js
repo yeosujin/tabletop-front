@@ -64,24 +64,29 @@ const theme = createTheme({
 })
 const router = createBrowserRouter([
     {
-        path: '/',
-        element: (
-            <ProtectedRoute>
-                <SignInPage />
-            </ProtectedRoute>
-        ),
-    },
-    {
-        path: '/login',
-        element: <SignInPage />,
-    },
-    {
-        path: '/signup',
-        element: <SignUpPage />,
-    },
-    {
-        path: '/password',
-        element: <PasswordPage />,
+        element: <Layout />,
+        children: [
+            {
+                path: '/',
+                element: (
+                    <ProtectedRoute>
+                        <SignInPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: '/login',
+                element: <SignInPage />,
+            },
+            {
+                path: '/signup',
+                element: <SignUpPage />,
+            },
+            {
+                path: '/password',
+                element: <PasswordPage />,
+            },
+        ],
     },
     {
         path: 'sellers/:loginId',

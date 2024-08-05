@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, TextField, Typography, Divider, FormControlLabel, Radio, RadioGroup } from '@mui/material';
+import { Box, Button, TextField, Typography, Divider, Link as MuiLink } from '@mui/material';
 import { styled, useTheme } from '@mui/system';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMediaQuery } from '@mui/material';
@@ -45,26 +45,25 @@ const MyProfileText = styled(Typography)(({ theme }) => ({
   textAlign: 'center',
 }));
 
-const ModifyButton = styled(Button)(({ theme }) => ({
-  backgroundColor: '#1976d2',
+const StyledButton = styled(Button)(({ theme }) => ({
+  backgroundColor: '#ff9800',
   color: 'white',
   marginTop: '1.5rem',
   width: '10%',
   '&:hover': {
-    backgroundColor: '#1565c0',
+    backgroundColor: '#e68900',
   },
   [theme.breakpoints.down('md')]: {
     width: '100%',
   },
 }));
 
-const DeleteButton = styled(Button)(({ theme }) => ({
-  backgroundColor: '#9C27B0',
-  color: 'white',
+const DeleteLink = styled(MuiLink)(({ theme }) => ({
+  color: '#ff9800',
   marginTop: '1.5rem',
-  width: '10%',
+  textAlign: 'center',
   '&:hover': {
-    backgroundColor: '#7B1FA2',
+    color: '#e68900',
   },
   [theme.breakpoints.down('md')]: {
     width: '100%',
@@ -80,12 +79,6 @@ const ReadOnlyInputField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-const ReadOnlyRadio = styled(Radio)({
-  '&.Mui-disabled': {
-    color: 'rgba(0, 0, 0, 0.26)',
-  },
-});
-
 const ClickSettingBox = styled(Box)(({ theme }) => ({
   display: 'flex',
   justifyContent: 'center',
@@ -93,12 +86,49 @@ const ClickSettingBox = styled(Box)(({ theme }) => ({
   marginTop: '1rem',
 }));
 
+const RadioInputs = styled('div')({
+  position: 'relative',
+  display: 'flex',
+  flexWrap: 'wrap',
+  borderRadius: '0.5rem',
+  backgroundColor: '#EEE',
+  boxSizing: 'border-box',
+  boxShadow: '0 0 0px 1px rgba(0, 0, 0, 0.06)',
+  padding: '0.25rem',
+  width: '300px',
+  fontSize: '14px',
+});
+
+const RadioLabel = styled('label')({
+  flex: '1 1 auto',
+  textAlign: 'center',
+});
+
+const RadioInput = styled('input')({
+  display: 'none',
+});
+
+const RadioName = styled('span')({
+  display: 'flex',
+  cursor: 'pointer',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: '0.5rem',
+  border: 'none',
+  padding: '.5rem 0',
+  color: 'rgba(51, 65, 85, 1)',
+  transition: 'all .15s ease-in-out',
+  '&.checked': {
+    backgroundColor: '#fff',
+    fontWeight: 600,
+  },
+});
+
 const MyProfilePage = () => {
   const { loginId } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  console.log(isMobile);
 
   const [seller, setSeller] = useState({
     loginId: '',
@@ -123,18 +153,21 @@ const MyProfilePage = () => {
   };
 
   const handleDeleteClick = async () => {
-    try {
-      const response = await deleteSeller(loginId);
-      if (response.status === 204) {
-        localStorage.removeItem('id');
-        localStorage.removeItem('tokenType');
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        alert('판매자 계정이 성공적으로 삭제되었습니다.');
-        navigate('/login');
+    const confirmDelete = window.confirm('정말 탈퇴하시겠습니까?');
+    if (confirmDelete) {
+      try {
+        const response = await deleteSeller(loginId);
+        if (response.status === 204) {
+          localStorage.removeItem('id');
+          localStorage.removeItem('tokenType');
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          alert('판매자 계정이 성공적으로 삭제되었습니다.');
+          navigate('/login');
+        }
+      } catch (err) {
+        alert(err.response.data.message);
       }
-    } catch (err) {
-      alert(err.response.data.message);
     }
   };
 
@@ -185,27 +218,25 @@ const MyProfilePage = () => {
         />
 
         <ClickSettingBox>
-          <RadioGroup row>
-            <FormControlLabel
-              value="false"
-              control={<ReadOnlyRadio color="primary" checked={seller.doneClickCountSetting === false} disabled />}
-              label="한번 클릭 시 주문 완료 처리"
-            />
-            <FormControlLabel
-              value="true"
-              control={<ReadOnlyRadio color="primary" checked={seller.doneClickCountSetting === true} disabled />}
-              label="두번 클릭 시 주문 완료 처리"
-            />
-          </RadioGroup>
+          <RadioInputs>
+            <RadioLabel className="radio">
+              <RadioInput type="radio" name="radio" checked={seller.doneClickCountSetting === false} />
+              <RadioName className={seller.doneClickCountSetting === false ? 'name checked' : 'name'}>한번 클릭 시 주문 완료 처리</RadioName>
+            </RadioLabel>
+            <RadioLabel className="radio">
+              <RadioInput type="radio" name="radio" checked={seller.doneClickCountSetting === true} />
+              <RadioName className={seller.doneClickCountSetting === true ? 'name checked' : 'name'}>두번 클릭 시 주문 완료 처리</RadioName>
+            </RadioLabel>
+          </RadioInputs>
         </ClickSettingBox>
 
-        <ModifyButton variant="contained" fullWidth onClick={handleModifyClick}>
-          Modify
-        </ModifyButton>
+        <StyledButton variant="contained" fullWidth onClick={handleModifyClick}>
+          수정
+        </StyledButton>
 
-        <DeleteButton variant="contained" fullWidth onClick={handleDeleteClick}>
+        <DeleteLink component="button" onClick={handleDeleteClick}>
           탈퇴하기
-        </DeleteButton>
+        </DeleteLink>
       </FormContainer>
     </Container>
   );
