@@ -1,4 +1,5 @@
 import './App.css'
+import GlobalStyle from './GlobalStyle';
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { Suspense } from 'react'
 import { createTheme, ThemeProvider } from '@mui/material'
@@ -47,9 +48,10 @@ const Layout = () => (
 
 const theme = createTheme({
     palette: {
-        primary: { main: '#ff9f1c' },
-        secondary: { main: '#1c7cff' },
-        background: { default: '#fdfcdc' },
+        primary: { main: '#FF9F1C' },
+        secondary: { main: '#0081A7' },
+        third: { main: '#FDFCDC' },
+        background: { default: '#fdfcdc' }
     },
     components: {
         MuiButton: {
@@ -62,6 +64,7 @@ const theme = createTheme({
         },
     },
 })
+
 const router = createBrowserRouter([
     {
         element: <Layout />,
@@ -218,6 +221,7 @@ function App() {
         <ThemeProvider theme={theme}>
             <TableProvider>
                 <CartProvider>
+                    <GlobalStyle />
                     <Suspense fallback={<div>Loading...</div>}>
                         <RouterProvider router={router} />
                     </Suspense>
