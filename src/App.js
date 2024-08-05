@@ -48,9 +48,10 @@ const Layout = () => (
 
 const theme = createTheme({
     palette: {
-        primary: { main: '#ff9f1c' },
-        secondary: { main: '#1c7cff' },
-        background: { default: '#fdfcdc' },
+        primary: { main: '#FF9F1C' },
+        secondary: { main: '#0081A7' },
+        third: { main: '#FDFCDC' },
+        background: { default: '#fdfcdc' }
     },
     components: {
         MuiButton: {
@@ -63,6 +64,7 @@ const theme = createTheme({
         },
     },
 })
+
 const router = createBrowserRouter([
     {
         element: <Layout />,
