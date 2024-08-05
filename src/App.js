@@ -23,6 +23,8 @@ import MyProfileModifyPage from './pages/seller/profile/modify'
 import CompletePage from './pages/consumer/complete'
 import { createTheme, ThemeProvider } from '@mui/material'
 import Dashboard from './pages/seller/sales/pages/dashboard'
+import ProtectedRoute from './components/route/ProtectedRoute';
+import PrivateRoute from './components/route/PrivateRoute'
 
 const NotFound = () => <h1>404 - 페이지를 찾을 수 없습니다.</h1>
 
@@ -60,7 +62,11 @@ const theme = createTheme({
 const router = createBrowserRouter([
     {
         path: 'login',
-        element: <SignInPage />,
+        element: (
+            <ProtectedRoute>
+              <SignInPage />
+            </ProtectedRoute>
+        ),
     },
     {
         path: 'signup',
@@ -82,27 +88,51 @@ const router = createBrowserRouter([
 
             {
                 path: 'storelist',
-                element: <StoreListPage />,
+                element: (
+                    <PrivateRoute>
+                        <StoreListPage />
+                    </PrivateRoute>
+                ),
             },
             {
                 path: 'storelist/:storeid/orders',
-                element: <OrderPage />,
+                element: (
+                    <PrivateRoute>
+                        <OrderPage />
+                    </PrivateRoute>
+                ),
             },
             {
                 path: 'sellers/:loginId/:storeId/menus',
-                element: <Menu />,
+                element: (
+                    <PrivateRoute>
+                        <Menu />
+                    </PrivateRoute>
+                ),
             },
             {
                 path: 'sellers/:loginId/profile',
-                element: <MyProfilePage />, // Placeholder for nested routes
+                element: (
+                    <PrivateRoute>
+                        <MyProfilePage />
+                    </PrivateRoute>
+                ),
             },
             {
                 path: 'sellers/:loginId/profile/modify',
-                element: <MyProfileModifyPage />,
+                element: (
+                    <PrivateRoute>
+                        <MyProfileModifyPage />
+                    </PrivateRoute>
+                ),
             },
             {
                 path: 'sellers/:loginId/stores/:storeId/charts',
-                element: <Dashboard />,
+                element: (
+                    <PrivateRoute>
+                        <Dashboard />
+                    </PrivateRoute>
+                ),
             },
         ],
     },
