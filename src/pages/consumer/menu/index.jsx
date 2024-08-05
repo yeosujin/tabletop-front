@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import axios from 'axios'
 import { useCart } from '../../../contexts/cart'
 import { useTable } from '../../../contexts/table-number'
+import { getMenus } from '../../../apis/seller/MenuAPI'
 import {
     Avatar,
     Box,
@@ -14,8 +14,6 @@ import {
     IconButton,
     List,
     ListItem,
-    ListItemAvatar,
-    ListItemText,
     TextField,
     ThemeProvider,
     Typography,
@@ -81,32 +79,46 @@ const MenuPage = () => {
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [selectedItem, setSelectedItem] = useState(null)
     const [quantity, setQuantity] = useState(1)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(null)
+    const [lastMenuId, setLastMenuId] = useState(null)
+    const [hasMore, setHasMore] = useState(true)
+
+    const fetchMenuItems = useCallback(async () => {
+        if (loading || !hasMore || !storeId) return;
+        setLoading(true);
+        setError(null);
+        try {
+            const menus = await getMenus(storeId, lastMenuId, 20);
+            setMenuItems(prev => [...prev, ...menus]);
+            setLastMenuId(menus[menus.length - 1]?.id);
+            setHasMore(menus.length === 20);
+        } catch (err) {
+            setError('메뉴를 불러오는데 실패했습니다');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    }, [storeId, lastMenuId, loading, hasMore]);
 
     useEffect(() => {
         const tableNumber = searchParams.get('tableNumber')
         setTableNumber(tableNumber)
 
-        const fetchMenuItems = async () => {
-            try {
-                const response = await axios.get(`/api/stores/${storeId}/menus`)
-                setMenuItems(response.data)
-            } catch (error) {
-                console.error('메뉴를 불러오는데 실패했습니다:', error)
-            }
-        }
+        fetchMenuItems();
 
         const fetchStoreInfo = async () => {
             try {
-                const response = await axios.get(`/api/stores/${storeId}`)
-                setStoreName(response.data.name)
+                const response = await fetch(`/api/stores/${storeId}`)
+                const data = await response.json()
+                setStoreName(data.name)
             } catch (error) {
                 console.error('가게 정보를 불러오는데 실패했습니다:', error)
             }
         }
 
-        fetchMenuItems()
         fetchStoreInfo()
-    }, [storeId, searchParams, setTableNumber])
+    }, [storeId, searchParams, setTableNumber, fetchMenuItems])
 
     const handleItemClick = (item) => {
         setSelectedItem(item)
@@ -145,52 +157,58 @@ const MenuPage = () => {
                     {menuItems.map((item) => (
                         <ListItem
                             key={item.id}
-                            button
-                            onClick={() => handleItemClick(item)}
+                            onClick={item.isAvailable ? () => handleItemClick(item) : undefined}
+                            button={item.isAvailable}
                             divider
                             sx={{
                                 borderRadius: 2,
                                 mb: 1,
-                                columnGap: 4,
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                justifyContent: 'space-between',
                                 '&:hover': {
-                                    bgcolor: 'rgba(255, 159, 28, 0.1)',
+                                    bgcolor: item.isAvailable ? 'rgba(255, 159, 28, 0.1)' : 'inherit',
                                 },
+                                opacity: item.isAvailable ? 1 : 0.5,
+                                cursor: item.isAvailable ? 'pointer' : 'not-allowed',
                             }}
                         >
-                            <ListItemAvatar>
-                                <Avatar
-                                    src={item.image}
-                                    alt={item.name}
-                                    sx={{ width: 56, height: 56 }}
-                                />
-                            </ListItemAvatar>
-                            <ListItemText
-                                primary={
-                                    <Typography variant="h6">
-                                        {item.name}
+                            <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, mr: 2 }}>
+                                <Typography variant="h6" gutterBottom>
+                                    {item.name}
+                                </Typography>
+                                <Typography variant="body1" color="primary" fontWeight="bold" gutterBottom>
+                                    {new Intl.NumberFormat('ko-KR').format(item.price)}원
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {item.description}
+                                </Typography>
+                                {!item.isAvailable && (
+                                    <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                                        현재 판매 중지
                                     </Typography>
-                                }
-                                secondary={
-                                    <>
-                                        <Typography
-                                            variant="body2"
-                                            color="text.secondary"
-                                        >
-                                            {item.description}
-                                        </Typography>
-                                        <Typography
-                                            variant="body1"
-                                            color="primary"
-                                            fontWeight="bold"
-                                        >
-                                            {item.price}원
-                                        </Typography>
-                                    </>
-                                }
-                            />
+                                )}
+                            </Box>
+                            <Box sx={{ width: 80, height: 80, flexShrink: 0 }}>
+                                {(item.s3MenuUrl || item.menuImage?.s3MenuUrl) && (
+                                    <Avatar
+                                        src={item.s3MenuUrl || item.menuImage?.s3MenuUrl}
+                                        alt={item.name}
+                                        sx={{ width: '100%', height: '100%' }}
+                                        variant="rounded"
+                                    />
+                                )}
+                            </Box>
                         </ListItem>
                     ))}
                 </List>
+                {loading && <Typography>로딩 중...</Typography>}
+                {error && <Typography color="error">{error}</Typography>}
+                {hasMore && !loading && (
+                    <Button onClick={fetchMenuItems} fullWidth>
+                        더 보기
+                    </Button>
+                )}
                 <IconButton
                     color="primary"
                     aria-label="cart"
@@ -231,22 +249,24 @@ const MenuPage = () => {
                     >
                         {selectedItem && (
                             <Box sx={{ width: '100%', maxWidth: 400 }}>
-                                <Card
-                                    sx={{
-                                        mb: 2,
-                                        width: '100%',
-                                        borderRadius: 2,
-                                        overflow: 'hidden',
-                                    }}
-                                >
-                                    <CardMedia
-                                        component="img"
-                                        height="200"
-                                        image={selectedItem.image}
-                                        alt={selectedItem.name}
-                                        sx={{ objectFit: 'cover' }}
-                                    />
-                                </Card>
+                                {(selectedItem.s3MenuUrl || selectedItem.menuImage?.s3MenuUrl) && (
+                                    <Card
+                                        sx={{
+                                            mb: 2,
+                                            width: '100%',
+                                            borderRadius: 2,
+                                            overflow: 'hidden',
+                                        }}
+                                    >
+                                        <CardMedia
+                                            component="img"
+                                            height="200"
+                                            image={selectedItem.s3MenuUrl || selectedItem.menuImage?.s3MenuUrl}
+                                            alt={selectedItem.name}
+                                            sx={{ objectFit: 'cover' }}
+                                        />
+                                    </Card>
+                                )}
                                 <Typography
                                     variant="h5"
                                     fontWeight="bold"
@@ -260,7 +280,7 @@ const MenuPage = () => {
                                     fontWeight="bold"
                                     mb={2}
                                 >
-                                    {selectedItem.price}원
+                                    {new Intl.NumberFormat('ko-KR').format(selectedItem.price)}원
                                 </Typography>
                                 <Box
                                     sx={{
@@ -290,7 +310,7 @@ const MenuPage = () => {
                                                 Math.max(
                                                     1,
                                                     parseInt(e.target.value) ||
-                                                        1
+                                                    1
                                                 )
                                             )
                                         }
