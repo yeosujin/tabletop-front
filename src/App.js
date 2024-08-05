@@ -1,12 +1,12 @@
 import './App.css'
-import GlobalStyle from './GlobalStyle';
+import GlobalStyle from './GlobalStyle'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { Suspense } from 'react'
 import { ThemeProvider as StyledThemeProvider } from 'styled-components';
 import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import { CartProvider } from './contexts/cart'
 import { TableProvider } from './contexts/table-number'
-import ProtectedRoute from './components/route/ProtectedRoute';
+import ProtectedRoute from './components/route/ProtectedRoute'
 import PrivateRoute from './components/route/PrivateRoute'
 import SiteHeader from './layouts/header'
 import SiteFooter from './layouts/footer'
@@ -116,7 +116,7 @@ const router = createBrowserRouter([
                             </PrivateRoute>
                         ),
                     },
-                ]
+                ],
             },
             {
                 path: 'stores',
@@ -146,7 +146,7 @@ const router = createBrowserRouter([
                                     <PrivateRoute>
                                         <OrderPage />
                                     </PrivateRoute>
-                                )
+                                ),
                             },
                             {
                                 path: 'charts',
