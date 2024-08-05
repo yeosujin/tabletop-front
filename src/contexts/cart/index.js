@@ -1,4 +1,3 @@
-// CartContext.js
 import React, { createContext, useContext, useState } from 'react'
 
 const CartContext = createContext()
@@ -18,7 +17,8 @@ export const CartProvider = ({ children }) => {
                         : i
                 )
             } else {
-                return [...prevItems, item]
+                // 새 아이템을 추가할 때 이미지 URL도 함께 저장합니다
+                return [...prevItems, { ...item, imageUrl: item.imageUrl }]
             }
         })
     }
@@ -50,6 +50,15 @@ export const CartProvider = ({ children }) => {
         )
     }
 
+    // 이미지 URL을 업데이트하는 함수를 추가합니다
+    const updateItemImage = (menuId, imageUrl) => {
+        setCartItems((prevItems) =>
+            prevItems.map((item) =>
+                item.menuId === menuId ? { ...item, imageUrl } : item
+            )
+        )
+    }
+
     return (
         <CartContext.Provider
             value={{
@@ -58,6 +67,7 @@ export const CartProvider = ({ children }) => {
                 removeFromCart,
                 clearCart,
                 calculateTotal,
+                updateItemImage,
             }}
         >
             {children}

@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useCart } from '../../../contexts/cart'
 import { useTable } from '../../../contexts/table-number'
 import { getMenus } from '../../../apis/seller/MenuAPI'
 import {
     Avatar,
+    Badge,
     Box,
     Button,
     Card,
@@ -85,27 +86,27 @@ const MenuPage = () => {
     const [hasMore, setHasMore] = useState(true)
 
     const fetchMenuItems = useCallback(async () => {
-        if (loading || !hasMore || !storeId) return;
-        setLoading(true);
-        setError(null);
+        if (loading || !hasMore || !storeId) return
+        setLoading(true)
+        setError(null)
         try {
-            const menus = await getMenus(storeId, lastMenuId, 20);
-            setMenuItems(prev => [...prev, ...menus]);
-            setLastMenuId(menus[menus.length - 1]?.id);
-            setHasMore(menus.length === 20);
+            const menus = await getMenus(storeId, lastMenuId, 20)
+            setMenuItems((prev) => [...prev, ...menus])
+            setLastMenuId(menus[menus.length - 1]?.id)
+            setHasMore(menus.length === 20)
         } catch (err) {
-            setError('메뉴를 불러오는데 실패했습니다');
-            console.error(err);
+            setError('메뉴를 불러오는데 실패했습니다')
+            console.error(err)
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    }, [storeId, lastMenuId, loading, hasMore]);
+    }, [storeId, lastMenuId, loading, hasMore])
 
     useEffect(() => {
         const tableNumber = searchParams.get('tableNumber')
         setTableNumber(tableNumber)
 
-        fetchMenuItems();
+        fetchMenuItems()
 
         const fetchStoreInfo = async () => {
             try {
@@ -126,12 +127,16 @@ const MenuPage = () => {
         setDrawerOpen(true)
     }
 
+    console.log(selectedItem)
+
     const handleAddToCart = () => {
         addToCart({
             menuId: selectedItem.id,
             name: selectedItem.name,
             price: selectedItem.price,
             quantity: quantity,
+            imageUrl:
+                selectedItem.s3MenuUrl || selectedItem.menuImage?.s3MenuUrl,
         })
         setDrawerOpen(false)
     }
@@ -157,7 +162,11 @@ const MenuPage = () => {
                     {menuItems.map((item) => (
                         <ListItem
                             key={item.id}
-                            onClick={item.isAvailable ? () => handleItemClick(item) : undefined}
+                            onClick={
+                                item.isAvailable
+                                    ? () => handleItemClick(item)
+                                    : undefined
+                            }
                             button={item.isAvailable}
                             divider
                             sx={{
@@ -167,32 +176,62 @@ const MenuPage = () => {
                                 alignItems: 'flex-start',
                                 justifyContent: 'space-between',
                                 '&:hover': {
-                                    bgcolor: item.isAvailable ? 'rgba(255, 159, 28, 0.1)' : 'inherit',
+                                    bgcolor: item.isAvailable
+                                        ? 'rgba(255, 159, 28, 0.1)'
+                                        : 'inherit',
                                 },
                                 opacity: item.isAvailable ? 1 : 0.5,
-                                cursor: item.isAvailable ? 'pointer' : 'not-allowed',
+                                cursor: item.isAvailable
+                                    ? 'pointer'
+                                    : 'not-allowed',
                             }}
                         >
-                            <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, mr: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    flexGrow: 1,
+                                    mr: 2,
+                                }}
+                            >
                                 <Typography variant="h6" gutterBottom>
                                     {item.name}
                                 </Typography>
-                                <Typography variant="body1" color="primary" fontWeight="bold" gutterBottom>
-                                    {new Intl.NumberFormat('ko-KR').format(item.price)}원
+                                <Typography
+                                    variant="body1"
+                                    color="primary"
+                                    fontWeight="bold"
+                                    gutterBottom
+                                >
+                                    {new Intl.NumberFormat('ko-KR').format(
+                                        item.price
+                                    )}
+                                    원
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
                                     {item.description}
                                 </Typography>
                                 {!item.isAvailable && (
-                                    <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                                    <Typography
+                                        variant="body2"
+                                        color="error"
+                                        sx={{ mt: 1 }}
+                                    >
                                         현재 판매 중지
                                     </Typography>
                                 )}
                             </Box>
                             <Box sx={{ width: 80, height: 80, flexShrink: 0 }}>
-                                {(item.s3MenuUrl || item.menuImage?.s3MenuUrl) && (
+                                {(item.s3MenuUrl ||
+                                    item.menuImage?.s3MenuUrl) && (
                                     <Avatar
-                                        src={item.s3MenuUrl || item.menuImage?.s3MenuUrl}
+                                        src={
+                                            item.s3MenuUrl ||
+                                            item.menuImage?.s3MenuUrl
+                                        }
                                         alt={item.name}
                                         sx={{ width: '100%', height: '100%' }}
                                         variant="rounded"
@@ -215,22 +254,35 @@ const MenuPage = () => {
                     onClick={handleCartClick}
                     sx={{
                         position: 'fixed',
-                        bottom: 20,
-                        right: 20,
-                        bgcolor: 'background.paper',
+                        bottom: 24,
+                        right: 24,
+                        bgcolor: 'primary.main',
+                        color: 'white',
+                        width: 64,
+                        height: 64,
                         boxShadow: 3,
                         '&:hover': {
-                            bgcolor: 'primary.light',
+                            bgcolor: 'primary.dark',
                         },
                     }}
                 >
-                    <AddShoppingCartIcon />
-                    <Typography variant="badge" sx={{ ml: 1 }}>
-                        {cartItems.reduce(
+                    <Badge
+                        badgeContent={cartItems.reduce(
                             (sum, item) => sum + item.quantity,
                             0
                         )}
-                    </Typography>
+                        color="error"
+                        sx={{
+                            '& .MuiBadge-badge': {
+                                right: -3,
+                                top: 3,
+                                border: `2px solid ${theme.palette.background.paper}`,
+                                padding: '0 4px',
+                            },
+                        }}
+                    >
+                        <AddShoppingCartIcon sx={{ fontSize: 28 }} />
+                    </Badge>
                 </IconButton>
 
                 <Drawer
@@ -249,7 +301,8 @@ const MenuPage = () => {
                     >
                         {selectedItem && (
                             <Box sx={{ width: '100%', maxWidth: 400 }}>
-                                {(selectedItem.s3MenuUrl || selectedItem.menuImage?.s3MenuUrl) && (
+                                {(selectedItem.s3MenuUrl ||
+                                    selectedItem.menuImage?.s3MenuUrl) && (
                                     <Card
                                         sx={{
                                             mb: 2,
@@ -261,7 +314,11 @@ const MenuPage = () => {
                                         <CardMedia
                                             component="img"
                                             height="200"
-                                            image={selectedItem.s3MenuUrl || selectedItem.menuImage?.s3MenuUrl}
+                                            image={
+                                                selectedItem.s3MenuUrl ||
+                                                selectedItem.menuImage
+                                                    ?.s3MenuUrl
+                                            }
                                             alt={selectedItem.name}
                                             sx={{ objectFit: 'cover' }}
                                         />
@@ -280,7 +337,10 @@ const MenuPage = () => {
                                     fontWeight="bold"
                                     mb={2}
                                 >
-                                    {new Intl.NumberFormat('ko-KR').format(selectedItem.price)}원
+                                    {new Intl.NumberFormat('ko-KR').format(
+                                        selectedItem.price
+                                    )}
+                                    원
                                 </Typography>
                                 <Box
                                     sx={{
@@ -310,7 +370,7 @@ const MenuPage = () => {
                                                 Math.max(
                                                     1,
                                                     parseInt(e.target.value) ||
-                                                    1
+                                                        1
                                                 )
                                             )
                                         }

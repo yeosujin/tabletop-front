@@ -85,6 +85,8 @@ const InfoStorePage = () => {
         return storeDetails.holidays.join(', ')
     }
 
+    console.log(storeDetails)
+
     return (
         <Container maxWidth="sm">
             <Box my={4}>
@@ -92,11 +94,11 @@ const InfoStorePage = () => {
                     {storeDetails.name}
                 </Typography>
                 <Card>
-                    {storeDetails.imageBase64 ? (
+                    {storeDetails.s3Url ? (
                         <CardMedia
                             component="img"
                             height="200"
-                            image={`data:image/jpeg;base64,${storeDetails.imageBase64}`}
+                            src={`https://tabletop-tabletop.s3.ap-northeast-2.amazonaws.com/tabletop/store_image/${storeDetails.s3Url}`}
                             alt={storeDetails.name}
                         />
                     ) : (

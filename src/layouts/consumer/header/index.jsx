@@ -3,11 +3,34 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AppBar, Toolbar, Typography } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 import { InfoOutlined } from '@mui/icons-material'
+import { useEffect, useState } from 'react'
 
 const ConsumerHeader = () => {
+    const [storeName, setStoreName] = useState('-')
     const location = useLocation()
     const navigate = useNavigate()
-    const { storeId } = useParams() // URL에서 storeId를 가져옵니다.
+    const { storeId } = useParams()
+
+    useEffect(() => {
+        const fetchStoreName = async () => {
+            if (storeId) {
+                try {
+                    const response = await fetch(
+                        `http://localhost:8080/api/stores/${storeId}/details`
+                    )
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch store details')
+                    }
+                    const data = await response.json()
+                    setStoreName(data.name)
+                } catch (error) {
+                    console.error('Error fetching store name:', error)
+                }
+            }
+        }
+
+        fetchStoreName()
+    }, [storeId])
 
     const handleGoBack = () => {
         navigate(-1) // 브라우저 히스토리에서 한 단계 뒤로 이동
@@ -17,7 +40,7 @@ const ConsumerHeader = () => {
         const path = location.pathname.split('/').pop()
         switch (path) {
             case 'menu':
-                return '메뉴'
+                return storeName // 메뉴 페이지일 때 가게 이름 반환
             case 'cart':
                 return '장바구니'
             case 'payment':
@@ -27,7 +50,7 @@ const ConsumerHeader = () => {
             case 'details':
                 return '가게 정보'
             default:
-                return '-' // 기본값 설정
+                return '-'
         }
     }
 
@@ -51,7 +74,8 @@ const ConsumerHeader = () => {
             }}
         >
             <Toolbar>
-                <BackButton backFn={handleGoBack} />
+                {!isMenuPath && <BackButton backFn={handleGoBack} />}
+                {isMenuPath && <div style={{ width: 48 }} />}
                 <Typography
                     variant="h6"
                     component="div"
@@ -69,8 +93,7 @@ const ConsumerHeader = () => {
                         <InfoOutlined />
                     </IconButton>
                 )}
-                {!isMenuPath && <div style={{ width: 48 }} />}{' '}
-                {/* IconButton의 공간을 유지하기 위한 빈 div */}
+                {!isMenuPath && <div style={{ width: 48 }} />}
             </Toolbar>
         </AppBar>
     )

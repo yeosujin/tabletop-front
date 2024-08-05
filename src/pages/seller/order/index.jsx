@@ -25,6 +25,9 @@ const OrderPage = () => {
     const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()))
     const [orders, setOrders] = useState([])
     const [isLoading, setIsLoading] = useState(true)
+    const [doneClickCountSetting, setDoneClickCountSetting] = useState(false)
+    const [clickedCancelOrders, setClickedCancelOrders] = useState([])
+    const [clickedDoneOrders, setClickedDoneOrders] = useState([])
 
     const { loginId, storeId } = useParams()
     const navigate = useNavigate()
@@ -68,6 +71,25 @@ const OrderPage = () => {
     }
 
     useEffect(() => {
+        const fetchDoneClickCountSetting = async () => {
+            try {
+                const response = await fetch(
+                    `http://localhost:8080/api/sellers/${loginId}/count-setting`
+                )
+                if (!response.ok)
+                    throw new Error('설정을 가져오는데 실패했습니다')
+                const data = await response.json()
+                setDoneClickCountSetting(data)
+            } catch (error) {
+                console.error('설정을 가져오는데 실패했습니다:', error)
+            }
+        }
+        fetchDoneClickCountSetting()
+    }, [loginId])
+
+    console.log(doneClickCountSetting)
+
+    useEffect(() => {
         fetchOrders()
         const eventSource = new EventSource(
             `http://localhost:8080/api/sse/orders/subscribe/${storeId}`
@@ -100,10 +122,6 @@ const OrderPage = () => {
             )
         )
     }, [])
-
-    const moveToSalas = () => {
-        navigate(`/sellers/${loginId}/stores/${storeId}/charts`)
-    }
 
     const handleCancel = useCallback(
         async (orderId) => {
@@ -138,6 +156,49 @@ const OrderPage = () => {
         },
         [updateOrderStatus]
     )
+
+    const handleAction = useCallback(
+        async (orderId, actionType) => {
+            const action = actionType === 'cancel' ? handleCancel : handleDone
+            const clickedOrders =
+                actionType === 'cancel'
+                    ? clickedCancelOrders
+                    : clickedDoneOrders
+            const setClickedOrders =
+                actionType === 'cancel'
+                    ? setClickedCancelOrders
+                    : setClickedDoneOrders
+
+            if (doneClickCountSetting) {
+                if (!clickedOrders.includes(orderId)) {
+                    setClickedOrders((prev) => [...prev, orderId])
+                    setTimeout(() => {
+                        setClickedOrders((prev) =>
+                            prev.filter((id) => id !== orderId)
+                        )
+                    }, 3000)
+                } else {
+                    await action(orderId)
+                    setClickedOrders((prev) =>
+                        prev.filter((id) => id !== orderId)
+                    )
+                }
+            } else {
+                await action(orderId)
+            }
+        },
+        [
+            doneClickCountSetting,
+            handleCancel,
+            handleDone,
+            clickedCancelOrders,
+            clickedDoneOrders,
+        ]
+    )
+
+    const moveToSalas = () => {
+        navigate(`/sellers/${loginId}/stores/${storeId}/charts`)
+    }
 
     const calculateOrderTotal = useCallback((order) => {
         return order.orderItems.reduce(
@@ -174,128 +235,165 @@ const OrderPage = () => {
         [navigate]
     )
 
-    const OrderItem = React.memo(({ order }) => (
-        <Card
-            elevation={3}
-            sx={{
-                width: 250,
-                minWidth: 250,
-                display: 'flex',
-                flexDirection: 'column',
-                borderRadius: '10px',
-                boxShadow:
-                    '0px 10px 12px rgba(0, 0, 0, 0.08), -4px -4px 12px rgba(0, 0, 0, 0.08)',
-                transition: 'all 0.3s',
-                cursor: 'pointer',
-                '&:hover': {
-                    transform: 'translateY(-10px)',
-                    boxShadow:
-                        '0px 20px 20px rgba(0, 0, 0, 0.1), -4px -4px 12px rgba(0, 0, 0, 0.08)',
-                },
-                overflow: 'hidden',
-                p: 2,
-                flexShrink: 0,
-                height: 'fit-content',
-            }}
-        >
-            <CardContent
-                sx={{
-                    // flexGrow: 1,
-                    p: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                }}
-            >
-                <Typography
-                    variant="h6"
+    const OrderItem = React.memo(
+        ({ order, clickedCancelOrders, clickedDoneOrders, handleAction }) => {
+            const isCancelClicked = clickedCancelOrders.includes(order.orderId)
+            const isDoneClicked = clickedDoneOrders.includes(order.orderId)
+
+            return (
+                <Card
+                    elevation={3}
                     sx={{
-                        fontSize: '20px',
-                        fontWeight: 600,
-                        color: '#1797b8',
+                        width: 300,
+                        minWidth: 300,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        borderRadius: '10px',
+                        boxShadow:
+                            '0px 10px 12px rgba(0, 0, 0, 0.08), -4px -4px 12px rgba(0, 0, 0, 0.08)',
+                        transition: 'all 0.3s',
+                        cursor: 'pointer',
+                        '&:hover': {
+                            transform: 'translateY(-10px)',
+                            boxShadow:
+                                '0px 20px 20px rgba(0, 0, 0, 0.1), -4px -4px 12px rgba(0, 0, 0, 0.08)',
+                        },
                         overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        mb: 1,
+                        p: 2,
+                        flexShrink: 0,
+                        height: 'fit-content',
                     }}
                 >
-                    주문 #{order.orderId}
-                </Typography>
-                <Typography
-                    variant="body2"
-                    sx={{
-                        fontSize: '16px',
-                        color: '#666',
-                        mb: 2,
-                    }}
-                >
-                    {format(new Date(order.createdAt), 'yyyy-MM-dd HH:mm')}
-                </Typography>
-                <Box sx={{ mb: 2 }}>
-                    {order.orderItems.map((item, index) => (
-                        <React.Fragment key={index}>
-                            <Typography
-                                variant="body1"
+                    <CardContent
+                        sx={{
+                            // flexGrow: 1,
+                            p: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
+                        }}
+                    >
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                fontSize: '20px',
+                                fontWeight: 600,
+                                color: '#1797b8',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                mb: 1,
+                            }}
+                        >
+                            주문 #{order.orderId}
+                        </Typography>
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                fontSize: '16px',
+                                color: '#666',
+                                mb: 2,
+                            }}
+                        >
+                            {format(
+                                new Date(order.createdAt),
+                                'yyyy-MM-dd HH:mm'
+                            )}
+                        </Typography>
+                        <Box sx={{ mb: 2 }}>
+                            {order.orderItems.map((item, index) => (
+                                <React.Fragment key={index}>
+                                    <Typography
+                                        variant="body1"
+                                        sx={{
+                                            fontSize: '18px',
+                                            color: '#1797b8',
+                                            py: 1,
+                                        }}
+                                    >
+                                        {item.menuName} x{item.quantity}
+                                    </Typography>
+                                    {index < order.orderItems.length - 1 && (
+                                        <Divider />
+                                    )}
+                                </React.Fragment>
+                            ))}
+                        </Box>
+                        <Typography
+                            variant="body1"
+                            sx={{
+                                fontSize: '18px',
+                                fontWeight: 600,
+                                color: '#1797b8',
+                                textAlign: 'right',
+                                mt: 'auto',
+                            }}
+                        >
+                            총 {calculateOrderTotal(order).toLocaleString()}원
+                        </Typography>
+                    </CardContent>
+                    {orderType === 'received' && (
+                        <Box
+                            sx={{
+                                p: 1,
+                                bgcolor: 'background.default',
+                                display: 'flex',
+                            }}
+                        >
+                            <Button
+                                variant="text"
+                                onClick={() =>
+                                    handleAction(order.orderId, 'cancel')
+                                }
                                 sx={{
-                                    fontSize: '18px',
-                                    color: '#1797b8',
-                                    py: 1,
+                                    flexGrow: 1,
+                                    mr: 1,
+                                    animation: isCancelClicked
+                                        ? 'pulse 1s infinite'
+                                        : 'none',
+                                    '@keyframes pulse': {
+                                        '0%': { opacity: 1 },
+                                        '50%': { opacity: 0.5 },
+                                        '100%': { opacity: 1 },
+                                    },
                                 }}
                             >
-                                {item.menuName} x{item.quantity}
-                            </Typography>
-                            {index < order.orderItems.length - 1 && <Divider />}
-                        </React.Fragment>
-                    ))}
-                </Box>
-                <Typography
-                    variant="body1"
-                    sx={{
-                        fontSize: '18px',
-                        fontWeight: 600,
-                        color: '#1797b8',
-                        textAlign: 'right',
-                        mt: 'auto',
-                    }}
-                >
-                    총 {calculateOrderTotal(order).toLocaleString()}원
-                </Typography>
-            </CardContent>
-            {orderType === 'received' && (
-                <Box
-                    sx={{
-                        p: 1,
-                        bgcolor: 'background.default',
-                        display: 'flex',
-                    }}
-                >
-                    <Button
-                        variant="text"
-                        onClick={() => handleCancel(order.orderId)}
-                        sx={{
-                            flexGrow: 1,
-                            mr: 1,
-                        }}
-                    >
-                        <span style={{ color: '#1c7cff', fontSize: '16px' }}>
-                            취소
-                        </span>
-                    </Button>
-                    <Button
-                        variant="contained"
-                        onClick={() => handleDone(order.orderId)}
-                        sx={{
-                            flexGrow: 3,
-                            bgcolor: 'orange',
-                            '&:hover': { bgcolor: 'darkorange' },
-                            fontSize: '16px',
-                        }}
-                    >
-                        완료
-                    </Button>
-                </Box>
-            )}
-        </Card>
-    ))
+                                <span
+                                    style={{
+                                        color: '#1c7cff',
+                                        fontSize: '16px',
+                                    }}
+                                >
+                                    {isCancelClicked ? '한 번 더 클릭' : '취소'}
+                                </span>
+                            </Button>
+                            <Button
+                                variant="contained"
+                                onClick={() =>
+                                    handleAction(order.orderId, 'done')
+                                }
+                                sx={{
+                                    flexGrow: 3,
+                                    bgcolor: 'orange',
+                                    '&:hover': { bgcolor: 'darkorange' },
+                                    fontSize: '16px',
+                                    animation: isDoneClicked
+                                        ? 'pulse 1s infinite'
+                                        : 'none',
+                                    '@keyframes pulse': {
+                                        '0%': { opacity: 1 },
+                                        '50%': { opacity: 0.5 },
+                                        '100%': { opacity: 1 },
+                                    },
+                                }}
+                            >
+                                {isDoneClicked ? '한 번 더 클릭' : '완료'}
+                            </Button>
+                        </Box>
+                    )}
+                </Card>
+            )
+        }
+    )
 
     if (isLoading) return <Typography>로딩 중...</Typography>
 
@@ -449,7 +547,13 @@ const OrderPage = () => {
                         }}
                     >
                         {filteredOrders.map((order) => (
-                            <OrderItem key={order.orderId} order={order} />
+                            <OrderItem
+                                key={order.orderId}
+                                order={order}
+                                clickedCancelOrders={clickedCancelOrders}
+                                clickedDoneOrders={clickedDoneOrders}
+                                handleAction={handleAction}
+                            />
                         ))}
                     </Box>
                 </Box>
