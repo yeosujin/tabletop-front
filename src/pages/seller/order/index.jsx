@@ -20,6 +20,8 @@ import {
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { Cancel, CheckCircle, Fastfood } from '@mui/icons-material'
+import { getTokenHeaders } from '../../../apis/seller/SellerAPI'
+import { EventSourcePolyfill } from 'event-source-polyfill'
 
 const OrderPage = () => {
     const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()))
@@ -39,7 +41,8 @@ const OrderPage = () => {
         setIsLoading(true)
         try {
             const response = await fetch(
-                `http://localhost:8080/api/orders/${storeId}`
+                `http://localhost:8080/api/orders/${storeId}`,
+                { headers: getTokenHeaders() }
             )
             if (!response.ok) throw new Error('서버 응답이 실패했습니다')
             const data = await response.json()
@@ -61,7 +64,7 @@ const OrderPage = () => {
             console.log('Unsubscribing from SSE...')
             const response = await fetch(
                 `http://localhost:8080/api/sse/orders/unsubscribe/${storeId}`,
-                { method: 'GET' }
+                { method: 'GET', headers: getTokenHeaders() }
             )
             if (!response.ok) throw new Error('Unsubscribe failed')
             console.log('Successfully unsubscribed from SSE')
@@ -74,7 +77,8 @@ const OrderPage = () => {
         const fetchDoneClickCountSetting = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:8080/api/sellers/${loginId}/count-setting`
+                    `http://localhost:8080/api/sellers/${loginId}/count-setting`,
+                    { headers: getTokenHeaders() }
                 )
                 if (!response.ok)
                     throw new Error('설정을 가져오는데 실패했습니다')
@@ -91,8 +95,13 @@ const OrderPage = () => {
 
     useEffect(() => {
         fetchOrders()
+        
+        const headers = getTokenHeaders();
+        const EventSource = EventSourcePolyfill;
+
         const eventSource = new EventSource(
-            `http://localhost:8080/api/sse/orders/subscribe/${storeId}`
+            `http://localhost:8080/api/sse/orders/subscribe/${storeId}`,
+            { headers }
         )
         eventSource.onmessage = handleSSEMessage
         eventSource.onerror = (error) => {
@@ -128,7 +137,7 @@ const OrderPage = () => {
             try {
                 const response = await fetch(
                     `http://localhost:8080/api/orders/${orderId}/cancel`,
-                    { method: 'PUT' }
+                    { method: 'PUT', headers: getTokenHeaders() }
                 )
                 if (!response.ok)
                     throw new Error('서버에서 주문 취소에 실패했습니다')
@@ -145,7 +154,7 @@ const OrderPage = () => {
             try {
                 const response = await fetch(
                     `http://localhost:8080/api/orders/${orderId}/complete`,
-                    { method: 'PUT' }
+                    { method: 'PUT', headers: getTokenHeaders() }
                 )
                 if (!response.ok)
                     throw new Error('주문 완료 처리에 실패했습니다')

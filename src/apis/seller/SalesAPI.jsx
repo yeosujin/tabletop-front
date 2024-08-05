@@ -16,7 +16,9 @@ const BASE_URL = 'http://localhost:8080/api/sales';
 export const SalesAPI = {
     getDailyComparison: async (storeId) => {
         try {
-            const response = await axios.get(`${BASE_URL}/${storeId}/daily-comparison`);
+            const response = await axios.get(`${BASE_URL}/${storeId}/daily-comparison`, {
+                headers: getTokenHeaders()
+            });
             return response.data;
         } catch (error) {
             console.error('Error fetching daily comparison:', error);
@@ -26,7 +28,9 @@ export const SalesAPI = {
 
     getMenuSales: async (storeId) => {
         try {
-            const response = await axios.get(`${BASE_URL}/${storeId}/menu-sales`);
+            const response = await axios.get(`${BASE_URL}/${storeId}/menu-sales`, {
+                headers: getTokenHeaders()
+            });
             return response.data;
         } catch (error) {
             console.error('Error fetching menu sales:', error);
@@ -36,7 +40,9 @@ export const SalesAPI = {
 
     getMonthlySales: async (storeId) => {
         try {
-            const response = await axios.get(`${BASE_URL}/${storeId}/monthly`);
+            const response = await axios.get(`${BASE_URL}/${storeId}/monthly`, {
+                headers: getTokenHeaders()
+            });
             return response.data;
         } catch (error) {
             console.error('Error fetching monthly sales:', error);
@@ -46,7 +52,9 @@ export const SalesAPI = {
 
     getWeeklySales: async (storeId) => {
         try {
-            const response = await axios.get(`${BASE_URL}/${storeId}/weekly`);
+            const response = await axios.get(`${BASE_URL}/${storeId}/weekly`, {
+                headers: getTokenHeaders()
+            });
             return response.data;
         } catch (error) {
             console.error('Error fetching weekly sales:', error);
@@ -56,7 +64,9 @@ export const SalesAPI = {
 
     getWeeklyDailySales: async (storeId) => {
         try {
-            const response = await axios.get(`${BASE_URL}/${storeId}/weekly-daily`);
+            const response = await axios.get(`${BASE_URL}/${storeId}/weekly-daily`, {
+                headers: getTokenHeaders()
+            });
             return response.data;
         } catch (error) {
             console.error('Error fetching weekly daily sales:', error);

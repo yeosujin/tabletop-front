@@ -14,7 +14,7 @@ const SiteHeader = () => {
     const handleLogoutClick = async () => {
         try {
             const response = await logout(loginId)
-            if (response === '정상적으로 로그아웃 되었습니다.') {
+            if (response === '로그아웃 되었습니다.') {
                 localStorage.removeItem('id')
                 localStorage.removeItem('tokenType')
                 localStorage.removeItem('accessToken')

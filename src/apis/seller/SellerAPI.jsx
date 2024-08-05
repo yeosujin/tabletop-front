@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const getTokenHeaders = () => {
+export const getTokenHeaders = () => {
     const TOKEN_TYPE = localStorage.getItem("tokenType");
     const ACCESS_TOKEN = localStorage.getItem("accessToken");
     let REFRESH_TOKEN = localStorage.getItem("refreshToken");
