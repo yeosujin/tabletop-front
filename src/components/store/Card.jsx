@@ -8,10 +8,20 @@ import Fade from '@mui/material/Fade';
 import { Chip } from '@mui/material';
 import { deleteStoreAPI } from '../../apis/seller/SellerAPI';
 
+<<<<<<< Updated upstream
 const Card = ({ store, render }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const navigate = useNavigate();
+=======
+const Card = ({ store, render, onModifyClick }) => {
+    const [anchorEl, setAnchorEl] = React.useState(null)
+    const open = Boolean(anchorEl)
+    const navigate = useNavigate()
+    const loginId = localStorage.getItem('id')
+    const s3Prefix =
+        'https://tabletop-tabletop.s3.ap-northeast-2.amazonaws.com/tabletop/store_image/'
+>>>>>>> Stashed changes
 
     // storeType 변환
     const storeTypeMap = {
@@ -32,6 +42,7 @@ const Card = ({ store, render }) => {
     };
 
     const moveToEditMenu = (storeId) => {
+<<<<<<< Updated upstream
         navigate('/sellers/:username/:storeId/menus', { state: { storeId } });
     };
 
@@ -41,6 +52,16 @@ const Card = ({ store, render }) => {
         render(prevState => !prevState);
         navigate('/storelist');
     };
+=======
+        navigate(`/sellers/${loginId}/stores/${storeId}/menus`, { state: { storeId } })
+    }
+
+    const deleteStore = async (storeId) => {
+        await deleteStoreAPI(storeId)
+        render((prevState) => !prevState)
+        // navigate(`sellers/${loginId}/stores`)
+    }
+>>>>>>> Stashed changes
 
     return (
         <div className="card">

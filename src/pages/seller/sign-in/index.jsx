@@ -69,8 +69,12 @@ const SignInPage = () => {
       localStorage.setItem('accessToken', response.accessToken);
       localStorage.setItem('refreshToken', response.refreshToken);
 
+<<<<<<< Updated upstream
       const loginId = localStorage.getItem('id');
       navigate(`/storelist`);
+=======
+      navigate(`/sellers/${loginId}/stores`);
+>>>>>>> Stashed changes
     } catch (err) {
       alert(err.response.data.message);
     }
