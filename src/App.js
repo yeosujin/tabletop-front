@@ -1,11 +1,11 @@
 import './App.css'
-import GlobalStyle from './GlobalStyle';
+import GlobalStyle from './GlobalStyle'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { Suspense } from 'react'
 import { createTheme, ThemeProvider } from '@mui/material'
 import { CartProvider } from './contexts/cart'
 import { TableProvider } from './contexts/table-number'
-import ProtectedRoute from './components/route/ProtectedRoute';
+import ProtectedRoute from './components/route/ProtectedRoute'
 import PrivateRoute from './components/route/PrivateRoute'
 import SiteHeader from './layouts/header'
 import SiteFooter from './layouts/footer'
@@ -49,7 +49,7 @@ const Layout = () => (
 const theme = createTheme({
     palette: {
         primary: { main: '#ff9f1c' },
-        secondary: { main: '#1c7cff' },
+        secondary: { main: '#36BC9B' },
         background: { default: '#fdfcdc' },
     },
     components: {
@@ -113,7 +113,7 @@ const router = createBrowserRouter([
                             </PrivateRoute>
                         ),
                     },
-                ]
+                ],
             },
             {
                 path: 'stores',
@@ -143,7 +143,7 @@ const router = createBrowserRouter([
                                     <PrivateRoute>
                                         <OrderPage />
                                     </PrivateRoute>
-                                )
+                                ),
                             },
                             {
                                 path: 'charts',

@@ -498,7 +498,7 @@ const OrderPage = () => {
                         onClick={moveToSalas}
                         fullWidth
                     >
-                        Salas
+                        매출 통계
                     </Button>
                 </Box>
                 <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
