@@ -1,4 +1,5 @@
 import './App.css'
+import GlobalStyle from './GlobalStyle';
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { Suspense } from 'react'
 import { createTheme, ThemeProvider } from '@mui/material'
@@ -218,6 +219,7 @@ function App() {
         <ThemeProvider theme={theme}>
             <TableProvider>
                 <CartProvider>
+                    <GlobalStyle />
                     <Suspense fallback={<div>Loading...</div>}>
                         <RouterProvider router={router} />
                     </Suspense>
