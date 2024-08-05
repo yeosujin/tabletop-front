@@ -52,7 +52,7 @@ const CartPage = () => {
                 ) : (
                     <Grid container spacing={3}>
                         <Grid item xs={12} md={8}>
-                            {cartItems.map((item, index) => (
+                            {cartItems.map((item) => (
                                 <Card key={item.menuId} sx={{ mb: 2 }}>
                                     <CardContent>
                                         <Grid
@@ -64,10 +64,7 @@ const CartPage = () => {
                                                 <CardMedia
                                                     component="img"
                                                     height="80"
-                                                    image={
-                                                        item.image ||
-                                                        'https://via.placeholder.com/80'
-                                                    }
+                                                    image={item.imageUrl}
                                                     alt={item.name}
                                                 />
                                             </Grid>
