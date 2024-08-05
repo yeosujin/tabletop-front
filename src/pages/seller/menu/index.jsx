@@ -142,6 +142,12 @@ const Menu = () => {
   };
 
   const handleDelete = async (itemId) => {
+    const itemToDelete = menuItems.find(item => item.id === itemId);
+    if (!itemToDelete) return;
+
+    const isConfirmed = window.confirm(`'${itemToDelete.name}'을 삭제하시겠습니까?`);
+    if (!isConfirmed) return;
+
     setIsDeleting(true);
     setError(null);
     try {
