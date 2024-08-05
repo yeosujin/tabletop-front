@@ -1,28 +1,34 @@
 import './App.css'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
+import { Suspense } from 'react'
+import { createTheme, ThemeProvider } from '@mui/material'
+import { CartProvider } from './contexts/cart'
+import { TableProvider } from './contexts/table-number'
+import ProtectedRoute from './components/route/ProtectedRoute';
+import PrivateRoute from './components/route/PrivateRoute'
 import SiteHeader from './layouts/header'
 import SiteFooter from './layouts/footer'
-import ExamplePage from './pages/example'
+import ConsumerLayout from './layouts/consumer'
 import SignInPage from './pages/seller/sign-in'
 import SignUpPage from './pages/seller/sign-up'
 import PasswordPage from './pages/seller/sign-in/password'
 import StoreListPage from './pages/seller/store/list'
-import StoreAddPage from './pages/seller/store/add'
-import StoreModifyPage from './pages/seller/store/modify'
 import OrderPage from './pages/seller/order'
-import MenuPage from './pages/consumer/menu'
-import ConsumerLayout from './layouts/consumer'
-import CartPage from './pages/consumer/cart'
-import { Suspense } from 'react'
-import InfoStorePage from './pages/consumer/info-store'
-import { CartProvider } from './contexts/cart'
-import PaymentPage from './pages/consumer/payment'
-import { TableProvider } from './contexts/table-number'
-import ErrorBoundary from './components/ErrorBoundary'
 import Menu from './pages/seller/menu'
 import MyProfilePage from './pages/seller/profile'
 import MyProfileModifyPage from './pages/seller/profile/modify'
+import Dashboard from './pages/seller/sales/pages/dashboard'
+import DailyComparison from './pages/seller/sales/charts/dailycomparison'
+import MenuSales from './pages/seller/sales/charts/menusales'
+import Monthly from './pages/seller/sales/charts/monthly'
+import Weekly from './pages/seller/sales/charts/weekly'
+import WeeklyDaily from './pages/seller/sales/charts/weekly-daily'
+import MenuPage from './pages/consumer/menu'
+import CartPage from './pages/consumer/cart'
+import InfoStorePage from './pages/consumer/info-store'
+import PaymentPage from './pages/consumer/payment'
 import CompletePage from './pages/consumer/complete'
+import ErrorBoundary from './components/ErrorBoundary'
 
 const NotFound = () => <h1>404 - 페이지를 찾을 수 없습니다.</h1>
 
@@ -39,64 +45,138 @@ const Layout = () => (
     </div>
 )
 
+const theme = createTheme({
+    palette: {
+        primary: { main: '#ff9f1c' },
+        secondary: { main: '#1c7cff' },
+        background: { default: '#fdfcdc' },
+    },
+    components: {
+        MuiButton: {
+            defaultProps: {
+                color: 'primary',
+                style: {
+                    color: 'white',
+                },
+            },
+        },
+    },
+})
 const router = createBrowserRouter([
     {
         path: '/',
+        element: (
+            <ProtectedRoute>
+                <SignInPage />
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: '/login',
+        element: <SignInPage />,
+    },
+    {
+        path: '/signup',
+        element: <SignUpPage />,
+    },
+    {
+        path: '/password',
+        element: <PasswordPage />,
+    },
+    {
+        path: 'sellers/:loginId',
         element: <Layout />,
         errorElement: <ErrorBoundary />,
         children: [
             {
-                index: true,
-                element: <ExamplePage />,
+                path: 'profile',
+                children: [
+                    {
+                        index: true,
+                        element: (
+                            <PrivateRoute>
+                                <MyProfilePage />
+                            </PrivateRoute>
+                        ),
+                    },
+                    {
+                        path: 'modify',
+                        element: (
+                            <PrivateRoute>
+                                <MyProfileModifyPage />
+                            </PrivateRoute>
+                        ),
+                    },
+                ]
             },
             {
-                path: 'login',
-                element: <SignInPage />,
-            },
-            {
-                path: 'signup',
-                element: <SignUpPage />,
-            },
-            {
-                path: 'password',
-                element: <PasswordPage />,
-            },
-            {
-                path: 'storelist',
-                element: <StoreListPage />,
-            },
-            {
-                path: 'addstore',
-                element: <StoreAddPage />,
-            },
-            {
-                path: 'modifystore',
-                element: <StoreModifyPage />,
-            },
-            {
-                path: 'sellers/:username/stores/:storeid/orders',
-                element: <OrderPage />,
-            },
-            {
-                path: 'sellers/:username/:storeId/menus',
-                element: <Menu />,
-            },
-            {
-                path: 'sellers/:loginId/profile',
-                element: <MyProfilePage />, // Placeholder for nested routes
-            },
-            {
-                path: 'sellers/:loginId/profile/modify',
-                element: <MyProfileModifyPage />,
-            },
-            {
-                path: 'details',
-                element: <InfoStorePage />,
+                path: 'stores',
+                children: [
+                    {
+                        index: true,
+                        element: (
+                            <PrivateRoute>
+                                <StoreListPage />
+                            </PrivateRoute>
+                        ),
+                    },
+                    {
+                        path: ':storeId',
+                        children: [
+                            {
+                                path: 'menus',
+                                element: (
+                                    <PrivateRoute>
+                                        <Menu />
+                                    </PrivateRoute>
+                                ),
+                            },
+                            {
+                                path: 'orders',
+                                element: (
+                                    <PrivateRoute>
+                                        <OrderPage />
+                                    </PrivateRoute>
+                                )
+                            },
+                            {
+                                path: 'charts',
+                                element: (
+                                    <PrivateRoute>
+                                        <Dashboard />
+                                    </PrivateRoute>
+                                ),
+                                children: [
+                                    {
+                                        path: '?type=menu',
+                                        element: <MenuSales />,
+                                    },
+                                    {
+                                        path: '?type=yesterday',
+                                        element: <DailyComparison />,
+                                    },
+                                    {
+                                        path: '?type=day',
+                                        element: <WeeklyDaily />,
+                                    },
+                                    {
+                                        path: '?type=week',
+                                        element: <Weekly />,
+                                    },
+                                    {
+                                        path: '?type=month',
+                                        element: <Monthly />,
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
             },
         ],
     },
     {
-        path: '/consumer/:storeId',
+        path: 'consumer/:storeId',
         element: <ConsumerLayout />,
         errorElement: <ErrorBoundary />,
         children: [
@@ -130,13 +210,15 @@ const router = createBrowserRouter([
 
 function App() {
     return (
-        <TableProvider>
-            <CartProvider>
-                <Suspense fallback={<div>Loading...</div>}>
-                    <RouterProvider router={router} />
-                </Suspense>
-            </CartProvider>
-        </TableProvider>
+        <ThemeProvider theme={theme}>
+            <TableProvider>
+                <CartProvider>
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <RouterProvider router={router} />
+                    </Suspense>
+                </CartProvider>
+            </TableProvider>
+        </ThemeProvider>
     )
 }
 

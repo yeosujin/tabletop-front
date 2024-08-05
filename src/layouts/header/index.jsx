@@ -31,7 +31,7 @@ const SiteHeader = () => {
     return (
         <header style={styles.header}>
             <div style={styles.logo}>
-                <Link style={styles.logoText} to={`/storelist`}>
+                <Link style={styles.logoText} to={`/sellers/${loginId}/stores`}>
                     자리부터잡아
                 </Link>
             </div>

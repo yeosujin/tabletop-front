@@ -104,8 +104,7 @@ const OrderPage = () => {
     }, [])
 
     const moveToSalas = () => {
-        const loginId = localStorage.getItem('id')
-        navigate(`/sellers/${loginId}/stores/${storeid}/charts`)
+        navigate(`/sellers/${username}/stores/${storeid}/charts`)
     }
 
     const handleCancel = useCallback(
@@ -171,7 +170,7 @@ const OrderPage = () => {
 
     const handleTabChange = useCallback(
         (newType) => {
-            navigate(`sellers/${loginId}/stores/${storeid}/orders?type=${newType}`)
+            navigate(`?type=${newType}`)
         },
         [navigate, username, storeid]
     )
