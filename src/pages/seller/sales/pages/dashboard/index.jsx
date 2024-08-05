@@ -96,7 +96,6 @@ const Dashboard = () => {
                                         primary={label}
                                         primaryTypographyProps={{
                                             sx: {
-                                                fontWeight: 'bold',
                                                 fontSize: '1.15rem',
                                             },
                                         }}
