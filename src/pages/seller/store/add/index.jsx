@@ -52,29 +52,17 @@ const Label = styled.label`
 `;
 
 const InputField = styled.input`
+    width: 300px;
     height: 2rem;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 16px;
+    font-family: LINESeedKR-Rg;
 
     &:focus {
-        border: 2px solid #ff9f1c;
-        // box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); // 선택적: 포커스 시 그림자 효과
-    }
-`;
-
-const TextArea = styled.textarea`
-  width: 97%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
-  min-height: 100px;
-  resize: vertical;
-
-    &:focus {
-        border: 2px solid #ff9f1c;
+        outline: none;
+        border: 2px solid ${({ theme }) => theme.palette.primary.main};
     }
 `;
 
@@ -97,6 +85,11 @@ const InputFile = styled.input.attrs({ type: "file" })`
     padding: 0.5rem 0.75rem; /* px-3 py-2 */
     font-size: 0.875rem; /* text-sm */
     color: #9ca3af; /* text-gray-400 */
+
+    &:focus {
+        outline: none;
+        border: 2px solid ${({ theme }) => theme.palette.primary.main};
+    }
 
     &::file-selector-button {
         border: 0;
@@ -159,7 +152,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
         address: '',
         description: '',
         holidays: [],
-        image: 'https://via.placeholder.com/140x140?text=No+Image',
+        image: ''
     }
 
     // store type을 설정하는 radio button 값 저장
@@ -269,7 +262,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
         // 입력 값 검증에 성공하면
         if (checkNumberLength(num)) {
             // 중복 검사에 성공하면
-            if (!checkDuplicatedNumber(num)) {
+            if (checkDuplicatedNumber(num)) {
                 // 유효성 검사에 성공하면
                 if (validateNumber(num)) {
                     setValidated(true)
@@ -335,7 +328,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                         <ImagePreviewArea>
                             {formData.image && (
                                 <PreviewImage
-                                    src={formData.image}
+                                    src={formData.image || 'https://via.placeholder.com/140x140?text=No+Image'}
                                     alt="미리보기"
                                 />
                             )}
@@ -394,7 +387,6 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                         <Label>상호명</Label>
                         <TextField
                             type="text"
-                            label="상호명"
                             name="name"
                             value={formData.name}
                             onChange={handleInputChange}
@@ -406,25 +398,34 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                         <InputDiv>
                             <Label>사업자 등록번호</Label>
                             <br />
-                            <TextField
-                                type="text"
-                                label="사업자 등록번호"
-                                name="corporateRegistrationNumber"
-                                value={formData.corporateRegistrationNumber}
-                                onChange={handleInputChange}
-                                placeholder="기호(-) 제외하고 10자리 숫자만 입력하세요."
-                                required
-                            />
-                            <Button
-                                width="100px" 
-                                onClick={checkCorporateRegistrationNumber}>
-                                검사
-                            </Button>
-                            {validated && (
-                                <HelperText>
-                                    &#10004; 검증되었습니다.
-                                </HelperText>
-                            )}
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px'
+                                }}
+                            >
+                                <TextField
+                                    type="text"
+                                    name="corporateRegistrationNumber"
+                                    value={formData.corporateRegistrationNumber}
+                                    onChange={handleInputChange}
+                                    placeholder="기호(-) 제외하고 10자리 숫자만 입력하세요."
+                                    required
+                                />
+                                <Button
+                                    width="100px"
+                                    variant="contained" 
+                                    onClick={checkCorporateRegistrationNumber}
+                                >
+                                    검사
+                                </Button>
+                                {validated && (
+                                    <HelperText>
+                                        &#10004; 검증되었습니다.
+                                    </HelperText>
+                                )}
+                            </div>
                         </InputDiv>
                     )}
                     {selectedType === '임시' && (
@@ -454,13 +455,15 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                         </>
                     )}
                     <InputDiv>
-                        <Label>가게 설명</Label>
+                        <Label>가게 설명</Label>    
                         <br />
-                        <TextArea
+                        <TextField
                             name="description"
                             value={formData.description}
                             onChange={handleInputChange}
-                            rows="5"
+                            rows={5}
+                            fullWidth
+                            multiline
                         />
                     </InputDiv>
                     <InputDiv>
@@ -468,7 +471,6 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                         <br />
                         <TextField
                             type="text"
-                            label="주소"
                             name="address"
                             value={formData.address}
                             onChange={handleInputChange}
@@ -479,11 +481,13 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                     <InputDiv>
                         <Label>공지</Label>
                         <br />
-                        <TextArea
+                        <TextField
                             name="notice"
                             value={formData.notice}
                             onChange={handleInputChange}
-                            rows="5"
+                            rows={5}
+                            fullWidth
+                            multiline
                         />
                     </InputDiv>
                     <InputDiv>
@@ -494,7 +498,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                             name="openTime"
                             value={formData.openTime}
                             onChange={handleInputChange}
-                            required
+                            
                         />
                     </InputDiv>
                     <InputDiv>

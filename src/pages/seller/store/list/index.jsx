@@ -6,8 +6,8 @@ import StoreModifyModal from '../modify'
 
 const Container = styled.div`
     position: fixed;
-    bottom: 75px;
-    right: 20px;
+    bottom: 50px;
+    right: 30px;
     z-index: 1000;
 `;
 
@@ -15,8 +15,8 @@ const FloatingAddButton = styled.button`
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    width: 45px;
-    height: 45px;
+    width: 50px;
+    height: 50px;
     border-radius: calc(45px/2);
     border: none;
     cursor: pointer;
@@ -24,7 +24,7 @@ const FloatingAddButton = styled.button`
     overflow: hidden;
     transition-duration: 0.3s;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
-    background: #ff9f1c;
+    background: ${({ theme }) => theme.palette.primary.main};
   
     &:hover {
         width: 125px;
@@ -46,7 +46,7 @@ const Sign = styled.div`
 
     ${FloatingAddButton}:hover & {
         width: 30%;
-        padding-left: 15px;
+        padding-left: 10px;
     }
 `;
 
@@ -54,16 +54,16 @@ const Text = styled.div`
     position: absolute;
     right: 0%;
     width: 0%;
-    opacity: 0;
+    opacity: 0;     // 안 보이다가
     color: white;
     font-size: 1.4em;
     font-weight: 500;
     transition-duration: 0.3s;
 
     ${FloatingAddButton}:hover & {
-        opacity: 1;
+        opacity: 1;     // 보이게
         width: 70%;
-        padding-right: 15px;
+        padding-right: 10px;
     }
 `;
 

@@ -47,9 +47,12 @@ const Card = ({ store, render, onModifyClick }) => {
     }
 
     const deleteStore = async (storeId) => {
-        await deleteStoreAPI(storeId)
-        render((prevState) => !prevState)
-        // navigate(`sellers/${loginId}/stores`)
+        const isConfirmed = window.confirm("정말 삭제하시겠습니까?");
+
+        if (isConfirmed) {
+            await deleteStoreAPI(storeId)
+            render((prevState) => !prevState)
+        }
     }
 
     return (

@@ -2,7 +2,8 @@ import './App.css'
 import GlobalStyle from './GlobalStyle';
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { Suspense } from 'react'
-import { createTheme, ThemeProvider } from '@mui/material'
+import { ThemeProvider as StyledThemeProvider } from 'styled-components';
+import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import { CartProvider } from './contexts/cart'
 import { TableProvider } from './contexts/table-number'
 import ProtectedRoute from './components/route/ProtectedRoute';
@@ -218,16 +219,18 @@ const router = createBrowserRouter([
 
 function App() {
     return (
-        <ThemeProvider theme={theme}>
-            <TableProvider>
-                <CartProvider>
-                    <GlobalStyle />
-                    <Suspense fallback={<div>Loading...</div>}>
-                        <RouterProvider router={router} />
-                    </Suspense>
-                </CartProvider>
-            </TableProvider>
-        </ThemeProvider>
+        <MuiThemeProvider theme={theme}>
+            <StyledThemeProvider theme={theme}>
+                <TableProvider>
+                    <CartProvider>
+                        <GlobalStyle />
+                        <Suspense fallback={<div>Loading...</div>}>
+                            <RouterProvider router={router} />
+                        </Suspense>
+                    </CartProvider>
+                </TableProvider>
+            </StyledThemeProvider>
+        </MuiThemeProvider>
     )
 }
 

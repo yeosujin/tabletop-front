@@ -5,7 +5,7 @@ import { logout } from '../../apis/auth/AuthAPI'
 const SiteHeader = () => {
     const navigate = useNavigate()
     const ACCESS_TOKEN = localStorage.getItem('accessToken')
-    const loginId = localStorage.getItem('id') // 로그인 아이디를 로컬스토리지에서 가져옴
+    const loginId = localStorage.getItem('id')
 
     const handleProfileClick = () => {
         navigate(`/sellers/${loginId}/profile`)
@@ -14,7 +14,7 @@ const SiteHeader = () => {
     const handleLogoutClick = async () => {
         try {
             const response = await logout(loginId)
-            if (response === '로그아웃 되었습니다.') {
+            if (response === '정상적으로 로그아웃 되었습니다.') {
                 localStorage.removeItem('id')
                 localStorage.removeItem('tokenType')
                 localStorage.removeItem('accessToken')
@@ -32,7 +32,7 @@ const SiteHeader = () => {
         <header style={styles.header}>
             <div style={styles.logo}>
                 <Link style={styles.logoText} to={`/sellers/${loginId}/stores`}>
-                    자리부터잡아
+                    TableTop
                 </Link>
             </div>
             {ACCESS_TOKEN && (
@@ -41,7 +41,7 @@ const SiteHeader = () => {
                         Profile
                     </button>
                     <button style={styles.button} onClick={handleLogoutClick}>
-                        Log-out
+                        Logout
                     </button>
                 </div>
             )}
@@ -58,23 +58,23 @@ const styles = {
         backgroundColor: '#f8f8f8',
     },
     logo: {
-        fontSize: '32px',
-        fontWeight: 'bold',
+        
     },
     logoText: {
+        fontFamily: 'Tenada',
+        fontSize: '32px',
         color: 'black',
-        textDecoration: 'none',
-        textShadow: '2px 2px #ff9f1c',
+        textDecoration: 'none'
     },
     button: {
         marginLeft: '1rem',
-        padding: '0.75rem 1.25rem',
-        backgroundColor: '#ff9f1c', // 버튼 색상을 #ff9f1c
+        padding: '0.65rem 1.25rem',
+        backgroundColor: '#ff9f1c',
         color: 'white',
         border: 'none',
         borderRadius: '4px',
         cursor: 'pointer',
-        fontSize: '1.2rem',
+        fontSize: '1.1rem',
     },
 }
 

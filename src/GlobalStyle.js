@@ -15,6 +15,13 @@ const GlobalStyle = createGlobalStyle`
         font-style: normal;
     }
 
+    @font-face {
+        font-family: 'Tenada';
+        src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2210-2@1.0/Tenada.woff2') format('woff2');
+        font-weight: normal;
+        font-style: normal;
+    }
+
     html, body {
         font-family: 'LINESeedKR-Rg', 'LINESeedSans_W_Rg', sans-serif;
     }
