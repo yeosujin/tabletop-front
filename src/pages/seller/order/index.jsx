@@ -3,13 +3,11 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { format, isEqual, startOfDay } from 'date-fns'
 import {
     AppBar,
-    Avatar,
     Box,
     Button,
     Card,
     CardContent,
-    Chip,
-    Grid,
+    Divider,
     List,
     ListItem,
     ListItemButton,
@@ -17,7 +15,6 @@ import {
     Paper,
     TextField,
     Toolbar,
-    Tooltip,
     Typography,
 } from '@mui/material'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
@@ -174,91 +171,124 @@ const OrderPage = () => {
         (newType) => {
             navigate(`?type=${newType}`)
         },
-        [navigate, loginId, storeId]
+        [navigate]
     )
 
     const OrderItem = React.memo(({ order }) => (
         <Card
             elevation={3}
             sx={{
-                height: '100%',
+                width: 250,
+                minWidth: 250,
                 display: 'flex',
                 flexDirection: 'column',
+                borderRadius: '10px',
+                boxShadow:
+                    '0px 10px 12px rgba(0, 0, 0, 0.08), -4px -4px 12px rgba(0, 0, 0, 0.08)',
+                transition: 'all 0.3s',
+                cursor: 'pointer',
+                '&:hover': {
+                    transform: 'translateY(-10px)',
+                    boxShadow:
+                        '0px 20px 20px rgba(0, 0, 0, 0.1), -4px -4px 12px rgba(0, 0, 0, 0.08)',
+                },
+                overflow: 'hidden',
+                p: 2,
+                flexShrink: 0,
+                height: 'fit-content',
             }}
         >
-            <CardContent sx={{ flexGrow: 1 }}>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        mb: 2,
-                    }}
-                >
-                    <Typography variant="h6" component="div">
-                        주문 #{order.orderId}
-                    </Typography>
-                    <Chip
-                        avatar={<Avatar>{order.orderItems.length}</Avatar>}
-                        label="항목"
-                        color="secondary"
-                        size="small"
-                    />
-                </Box>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                    {format(new Date(order.createdAt), 'yyyy-MM-dd HH:mm:ss')}
-                </Typography>
-                <Box
-                    sx={{
-                        mt: 2,
-                        maxHeight: 150,
-                        overflowY: 'auto',
-                    }}
-                >
-                    {order.orderItems.map((menu, index) => (
-                        <Tooltip
-                            key={index}
-                            title={`${menu.menuName} - ${menu.quantity}개, ${menu.price}원`}
-                            arrow
-                        >
-                            <Chip
-                                label={`${menu.menuName} x${menu.quantity}`}
-                                size="small"
-                                sx={{ m: 0.5 }}
-                            />
-                        </Tooltip>
-                    ))}
-                </Box>
+            <CardContent
+                sx={{
+                    // flexGrow: 1,
+                    p: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                }}
+            >
                 <Typography
                     variant="h6"
                     sx={{
-                        mt: 2,
-                        textAlign: 'right',
+                        fontSize: '20px',
+                        fontWeight: 600,
+                        color: '#1797b8',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        mb: 1,
                     }}
                 >
-                    총 금액: {calculateOrderTotal(order).toLocaleString()}원
+                    주문 #{order.orderId}
+                </Typography>
+                <Typography
+                    variant="body2"
+                    sx={{
+                        fontSize: '16px',
+                        color: '#666',
+                        mb: 2,
+                    }}
+                >
+                    {format(new Date(order.createdAt), 'yyyy-MM-dd HH:mm')}
+                </Typography>
+                <Box sx={{ mb: 2 }}>
+                    {order.orderItems.map((item, index) => (
+                        <React.Fragment key={index}>
+                            <Typography
+                                variant="body1"
+                                sx={{
+                                    fontSize: '18px',
+                                    color: '#1797b8',
+                                    py: 1,
+                                }}
+                            >
+                                {item.menuName} x{item.quantity}
+                            </Typography>
+                            {index < order.orderItems.length - 1 && <Divider />}
+                        </React.Fragment>
+                    ))}
+                </Box>
+                <Typography
+                    variant="body1"
+                    sx={{
+                        fontSize: '18px',
+                        fontWeight: 600,
+                        color: '#1797b8',
+                        textAlign: 'right',
+                        mt: 'auto',
+                    }}
+                >
+                    총 {calculateOrderTotal(order).toLocaleString()}원
                 </Typography>
             </CardContent>
             {orderType === 'received' && (
                 <Box
                     sx={{
-                        p: 2,
+                        p: 1,
                         bgcolor: 'background.default',
                         display: 'flex',
                     }}
                 >
                     <Button
-                        variant="outlined"
+                        variant="text"
                         onClick={() => handleCancel(order.orderId)}
-                        sx={{ flexGrow: 1 }}
+                        sx={{
+                            flexGrow: 1,
+                            mr: 1,
+                        }}
                     >
-                        취소
+                        <span style={{ color: '#1c7cff', fontSize: '16px' }}>
+                            취소
+                        </span>
                     </Button>
                     <Button
                         variant="contained"
                         onClick={() => handleDone(order.orderId)}
-                        color="secondary"
-                        sx={{ flexGrow: 3 }}
+                        sx={{
+                            flexGrow: 3,
+                            bgcolor: 'orange',
+                            '&:hover': { bgcolor: 'darkorange' },
+                            fontSize: '16px',
+                        }}
                     >
                         완료
                     </Button>
@@ -273,8 +303,7 @@ const OrderPage = () => {
         <Box
             sx={{
                 flexGrow: 1,
-                bgcolor: 'background.default',
-                minHeight: '100vh',
+                minHeight: '70vh',
             }}
         >
             <AppBar position="static" color="primary" elevation={0}>
@@ -304,19 +333,19 @@ const OrderPage = () => {
                             disabled={orderType === 'received'}
                         />
                     </LocalizationProvider>
-                    <Button
-                        color="secondary"
-                        variant="contained"
-                        sx={{ color: 'white', marginX: '24px' }}
-                        onClick={moveToSalas}
-                    >
-                        Salas
-                    </Button>
                 </Toolbar>
             </AppBar>
             <Box sx={{ display: 'flex', p: 3 }}>
-                <Box sx={{ width: 200, flexShrink: 0, mr: 3 }}>
-                    <Card>
+                <Box
+                    sx={{
+                        width: 250,
+                        flexShrink: 0,
+                        mr: 3,
+                        display: 'flex',
+                        flexDirection: 'column',
+                    }}
+                >
+                    <Card sx={{ mb: 2 }}>
                         <List>
                             {[
                                 {
@@ -352,7 +381,10 @@ const OrderPage = () => {
                                         <ListItemText
                                             primary={label}
                                             primaryTypographyProps={{
-                                                sx: { fontWeight: 'bold' },
+                                                sx: {
+                                                    fontWeight: 'bold',
+                                                    fontSize: '1.15rem',
+                                                },
                                             }}
                                         />
                                         {icon}
@@ -361,8 +393,17 @@ const OrderPage = () => {
                             ))}
                         </List>
                     </Card>
+                    <Button
+                        color="secondary"
+                        variant="contained"
+                        sx={{ color: 'white', py: 1.5 }}
+                        onClick={moveToSalas}
+                        fullWidth
+                    >
+                        Salas
+                    </Button>
                 </Box>
-                <Box sx={{ flexGrow: 1 }}>
+                <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
                     {(orderType === 'done' || orderType === 'canceled') &&
                         tabTotal > 0 && (
                             <Paper
@@ -380,19 +421,37 @@ const OrderPage = () => {
                                 </Typography>
                             </Paper>
                         )}
-                    <Grid container spacing={3}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            overflowX: 'auto',
+                            gap: 3,
+                            pb: 2,
+                            px: 2,
+                            py: 1.5,
+                            '&::-webkit-scrollbar': {
+                                height: '8px',
+                                backgroundColor: '#F5F5F5',
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                borderRadius: '4px',
+                                backgroundColor: '#888',
+                            },
+                            '&::-webkit-scrollbar-thumb:hover': {
+                                backgroundColor: '#555',
+                            },
+                            '&::-webkit-scrollbar-track': {
+                                borderRadius: '4px',
+                                backgroundColor: '#F5F5F5',
+                            },
+                            scrollbarWidth: 'thin',
+                            scrollbarColor: '#888 #F5F5F5',
+                        }}
+                    >
                         {filteredOrders.map((order) => (
-                            <Grid
-                                item
-                                xs={12}
-                                sm={6}
-                                md={4}
-                                key={order.orderId}
-                            >
-                                <OrderItem order={order} />
-                            </Grid>
+                            <OrderItem key={order.orderId} order={order} />
                         ))}
-                    </Grid>
+                    </Box>
                 </Box>
             </Box>
         </Box>
