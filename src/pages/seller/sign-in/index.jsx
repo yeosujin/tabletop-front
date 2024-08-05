@@ -91,7 +91,8 @@ const SignInPage = () => {
       localStorage.setItem('accessToken', response.accessToken);
       localStorage.setItem('refreshToken', response.refreshToken);
 
-      navigate(`/storelist`);
+      const loginId = localStorage.getItem('id');
+      navigate(`/sellers/${loginId}/stores`);
     } catch (err) {
       alert(err.response.data.message);
     }

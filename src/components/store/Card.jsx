@@ -19,6 +19,7 @@ const Card = ({ store, render, onModifyClick }) => {
     const [anchorEl, setAnchorEl] = React.useState(null)
     const open = Boolean(anchorEl)
     const navigate = useNavigate()
+    const loginId = localStorage.getItem('id')
     const s3Prefix =
         'https://tabletop-tabletop.s3.ap-northeast-2.amazonaws.com/tabletop/store_image/'
 
@@ -42,15 +43,13 @@ const Card = ({ store, render, onModifyClick }) => {
     }
 
     const moveToEditMenu = (storeId) => {
-        const id = localStorage.getItem('id')
-
-        navigate(`/sellers/${id}/${storeId}/menus`, { state: { storeId } })
+        navigate(`/sellers/${loginId}/stores/${storeId}/menus`, { state: { storeId } })
     }
 
     const deleteStore = async (storeId) => {
         await deleteStoreAPI(storeId)
         render((prevState) => !prevState)
-        navigate('/storelist')
+        // navigate(`sellers/${loginId}/stores`)
     }
 
     return (

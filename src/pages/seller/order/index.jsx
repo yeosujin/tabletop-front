@@ -32,7 +32,7 @@ const OrderPage = () => {
     const { username, storeid } = useParams()
     const navigate = useNavigate()
     const location = useLocation()
-    const orderType = new URLSearchParams(location.search).get('type') || 'now'
+    const orderType = new URLSearchParams(location.search).get('type') || 'received'
 
     const fetchOrders = useCallback(async () => {
         setIsLoading(true)
@@ -90,7 +90,7 @@ const OrderPage = () => {
     }, [storeid, fetchOrders, handleSSEMessage])
 
     useEffect(() => {
-        if (orderType === 'now') setSelectedDate(startOfDay(new Date()))
+        if (orderType === 'received') setSelectedDate(startOfDay(new Date()))
     }, [orderType])
 
     const updateOrderStatus = useCallback((orderId, newStatus) => {
@@ -104,8 +104,8 @@ const OrderPage = () => {
     }, [])
 
     const moveToSalas = () => {
-        const id = localStorage.getItem('id')
-        navigate(`/sellers/${id}/stores/${storeid}/charts`)
+        const loginId = localStorage.getItem('id')
+        navigate(`/sellers/${loginId}/stores/${storeid}/charts`)
     }
 
     const handleCancel = useCallback(
@@ -154,10 +154,10 @@ const OrderPage = () => {
             const orderDate = startOfDay(new Date(order.createdAt))
             const isToday = isEqual(orderDate, startOfDay(new Date()))
             const isSelectedDate = isEqual(orderDate, startOfDay(selectedDate))
-            const statusCode = { now: 0, done: 1, canceled: 2 }[orderType] ?? -1
+            const statusCode = { received: 0, done: 1, canceled: 2 }[orderType] ?? -1
             return (
                 order.status === statusCode &&
-                (orderType === 'now' ? isToday : isSelectedDate)
+                (orderType === 'received' ? isToday : isSelectedDate)
             )
         })
     }, [orders, selectedDate, orderType])
@@ -171,7 +171,7 @@ const OrderPage = () => {
 
     const handleTabChange = useCallback(
         (newType) => {
-            navigate(`/storelist/${storeid}/orders?type=${newType}`)
+            navigate(`sellers/${loginId}/stores/${storeid}/orders?type=${newType}`)
         },
         [navigate, username, storeid]
     )
@@ -238,7 +238,7 @@ const OrderPage = () => {
                     총 금액: {calculateOrderTotal(order).toLocaleString()}원
                 </Typography>
             </CardContent>
-            {orderType === 'now' && (
+            {orderType === 'received' && (
                 <Box
                     sx={{
                         p: 2,
@@ -300,7 +300,7 @@ const OrderPage = () => {
                                     }}
                                 />
                             )}
-                            disabled={orderType === 'now'}
+                            disabled={orderType === 'received'}
                         />
                     </LocalizationProvider>
                     <Button
@@ -320,7 +320,7 @@ const OrderPage = () => {
                             {[
                                 {
                                     label: '진행중',
-                                    type: 'now',
+                                    type: 'received',
                                     icon: <Fastfood />,
                                 },
                                 {

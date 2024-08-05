@@ -5,7 +5,7 @@ const isLogin = () => !!localStorage.getItem("accessToken");
 
 const ProtectedRoute = ({ children }) => {
     if (isLogin()) {
-        return <Navigate to="/" replace />;
+        return <Navigate to="/login" replace />;
     }
 
     return children;
