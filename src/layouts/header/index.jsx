@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { logout } from '../../apis/auth/AuthAPI'
 
 const SiteHeader = () => {
@@ -30,7 +30,11 @@ const SiteHeader = () => {
 
     return (
         <header style={styles.header}>
-            <div style={styles.logo}>자리부터잡아</div>
+            <div style={styles.logo}>
+                <Link style={styles.logoText} to={`/storelist`}>
+                    자리부터잡아
+                </Link>
+            </div>
             {ACCESS_TOKEN && (
                 <div>
                     <button style={styles.button} onClick={handleProfileClick}>
@@ -56,6 +60,11 @@ const styles = {
     logo: {
         fontSize: '32px',
         fontWeight: 'bold',
+    },
+    logoText: {
+        color: 'black',
+        textDecoration: 'none',
+        textShadow: '2px 2px #ff9f1c',
     },
     button: {
         marginLeft: '1rem',
