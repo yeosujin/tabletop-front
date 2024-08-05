@@ -1,82 +1,106 @@
-import React from 'react';
-import styled from 'styled-components';
-import { createMenu, deleteMenu, updateMenu } from '../../../../apis/seller/MenuAPI';
+import React from 'react'
+import {
+    Button,
+    Card,
+    CardActions,
+    CardContent,
+    CardMedia,
+    IconButton,
+    Typography,
+} from '@mui/material'
+import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit'
+import { styled } from '@mui/material/styles'
 
-const MenuList = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-`;
+const MenuList = styled('div')(({ theme }) => ({
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+    gap: theme.spacing(3),
+    padding: theme.spacing(3),
+}))
 
-const MenuItem = styled.div`
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-`;
+const StyledCard = styled(Card)(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+    '&:hover': {
+        transform: 'translateY(-5px)',
+        boxShadow: theme.shadows[4],
+    },
+}))
 
-const MenuImage = styled.img`
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  margin-bottom: 1rem;
-  border-radius: 4px;
-`;
+const CardMediaStyled = styled(CardMedia)({
+    paddingTop: '56.25%', // 16:9 aspect ratio
+})
 
-const ItemName = styled.h3`
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-`;
+const CardContentStyled = styled(CardContent)({
+    flexGrow: 1,
+})
 
-const ItemPrice = styled.p`
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-`;
+const PriceTypography = styled(Typography)(({ theme }) => ({
+    color: theme.palette.primary.main,
+    fontWeight: 'bold',
+}))
 
-const ItemDescription = styled.p`
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-`;
+const CardActionsStyled = styled(CardActions)({
+    justifyContent: 'space-between',
+    padding: '16px',
+})
 
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
-`;
+const EditButton = styled(Button)(({ theme }) => ({
+    flexGrow: 1,
+    marginRight: theme.spacing(1),
+}))
 
-const Button = styled.button`
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-`;
-
-const DeleteButton = styled(Button)`
-  background-color: #dc3545;
-  color: white;
-`;
+const DeleteIconButton = styled(IconButton)(({ theme }) => ({
+    color: theme.palette.error.main,
+}))
 
 const MenuListComponent = ({ menuItems, onEdit, onDelete, isDeleting }) => {
     return (
         <MenuList>
             {menuItems.map((item) => (
-                <MenuItem key={item.id}>
-                    {item.s3MenuUrl && <MenuImage src={item.s3MenuUrl} alt={item.name} />}
-                    <ItemName>{item.name}</ItemName>
-                    <ItemPrice>{item.price}원</ItemPrice>
-                    <ItemDescription>{item.description}</ItemDescription>
-                    <ButtonContainer>
-                        <Button onClick={() => onEdit(item)}>수정</Button>
-                        <DeleteButton onClick={() => onDelete(item.id)} disabled={isDeleting}>
-                            {isDeleting ? '삭제 중...' : '삭제'}
-                        </DeleteButton>
-                    </ButtonContainer>
-                </MenuItem>
+                <StyledCard key={item.id}>
+                    <CardMediaStyled
+                        image={
+                            item.s3MenuUrl ||
+                            'https://via.placeholder.com/300x200?text=No+Image'
+                        }
+                        title={item.name}
+                    />
+                    <CardContentStyled>
+                        <Typography variant="h6" component="h3" gutterBottom>
+                            {item.name}
+                        </Typography>
+                        <PriceTypography variant="subtitle1" gutterBottom>
+                            {item.price.toLocaleString()}원
+                        </PriceTypography>
+                        <Typography variant="body2" color="text.secondary">
+                            {item.description}
+                        </Typography>
+                    </CardContentStyled>
+                    <CardActionsStyled>
+                        <EditButton
+                            variant="contained"
+                            color="primary"
+                            startIcon={<EditIcon />}
+                            onClick={() => onEdit(item)}
+                        >
+                            수정
+                        </EditButton>
+                        <DeleteIconButton
+                            onClick={() => onDelete(item.id)}
+                            disabled={isDeleting}
+                            size="small"
+                        >
+                            <DeleteIcon />
+                        </DeleteIconButton>
+                    </CardActionsStyled>
+                </StyledCard>
             ))}
         </MenuList>
-    );
-};
+    )
+}
 
-export default MenuListComponent;
+export default MenuListComponent
