@@ -305,7 +305,7 @@ const OrderPage = () => {
                                     <Typography
                                         variant="body1"
                                         sx={{
-                                            fontSize: '18px',
+                                            fontSize: '24px',
                                             color: '#1797b8',
                                             py: 1,
                                         }}
