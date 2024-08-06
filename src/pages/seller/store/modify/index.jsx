@@ -68,15 +68,6 @@ const InputField = styled.input`
     }
 `;
 
-const HelperText = styled.label`
-    font-size: 1rem;
-    color: black;
-    font-weight: bold;
-    line-height: 1.25;
-    cursor: not-allowed;
-    opacity: 0.9;
-`;
-
 const InputFile = styled.input.attrs({ type: "file" })`
     display: flex;
     height: 2rem;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import styled from 'styled-components';
-import InfiniteScrollComponent from '../../../../components/store/InfiniteScroll'
+import InfiniteScrollComponent from '../../../../components/store/InfiniteScrollComponent'
 import StoreAddModal from '../add'
 import StoreModifyModal from '../modify'
 

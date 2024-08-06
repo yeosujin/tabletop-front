@@ -3,7 +3,7 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import StoreList from './StoreList.jsx'
 import { getStoresAPI } from '../../apis/seller/SellerAPI.jsx'
 
-const ITEMS_PER_PAGE = 6
+const ITEMS_PER_PAGE = 4
 
 const InfiniteScrollComponent = ({ loginId, onModifyClick, isListChanged, setIsListChanged }) => {
     const [allStores, setAllStores] = useState([])
@@ -23,7 +23,7 @@ const InfiniteScrollComponent = ({ loginId, onModifyClick, isListChanged, setIsL
         })
     }
 
-    // 전체 데이터에서 6개씩 더 가져오기
+    // 전체 데이터에서 4개씩 더 가져오기
     const loadMoreStores = () => {
         const currentLength = displayedStores.length
         const newStores = allStores.slice(
@@ -37,7 +37,7 @@ const InfiniteScrollComponent = ({ loginId, onModifyClick, isListChanged, setIsL
     return (
         <>
             {allStores.length === 0 ? (
-                <h4>no data to display...</h4>
+                <h4>등록된 가게가 없습니다.</h4>
             ) : (
                 <InfiniteScroll
                     dataLength={displayedStores.length}

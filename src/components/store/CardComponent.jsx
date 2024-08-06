@@ -15,7 +15,7 @@ import {
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { deleteStoreAPI } from '../../apis/seller/SellerAPI'
 
-const Card = ({ store, render, onModifyClick }) => {
+const CardComponent = ({ store, render, onModifyClick }) => {
     const [anchorEl, setAnchorEl] = React.useState(null)
     const open = Boolean(anchorEl)
     const navigate = useNavigate()
@@ -28,7 +28,7 @@ const Card = ({ store, render, onModifyClick }) => {
         TEMPORARY: '임시',
     }
 
-    const handleClick = (event) => {
+    const handleMenuClick = (event) => {
         event.preventDefault()
         event.stopPropagation()
         setAnchorEl(event.currentTarget)
@@ -56,7 +56,29 @@ const Card = ({ store, render, onModifyClick }) => {
     }
 
     return (
-        <MuiCard sx={{ position: 'relative' }}>
+        <MuiCard 
+            elevation={3}
+            sx={{
+                width: 300,
+                minWidth: 300,
+                display: 'flex',
+                flexDirection: 'column',
+                borderRadius: '10px',
+                boxShadow:
+                    '0px 10px 12px rgba(0, 0, 0, 0.08), -4px -4px 12px rgba(0, 0, 0, 0.08)',
+                transition: 'all 0.3s',
+                cursor: 'pointer',
+                '&:hover': {
+                    transform: 'translateY(-10px)',
+                    boxShadow:
+                        '0px 20px 20px rgba(0, 0, 0, 0.1), -4px -4px 12px rgba(0, 0, 0, 0.08)',
+                },
+                overflow: 'hidden',
+                p: 2,
+                flexShrink: 0,
+                height: 'fit-content',
+            }}
+        >
             <Link
                 to={`${store.storeId}/orders`}
                 style={{ textDecoration: 'none', color: 'inherit' }}
@@ -74,7 +96,9 @@ const Card = ({ store, render, onModifyClick }) => {
                             objectFit: 'cover',
                             height: '300px',
                             width: '100%',
+                            borderRadius: '10px'
                         }}
+                        
                     />
                     <CardContent>
                         <Box sx={{ mb: 1 }}>
@@ -97,53 +121,53 @@ const Card = ({ store, render, onModifyClick }) => {
                             {store.name}
                         </Typography>
                     </CardContent>
+                    <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
+                        <IconButton
+                            aria-label="settings"
+                            onClick={handleMenuClick}
+                            sx={{
+                                color: 'white',
+                                backgroundColor: 'rgba(0,0,0,0.5)',
+                            }}
+                        >
+                            <MoreVertIcon />
+                        </IconButton>
+                    </Box>
+                    <Menu
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleClose}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <MenuItem
+                            onClick={() => {
+                                handleClose()
+                                moveToEditMenu(store.storeId)
+                            }}
+                        >
+                            메뉴 수정
+                        </MenuItem>
+                        <MenuItem
+                            onClick={() => {
+                                handleClose()
+                                moveToModifyStore(store.storeId)
+                            }}
+                        >
+                            가게 정보 수정
+                        </MenuItem>
+                        <MenuItem
+                            onClick={() => {
+                                handleClose()
+                                deleteStore(store.storeId)
+                            }}
+                        >
+                            가게 삭제
+                        </MenuItem>
+                    </Menu>
                 </CardActionArea>
             </Link>
-            <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
-                <IconButton
-                    aria-label="settings"
-                    onClick={handleClick}
-                    sx={{
-                        color: 'white',
-                        backgroundColor: 'rgba(0,0,0,0.5)',
-                    }}
-                >
-                    <MoreVertIcon />
-                </IconButton>
-            </Box>
-            <Menu
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                onClick={(e) => e.stopPropagation()}
-            >
-                <MenuItem
-                    onClick={() => {
-                        handleClose()
-                        moveToEditMenu(store.storeId)
-                    }}
-                >
-                    메뉴 수정
-                </MenuItem>
-                <MenuItem
-                    onClick={() => {
-                        handleClose()
-                        moveToModifyStore(store.storeId)
-                    }}
-                >
-                    가게 정보 수정
-                </MenuItem>
-                <MenuItem
-                    onClick={() => {
-                        handleClose()
-                        deleteStore(store.storeId)
-                    }}
-                >
-                    가게 삭제
-                </MenuItem>
-            </Menu>
         </MuiCard>
     )
 }
 
-export default Card
+export default CardComponent
