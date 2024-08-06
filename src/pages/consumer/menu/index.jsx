@@ -110,7 +110,7 @@ const MenuPage = () => {
 
         const fetchStoreInfo = async () => {
             try {
-                const response = await fetch(`/api/stores/${storeId}`)
+                const response = await fetch(`http://localhost:8080/api/stores/${storeId}/details`)
                 const data = await response.json()
                 setStoreName(data.name)
             } catch (error) {

@@ -293,7 +293,7 @@ const OrderPage = () => {
                                 mb: 1,
                             }}
                         >
-                            주문 #{order.orderId}
+                            주문 #{order.waitingNumber}
                         </Typography>
                         <Typography
                             variant="body2"
