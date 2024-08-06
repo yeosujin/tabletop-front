@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { getTokenHeaders } from '../../../../apis/seller/SellerAPI'
+import { unsubscribeSSE } from '../../../../apis/seller/OrderAPI'
 
 const useSSE = (storeId, addNewOrder) => {
     const eventSourceRef = useRef(null)
@@ -15,7 +16,7 @@ const useSSE = (storeId, addNewOrder) => {
         }
 
         const eventSource = new EventSource(
-            `http://localhost:8080/api/sse/orders/subscribe/${storeId}`,
+            `${process.env.API_URL}/api/sse/orders/subscribe/${storeId}`,
             { headers }
         )
 
@@ -43,11 +44,7 @@ const useSSE = (storeId, addNewOrder) => {
     const handleSSEUnsubscribe = useCallback(async () => {
         try {
             console.log('Unsubscribing from SSE...')
-            const response = await fetch(
-                `http://localhost:8080/api/sse/orders/unsubscribe/${storeId}`,
-                { method: 'GET', headers: getTokenHeaders() }
-            )
-            if (!response.ok) throw new Error('Unsubscribe failed')
+            await unsubscribeSSE(storeId)
             console.log('Successfully unsubscribed from SSE')
         } catch (error) {
             console.error('Failed to unsubscribe from SSE:', error)
@@ -57,7 +54,6 @@ const useSSE = (storeId, addNewOrder) => {
     useEffect(() => {
         connectSSE()
 
-        // 주기적으로 연결 상태 확인 (예: 30초마다)
         const intervalId = setInterval(() => {
             if (
                 eventSourceRef.current &&
@@ -83,7 +79,7 @@ const useSSE = (storeId, addNewOrder) => {
         }
     }, [storeId, connectSSE, handleSSEUnsubscribe])
 
-    return null // 이 훅은 상태를 반환하지 않습니다.
+    return null
 }
 
 export default useSSE
