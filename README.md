@@ -1,70 +1,50 @@
-# Getting Started with Create React App
+# TableTop 🍽️
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> 스마트폰으로 즐기는 혁신적인 테이블 주문 경험
 
-## Available Scripts
+## 📌 목차
 
-In the project directory, you can run:
+- [소개](#-소개)
+- [주요 기능](#-주요-기능)
+- [대상 사용자](#-대상-사용자)
+- [기술 스택](#-기술-스택)
+- [팀 소개](#-팀-소개)
 
-### `npm start`
+## 🚀 소개
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+TableTop은 식당 경험을 혁신적으로 변화시킵니다. 테이블에 부착된 QR 코드 하나로 시작되는 이 시스템은 메뉴 탐색부터 주문, 결제까지 전 과정을 고객의 모바일 기기에서 완결합니다. 실시간 웹 기반 주문관리 시스템과 연동되어 매장 운영을 최적화하고, 인건비 절감, 주문 오류 감소, 대기 시간 단축 등 다양한 이점을 제공합니다. TableTop은 단순한 주문 시스템을 넘어, 식당 경영의 새로운 패러다임을 제시합니다.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## ✨ 주요 기능
 
-### `npm test`
+- 🔄 QR 코드 스캔으로 즉시 주문
+- 💳 간편한 모바일 결제 시스템
+- 📊 실시간 주문 관리 대시보드
+- 🛠 유연한 메뉴 관리 도구
+- 📈 상세한 매출 분석 리포트
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 👥 대상 사용자
 
-### `npm run build`
+- 🏪 비용 절감을 원하는 소규모 식당 운영자
+- 🎪 단기 이벤트나 팝업 스토어 운영자
+- 🍽️ 혁신적인 주문 시스템을 찾는 모든 식음료 업체
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 💻 기술 스택
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- Frontend: React (npm, mui with styled-component, axios)
+- Backend: Spring Boot (maven, security, jwt, mysql connector)
+- Database: MySql
+- DevOps: Docker, Github CI/CD
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 👨‍👩‍👧‍👦 팀 소개
 
-### `npm run eject`
+### Magic POS ✨
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+혁신적인 POS 솔루션으로 식음료 업계에 마법 같은 변화를 선사합니다.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+| 이름 | 역할 | 담당 |
+|------|------|------|
+| 여수진 👑 | 팀장 | 메뉴 관리, 주문 통계 |
+| 조성민 | 개발자 | 회원(판매자) 관리 |
+| 하영현 | 개발자 | 가게 관리 |
+| 함승우 | 개발자 | 소비자, 주문 관리 |
+| 신용기 🧙‍♂️ | 기술 고문 | 전반적인 기술 자문 |
