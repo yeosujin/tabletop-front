@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isEqual, startOfDay } from 'date-fns'
-import { getTokenHeaders } from '../../../../apis/seller/SellerAPI'
+import {
+    cancelOrder,
+    completeOrder,
+    getOrders,
+    getSellerSettings,
+} from '../../../../apis/seller/OrderAPI'
 
 const useOrders = (storeId, loginId, selectedDate, orderType) => {
     const [orders, setOrders] = useState([])
@@ -16,12 +21,7 @@ const useOrders = (storeId, loginId, selectedDate, orderType) => {
     const fetchOrders = useCallback(async () => {
         setIsLoading(true)
         try {
-            const response = await fetch(
-                `http://localhost:8080/api/orders/${storeId}`,
-                { headers: getTokenHeaders() }
-            )
-            if (!response.ok) throw new Error('서버 응답이 실패했습니다')
-            const data = await response.json()
+            const data = await getOrders(storeId)
             setOrders(data)
         } catch (error) {
             console.error('주문 목록을 불러오는데 실패했습니다:', error)
@@ -37,13 +37,7 @@ const useOrders = (storeId, loginId, selectedDate, orderType) => {
     useEffect(() => {
         const fetchDoneClickCountSetting = async () => {
             try {
-                const response = await fetch(
-                    `http://localhost:8080/api/sellers/${loginId}/count-setting`,
-                    { headers: getTokenHeaders() }
-                )
-                if (!response.ok)
-                    throw new Error('설정을 가져오는데 실패했습니다')
-                const data = await response.json()
+                const data = await getSellerSettings(loginId)
                 setDoneClickCountSetting(data)
             } catch (error) {
                 console.error('설정을 가져오는데 실패했습니다:', error)
@@ -65,12 +59,7 @@ const useOrders = (storeId, loginId, selectedDate, orderType) => {
     const handleCancel = useCallback(
         async (orderId) => {
             try {
-                const response = await fetch(
-                    `http://localhost:8080/api/orders/${orderId}/cancel`,
-                    { method: 'PUT', headers: getTokenHeaders() }
-                )
-                if (!response.ok)
-                    throw new Error('서버에서 주문 취소에 실패했습니다')
+                await cancelOrder(orderId)
                 updateOrderStatus(orderId, 2)
             } catch (error) {
                 console.error('주문 취소 실패:', error)
@@ -82,12 +71,7 @@ const useOrders = (storeId, loginId, selectedDate, orderType) => {
     const handleDone = useCallback(
         async (orderId) => {
             try {
-                const response = await fetch(
-                    `http://localhost:8080/api/orders/${orderId}/complete`,
-                    { method: 'PUT', headers: getTokenHeaders() }
-                )
-                if (!response.ok)
-                    throw new Error('주문 완료 처리에 실패했습니다')
+                await completeOrder(orderId)
                 updateOrderStatus(orderId, 1)
             } catch (error) {
                 console.error('주문 완료 처리 실패:', error)
