@@ -97,7 +97,7 @@ const Menu = () => {
         }
 
         try {
-            if (!image) {
+            if (!editingItemId && !image) {
                 alert('이미지를 등록하세요');
                 return;
             }
