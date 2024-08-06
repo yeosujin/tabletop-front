@@ -54,6 +54,6 @@ jobs:
             docker stop github-action-frontend
             docker rm github-action-frontend
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}
-            docker run -d -p 80:80 --name ${{ secrets.REPOSITORY_NAME }} name ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}
+            docker run -d -p 80:80 --name ${{ secrets.REPOSITORY_NAME }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}
             docker system prune -f
             # --network=docker-network 
