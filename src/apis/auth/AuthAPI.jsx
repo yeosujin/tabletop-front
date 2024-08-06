@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const EMAIL_VALIDATION_API_KEY = '29e0909d201f46f6a97ff9921e76dc32';
-const PHONE_VALIDATION_API_KEY = 'fd90cfd9cf9041f1985f50e2ad284d27';
+const EMAIL_VALIDATION_API_KEY = 'ca9df054a9434eb7915cca51010ecce9';
+const PHONE_VALIDATION_API_KEY = '0bc25646b79a438e85b7d0aedaa33da2';
 
 export const AuthApi = axios.create({
     baseURL: `http://localhost:8080`,

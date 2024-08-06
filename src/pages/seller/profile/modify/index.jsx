@@ -232,7 +232,7 @@ const MyProfileModifyPage = () => {
     const { email, password, confirmPassword, username, mobile } = formValues;
 
     if (!email || !username || !mobile) {
-      setError('모든 정보를 입력해야 합니다.');
+      setError('(*) 표시된 모든 필수 정보를 입력해야 합니다.');
       return false;
     }
 
@@ -403,6 +403,7 @@ const MyProfileModifyPage = () => {
           name="email"
           value={formValues.email}
           onChange={handleChange}
+          required
         />
         <Button
           variant="contained"
@@ -421,6 +422,7 @@ const MyProfileModifyPage = () => {
               margin="normal"
               fullWidth
               onChange={handleVerificationCodeChange}
+              required
             />
             <Button
               variant="contained"
@@ -459,6 +461,7 @@ const MyProfileModifyPage = () => {
           value={formValues.username}
           onChange={handleChange}
           onBlur={handleBlur}
+          required
         />
 
         <Box sx={{ display: 'flex', alignItems: 'center', width: isMobile ? '100%' : '50%', marginTop: '1rem' }}>
@@ -470,6 +473,7 @@ const MyProfileModifyPage = () => {
             onChange={handleChange}
             onKeyDown={handlePhoneKeyDown}
             sx={{ marginRight: '0.5rem', flexGrow: 1 }}
+            required
           />
           <Button
             variant="contained"
