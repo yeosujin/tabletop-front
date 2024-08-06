@@ -109,11 +109,13 @@ const CardComponent = ({ store, render, onModifyClick }) => {
                                         ? 'primary'
                                         : 'secondary'
                                 }
+                                
                                 size="small"
                             />
                         </Box>
                         <Typography
-                            gutterBottom
+                            bottom="1px"
+                            // gutterBottom
                             variant="h5"
                             component="div"
                             textAlign="center"
@@ -121,7 +123,7 @@ const CardComponent = ({ store, render, onModifyClick }) => {
                             {store.name}
                         </Typography>
                     </CardContent>
-                    <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
+                    <Box sx={{ position: 'absolute', bottom: 50, right: 3 }}>
                         <IconButton
                             aria-label="settings"
                             onClick={handleMenuClick}

@@ -308,11 +308,22 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
     }
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+        <Dialog 
+            open={open}
+            onClose={() => {
+                resetForm()
+                onClose()
+            }}
+            maxWidth="md"
+            fullWidth
+        >
             <DialogTitle>가게 등록</DialogTitle>
             <IconButton
                 aria-label="close"
-                onClick={onClose}
+                onClick={() => {
+                    resetForm()
+                    onClose()
+                }}
                 sx={{
                     position: 'absolute',
                     right: 8,
@@ -333,7 +344,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                                 />
                             )}
                         </ImagePreviewArea>
-                        <PreviewTitle>{'<  미리 보기  >'}</PreviewTitle>
+                        <PreviewTitle>{'<  이미지 미리 보기  >'}</PreviewTitle>
                     </PreviewContainer>
                     <InputDiv>
                         <Label>이미지</Label>
@@ -384,7 +395,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                         </RadioInputs>
                     </InputDiv>
                     <InputDiv>
-                        <Label>상호명</Label>
+                        <Label>상호명(*)</Label>
                         <TextField
                             type="text"
                             name="name"
@@ -396,7 +407,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                     </InputDiv>
                     {selectedType === '상시' && (
                         <InputDiv>
-                            <Label>사업자 등록번호</Label>
+                            <Label>사업자 등록번호(*)</Label>
                             <br />
                             <div
                                 style={{
@@ -431,7 +442,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                     {selectedType === '임시' && (
                         <>
                             <InputDiv>
-                                <Label>개업일</Label>
+                                <Label>개업일(*)</Label>
                                 <br />
                                 <InputField
                                     type="date"
@@ -442,7 +453,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                                 />
                             </InputDiv>
                             <InputDiv>
-                                <Label>폐업일</Label>
+                                <Label>폐업일(*)</Label>
                                 <br />
                                 <InputField
                                     type="date"
@@ -455,7 +466,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                         </>
                     )}
                     <InputDiv>
-                        <Label>가게 설명</Label>    
+                        <Label>가게 설명(*)</Label>    
                         <br />
                         <TextField
                             name="description"
@@ -467,7 +478,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                         />
                     </InputDiv>
                     <InputDiv>
-                        <Label>가게 주소</Label>
+                        <Label>가게 주소(*)</Label>
                         <br />
                         <TextField
                             type="text"
@@ -479,7 +490,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                         />
                     </InputDiv>
                     <InputDiv>
-                        <Label>공지</Label>
+                        <Label>공지(*)</Label>
                         <br />
                         <TextField
                             name="notice"
@@ -491,7 +502,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                         />
                     </InputDiv>
                     <InputDiv>
-                        <Label>개점시간</Label>
+                        <Label>개점시간(*)</Label>
                         <br />
                         <InputField
                             type="time"
@@ -502,7 +513,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                         />
                     </InputDiv>
                     <InputDiv>
-                        <Label>폐점시간</Label>
+                        <Label>폐점시간(*)</Label>
                         <br />
                         <InputField
                             type="time"

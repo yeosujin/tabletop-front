@@ -261,7 +261,7 @@ const StoreModifyModal = ({ open, onClose, storeId, onSubmit }) => {
                                 />
                             )}
                         </ImagePreviewArea>
-                        <PreviewTitle>{'<  미리 보기  >'}</PreviewTitle>
+                        <PreviewTitle>{'<  이미지 미리 보기  >'}</PreviewTitle>
                     </PreviewContainer>
                     <InputDiv>
                         <Label>이미지</Label>
