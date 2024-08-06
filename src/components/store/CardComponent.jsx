@@ -12,7 +12,9 @@ import {
     MenuItem,
     Typography,
 } from '@mui/material'
+import MenuIcon from '@mui/icons-material/Menu';
 import MoreVertIcon from '@mui/icons-material/MoreVert'
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { deleteStoreAPI } from '../../apis/seller/SellerAPI'
 
 const CardComponent = ({ store, render, onModifyClick }) => {
@@ -110,12 +112,10 @@ const CardComponent = ({ store, render, onModifyClick }) => {
                                         : 'secondary'
                                 }
                                 
-                                size="small"
+                                size="medium"
                             />
                         </Box>
                         <Typography
-                            bottom="1px"
-                            // gutterBottom
                             variant="h5"
                             component="div"
                             textAlign="center"
@@ -128,11 +128,14 @@ const CardComponent = ({ store, render, onModifyClick }) => {
                             aria-label="settings"
                             onClick={handleMenuClick}
                             sx={{
-                                color: 'white',
-                                backgroundColor: 'rgba(0,0,0,0.5)',
+                                color: 'black',
+                                backgroundColor: 'rgba(0,0,0,0)',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(0,0,0,0.3)',
+                                }
                             }}
                         >
-                            <MoreVertIcon />
+                            <MoreHorizIcon />
                         </IconButton>
                     </Box>
                     <Menu

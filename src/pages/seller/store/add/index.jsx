@@ -158,6 +158,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
     // store type을 설정하는 radio button 값 저장
     const [selectedType, setSelectedType] = useState('상시')
     const [formData, setFormData] = useState(initialFormState)
+    const [imageFile, setImageFile] = useState(null)
 
     const resetForm = () => {
         setFormData(initialFormState)
@@ -199,7 +200,8 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
 
     // 이미지 변경 시
     const handleImageChange = (event) => {
-        const file = event.target.files[0]
+        const file = document.getElementById('store-image').files[0]
+        setImageFile(file)
         if (file) {
             setFormData((prevData) => ({
                 ...prevData,
@@ -210,6 +212,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
 
     // 이미지 삭제 시
     const handleImageDelete = () => {
+        setImageFile(null)
         setFormData((prevData) => ({
             ...prevData,
             image: null,
@@ -289,9 +292,9 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
             'storeData',
             new Blob([JSON.stringify(formData)], { type: 'application/json' })
         )
-        const imageFile = document.querySelector('input[type="file"]').files[0]
-        if (imageFile) {
-            formDataToSend.append('image', imageFile)
+        const lastImageFile = imageFile
+        if (lastImageFile) {
+            formDataToSend.append('image', lastImageFile)
         }
 
         const loginId = localStorage.getItem('id')
@@ -356,6 +359,7 @@ const StoreAddModal = ({ open, onSubmit, onClose }) => {
                             }}
                         >
                             <InputFile
+                                id="store-image"
                                 type="file"
                                 accept="image/*"
                                 onChange={handleImageChange}

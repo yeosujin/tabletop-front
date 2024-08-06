@@ -70,21 +70,12 @@ const InfiniteScrollComponent = ({ loginId, onModifyClick, isListChanged, setIsL
                     dataLength={displayedStores.length}
                     next={loadMoreStores}
                     hasMore={hasMore}
-                    loader={
-                        <div
-                            style={{
-                                margin: '10px 0',
-                                // display: 'flex',
-                                // justifyContent: 'center',
-                                // scrollbarWidth: 'none',
-                                // overflow: 'hidden',
-                            }}
-                        >
-                            <h3>Loading...</h3>
-                        </div>
-                    }
+                    loader={<h3>Loading...</h3>}
                     style={{
+                        margin: '10px 0',
                         display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
                         justifyContent: 'center',
                         scrollbarWidth: 'none',
                         overflow: 'hidden',
