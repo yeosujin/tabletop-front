@@ -148,6 +148,7 @@ const PasswordPage = () => {
             fullWidth 
             onChange={handleChange} 
             value={values.loginId} 
+            required
           />
           <CustomTextField 
             id="email" 
@@ -156,6 +157,7 @@ const PasswordPage = () => {
             fullWidth 
             onChange={handleChange} 
             value={values.email} 
+            required
           />
           <CustomTextField 
             id="mobile" 
@@ -165,6 +167,7 @@ const PasswordPage = () => {
             onChange={handleChange}
             onKeyDown={handlePhoneKeyDown} 
             value={values.mobile} 
+            required
           />
           <Button 
             variant="contained" 

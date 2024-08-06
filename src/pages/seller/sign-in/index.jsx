@@ -134,6 +134,7 @@ const SignInPage = () => {
             onChange={handleChange} 
             value={values.loginId}
             onKeyDown={handleKeyDown}
+            required
           />
           <TextField 
             id="password" 
@@ -145,6 +146,7 @@ const SignInPage = () => {
             onChange={handleChange} 
             value={values.password}
             onKeyDown={handleKeyDown}
+            required
           />
           <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
             <Link to="/signup" style={{ textDecoration: 'none', color: '#1976d2' }}>회원가입</Link>

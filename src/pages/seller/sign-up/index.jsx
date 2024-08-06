@@ -211,6 +211,11 @@ const SignUpPage = () => {
   };
 
   const handleLoginIdCheck = async () => {
+    if (!formValues.loginId) {
+      alert('아이디를 입력해주세요.');
+      return;
+    }
+
     if (/[^a-zA-Z0-9]/.test(formValues.loginId)) {
       setError('아이디는 영어와 숫자만 사용할 수 있습니다.');
       return;
@@ -333,6 +338,7 @@ const SignUpPage = () => {
             value={formValues.loginId}
             onChange={handleChange}
             onBlur={handleBlur}
+            required
           />
           <Button
             variant="contained"
@@ -352,6 +358,7 @@ const SignUpPage = () => {
             value={formValues.email}
             onChange={handleChange}
             onBlur={handleBlur}
+            required
           />
           <Button
             variant="contained"
@@ -370,6 +377,7 @@ const SignUpPage = () => {
                 margin="normal"
                 fullWidth
                 onChange={handleVerificationCodeChange}
+                required
               />
               <Button
                 variant="contained"
@@ -392,6 +400,7 @@ const SignUpPage = () => {
             value={formValues.password}
             onChange={handleChange}
             onBlur={handleBlur}
+            required
           />
           <TextField
             label="비밀번호 확인"
@@ -403,6 +412,7 @@ const SignUpPage = () => {
             value={formValues.confirmPassword}
             onChange={handleChange}
             onBlur={handleBlur}
+            required
           />
           <TextField
             label="이름"
@@ -413,6 +423,7 @@ const SignUpPage = () => {
             value={formValues.username}
             onChange={handleChange}
             onBlur={handleBlur}
+            required
           />
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <TextField
@@ -422,7 +433,8 @@ const SignUpPage = () => {
               name="mobile"
               value={formValues.mobile}
               onChange={handleChange}
-              onKeyDown={handlePhoneKeyDown}
+              onKeyDown={handlePhoneKeyDown}  
+              required           
             />
             <Button variant="contained" sx={{ marginLeft: '0.5rem', height: '56px' }} onClick={handlePhoneValidation}>
               확인
