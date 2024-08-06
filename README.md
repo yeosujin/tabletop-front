@@ -42,6 +42,7 @@ TableTop은 식당 경험을 혁신적으로 변화시킵니다. 테이블에 �
 ![MUI](https://img.shields.io/badge/MUI-UI%20Framework-007FFF?logo=mui&style=for-the-badge)
 ![Styled-Components](https://img.shields.io/badge/styled--components-5.3.5-DB7093?logo=styled-components&logoColor=white&style=for-the-badge)
 ![Axios](https://img.shields.io/badge/Axios-HTTP%20Client-5A29E4?logo=axios&style=for-the-badge)
+![Json](https://img.shields.io/badge/JSON-used-000000?logo=json&logoColor=white&style=for-the-badge)
 
 ### Back
 ![Maven](https://img.shields.io/badge/Maven-3.8.1-C71A36?logo=apache-maven&logoColor=white&style=for-the-badge)
@@ -60,10 +61,10 @@ TableTop은 식당 경험을 혁신적으로 변화시킵니다. 테이블에 �
 
 혁신적인 POS 솔루션으로 식음료 업계에 마법 같은 변화를 선사합니다.
 
-| 이름 | 역할 | 담당 |
-|------|------|------|
-| 여수진 👑 | 팀장 | 메뉴 관리, 주문 통계 |
-| 조성민 | 개발자 | 회원(판매자) 관리 |
-| 하영현 | 개발자 | 가게 관리 |
-| 함승우 | 개발자 | 소비자, 주문 관리 |
-| 신용기 🧙‍♂️ | 기술 고문 | 전반적인 기술 자문 |
+| 이름 | 역할 | 담당 |               주소                |
+|------|------|------|:-------------------------------:|
+| 여수진 👑 | 팀장 | 메뉴 관리, 주문 통계 |   https://github.com/yeosujin   |
+| 조성민 | 개발자 | 회원(판매자) 관리 | https://github.com/EnjoyTime18  |
+| 하영현 | 개발자 | 가게 관리 |   https://github.com/beom1995   |
+| 함승우 | 개발자 | 소비자, 주문 관리 | https://github.com/nextlife-dev |
+| 신용기 🧙‍♂️ | 기술 고문 | 전반적인 기술 자문 |                -                |
