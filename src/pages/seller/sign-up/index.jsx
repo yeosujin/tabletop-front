@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMediaQuery } from '@mui/material';
 import { validateEmail, validatePhone, sendVerificationCode, checkLoginId } from '../../../apis/auth/AuthAPI';
 import { signUp } from '../../../apis/seller/SellerAPI';
+import logo from '../../../assets/logo.png';
 
 const Container = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -309,18 +310,15 @@ const SignUpPage = () => {
     <Container>
       <FormContainer>
         <LogoBox>
-          <Box
+        <Box
+            component="img"
+            src={logo}
+            alt="logo"
             sx={{
-              width: isMobile ? '150px' : '200px',
-              height: isMobile ? '150px' : '200px',
-              backgroundColor: '#e0e0e0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              width: isMobile ? '200px' : '300px',
+              height: isMobile ? '200px' : '300px',
             }}
-          >
-            logo image
-          </Box>
+          />
         </LogoBox>
         <FormBox>
           <Box display="flex" justifyContent="space-between" alignItems="center">

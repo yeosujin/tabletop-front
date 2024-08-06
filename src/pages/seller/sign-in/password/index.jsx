@@ -4,6 +4,7 @@ import { styled, useTheme } from '@mui/system';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMediaQuery } from '@mui/material';
 import { resetPassword } from '../../../../apis/auth/AuthAPI';
+import logo from '../../../../assets/logo.png';
 
 const Container = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -124,18 +125,15 @@ const PasswordPage = () => {
     <Container>
       <FormContainer>
         <LogoBox>
-          <Box
+        <Box
+            component="img"
+            src={logo}
+            alt="logo"
             sx={{
-              width: isMobile ? '150px' : '200px',
-              height: isMobile ? '150px' : '200px',
-              backgroundColor: '#e0e0e0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              width: isMobile ? '200px' : '300px',
+              height: isMobile ? '200px' : '300px',
             }}
-          >
-            logo image
-          </Box>
+          />
         </LogoBox>
         <FormBox>
           <Typography variant="h5" component="h1" gutterBottom sx={{ marginBottom: '2rem' }}>
