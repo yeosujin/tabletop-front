@@ -97,23 +97,28 @@ const Menu = () => {
         }
 
         try {
-            let response
+            if (!image) {
+                alert('이미지를 등록하세요');
+                return;
+            }
+
+            let response;
             if (editingItemId) {
                 response = await updateMenu(
                     storeId,
                     editingItemId,
                     formDataToSend
-                )
+                );
                 setMenuItems((prev) =>
                     prev.map((item) =>
                         item.id === editingItemId ? response : item
                     )
-                )
-                setShowEditModal(false)
+                );
+                setShowEditModal(false);
             } else {
-                response = await createMenu(storeId, formDataToSend)
-                setMenuItems((prev) => [response, ...prev])
-                setShowAddModal(false)
+                response = await createMenu(storeId, formDataToSend);
+                setMenuItems((prev) => [response, ...prev]);
+                setShowAddModal(false);
             }
 
             setFormData({
@@ -121,15 +126,15 @@ const Menu = () => {
                 price: '',
                 description: '',
                 isAvailable: true,
-            })
-            setImage(null)
+            });
+            setImage(null);
         } catch (error) {
             setError(
                 '메뉴 저장에 실패했습니다: ' +
-                    (error.response?.data?.message || error.message)
-            )
+                (error.response?.data?.message || error.message)
+            );
         } finally {
-            setIsSubmitting(false)
+            setIsSubmitting(false);
         }
     }
 
