@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-// const EMAIL_VALIDATION_API_KEY = 'ca9df054a9434eb7915cca51010ecce9';
-// const PHONE_VALIDATION_API_KEY = '0bc25646b79a438e85b7d0aedaa33da2';
+const EMAIL_VALIDATION_API_KEY = process.env.EMAIL_VALIDATION_API_KEY
+const PHONE_VALIDATION_API_KEY = process.env.PHONE_VALIDATION_API_KEY
 
 export const AuthApi = axios.create({
     baseURL: `${process.env.API_URL}`,
