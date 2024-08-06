@@ -1,5 +1,11 @@
 # TableTop 🍽️
 
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![React](https://img.shields.io/badge/React-17.0.2-61DAFB?logo=react)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.5.0-6DB33F?logo=spring-boot)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql)
+![Docker](https://img.shields.io/badge/Docker-20.10.7-2496ED?logo=docker)
+
 > 스마트폰으로 즐기는 혁신적인 테이블 주문 경험
 
 ## 📌 목차
@@ -30,10 +36,23 @@ TableTop은 식당 경험을 혁신적으로 변화시킵니다. 테이블에 �
 
 ## 💻 기술 스택
 
-- Frontend: React (npm, mui with styled-component, axios)
-- Backend: Spring Boot (maven, security, jwt, mysql connector)
-- Database: MySql
-- DevOps: Docker, Github CI/CD
+### Front
+![npm](https://img.shields.io/badge/npm-8.1.0-CB3837?logo=npm&logoColor=white&style=for-the-badge)
+![React](https://img.shields.io/badge/React-Frontend-61DAFB?logo=react&style=for-the-badge)
+![MUI](https://img.shields.io/badge/MUI-UI%20Framework-007FFF?logo=mui&style=for-the-badge)
+![Styled-Components](https://img.shields.io/badge/styled--components-5.3.5-DB7093?logo=styled-components&logoColor=white&style=for-the-badge)
+![Axios](https://img.shields.io/badge/Axios-HTTP%20Client-5A29E4?logo=axios&style=for-the-badge)
+
+### Back
+![Maven](https://img.shields.io/badge/Maven-3.8.1-C71A36?logo=apache-maven&logoColor=white&style=for-the-badge)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-Backend-6DB33F?logo=spring-boot&style=for-the-badge)
+![Spring Security](https://img.shields.io/badge/Spring%20Security-5.5.0-6DB33F?logo=spring-security&logoColor=white&style=for-the-badge)
+![JWT](https://img.shields.io/badge/JWT-Auth-000000?logo=json-web-tokens&logoColor=white&style=for-the-badge)
+![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?logo=mysql&style=for-the-badge)
+
+### DevOps
+![Docker](https://img.shields.io/badge/Docker-Containerization-2496ED?logo=docker&style=for-the-badge)
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?logo=github-actions&style=for-the-badge)
 
 ## 👨‍👩‍👧‍👦 팀 소개
 
