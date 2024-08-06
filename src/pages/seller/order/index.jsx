@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { format, isEqual, startOfDay } from 'date-fns'
 import {
-    AppBar,
     Box,
     Button,
     Card,
@@ -14,7 +13,6 @@ import {
     ListItemText,
     Paper,
     TextField,
-    Toolbar,
     Typography,
 } from '@mui/material'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
@@ -417,35 +415,6 @@ const OrderPage = () => {
                 minHeight: '70vh',
             }}
         >
-            <AppBar position="static" color="primary" elevation={0}>
-                <Toolbar>
-                    <Typography
-                        variant="h6"
-                        component="div"
-                        sx={{ flexGrow: 1 }}
-                    >
-                        주문 관리
-                    </Typography>
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                        <DatePicker
-                            value={selectedDate}
-                            onChange={setSelectedDate}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    variant="outlined"
-                                    size="small"
-                                    sx={{
-                                        bgcolor: 'white',
-                                        borderRadius: 1,
-                                    }}
-                                />
-                            )}
-                            disabled={orderType === 'received'}
-                        />
-                    </LocalizationProvider>
-                </Toolbar>
-            </AppBar>
             <Box sx={{ display: 'flex', p: 3 }}>
                 <Box
                     sx={{
@@ -456,6 +425,29 @@ const OrderPage = () => {
                         flexDirection: 'column',
                     }}
                 >
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            value={selectedDate}
+                            onChange={setSelectedDate}
+                            sx={{
+                                backgroundColor: 'white',
+                                borderRadius: 1,
+                            }}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    variant="outlined"
+                                    size="small"
+                                    sx={{
+                                        backgroundColor: 'white',
+                                        borderRadius: 1,
+                                    }}
+                                />
+                            )}
+                            disabled={orderType === 'received'}
+                        />
+                    </LocalizationProvider>
+
                     <Card sx={{ mb: 2 }}>
                         <List>
                             {[
