@@ -95,9 +95,9 @@ const OrderPage = () => {
 
     useEffect(() => {
         fetchOrders()
-        
-        const headers = getTokenHeaders();
-        const EventSource = EventSourcePolyfill;
+
+        const headers = getTokenHeaders()
+        const EventSource = EventSourcePolyfill
 
         const eventSource = new EventSource(
             `http://localhost:8080/api/sse/orders/subscribe/${storeId}`,
@@ -207,6 +207,10 @@ const OrderPage = () => {
 
     const moveToSalas = () => {
         navigate(`/sellers/${loginId}/stores/${storeId}/charts`)
+    }
+
+    const moveToQr = () => {
+        navigate(`/sellers/${loginId}/stores/${storeId}/qr`)
     }
 
     const calculateOrderTotal = useCallback((order) => {
@@ -503,11 +507,20 @@ const OrderPage = () => {
                     <Button
                         color="secondary"
                         variant="contained"
-                        sx={{ color: 'white', py: 1.5 }}
+                        sx={{ color: 'white', py: 1.5, mb: 1 }}
                         onClick={moveToSalas}
                         fullWidth
                     >
                         매출 통계
+                    </Button>
+                    <Button
+                        color="secondary"
+                        variant="contained"
+                        sx={{ color: 'white', py: 1.5, mt: 1 }}
+                        onClick={moveToQr}
+                        fullWidth
+                    >
+                        QR 발급
                     </Button>
                 </Box>
                 <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>

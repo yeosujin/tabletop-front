@@ -2,8 +2,11 @@ import './App.css'
 import GlobalStyle from './GlobalStyle'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { Suspense } from 'react'
-import { ThemeProvider as StyledThemeProvider } from 'styled-components';
-import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
+import { ThemeProvider as StyledThemeProvider } from 'styled-components'
+import {
+    createTheme,
+    ThemeProvider as MuiThemeProvider,
+} from '@mui/material/styles'
 import { CartProvider } from './contexts/cart'
 import { TableProvider } from './contexts/table-number'
 import ProtectedRoute from './components/route/ProtectedRoute'
@@ -31,6 +34,7 @@ import InfoStorePage from './pages/consumer/info-store'
 import PaymentPage from './pages/consumer/payment'
 import CompletePage from './pages/consumer/complete'
 import ErrorBoundary from './components/ErrorBoundary'
+import QrPage from './pages/seller/qr'
 
 const NotFound = () => <h1>404 - 페이지를 찾을 수 없습니다.</h1>
 
@@ -52,7 +56,7 @@ const theme = createTheme({
         primary: { main: '#FF9F1C' },
         secondary: { main: '#0081A7' },
         third: { main: '#FDFCDC' },
-        background: { default: '#fdfcdc' }
+        background: { default: '#fdfcdc' },
     },
     components: {
         MuiButton: {
@@ -145,6 +149,14 @@ const router = createBrowserRouter([
                                 element: (
                                     <PrivateRoute>
                                         <OrderPage />
+                                    </PrivateRoute>
+                                ),
+                            },
+                            {
+                                path: 'qr',
+                                element: (
+                                    <PrivateRoute>
+                                        <QrPage />
                                     </PrivateRoute>
                                 ),
                             },
