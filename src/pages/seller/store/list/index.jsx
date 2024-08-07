@@ -98,7 +98,17 @@ const StoreListPage = () => {
 
     return (
         <div className="StoreListPage">
-            <h1>My Stores</h1>
+            <div
+                style={{
+                    width: 'max-content',
+                    height: 'max-content',
+                    paddingLeft: '30px',
+                    borderBottom: '3px solid',
+                    borderColor: '#FF9F1C',
+                }}
+            >
+                <h2>| 나의 가게 조회 |</h2>
+            </div>
             <InfiniteScrollComponent
                 loginId={loginId}
                 onModifyClick={handleModifyClick}
