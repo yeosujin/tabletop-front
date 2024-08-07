@@ -1,9 +1,15 @@
 # 빌드 단계
 FROM node:20 AS build
 WORKDIR /app
-COPY package.json ./
-RUN npm install
+
+# 의존성 설치
+COPY package*.json ./
+RUN npm cache clean --force && npm install
+
+# 소스 코드 복사 및 빌드
 COPY . .
+RUN chown -R node:node .
+USER node
 RUN npm run build
 
 # 프로덕션 단계
