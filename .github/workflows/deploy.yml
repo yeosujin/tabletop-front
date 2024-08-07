@@ -16,6 +16,7 @@ jobs:
     - run: |
         touch ./.env
         echo "${{ secrets.ENV }}" > ./.env
+        pwd
       
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
