@@ -12,7 +12,7 @@ const getTokenHeaders = () => {
 }
 
 export const MenuAPI = axios.create({
-    baseURL: `${process.env.API_URL}`,
+    baseURL: `${process.env.REACT_APP_API_URL}`,
 })
 
 const refreshAccessToken = async () => {

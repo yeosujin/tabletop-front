@@ -12,7 +12,7 @@ export const getTokenHeaders = () => {
 }
 
 export const SellerApi = axios.create({
-    baseURL: `${process.env.APP_API}`,
+    baseURL: `${process.env.REACT_APP_API_URL}`,
 })
 
 const refreshAccessToken = async () => {

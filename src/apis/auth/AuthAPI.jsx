@@ -1,10 +1,10 @@
 import axios from 'axios'
 
-const EMAIL_VALIDATION_API_KEY = process.env.EMAIL_VALIDATION_API_KEY
-const PHONE_VALIDATION_API_KEY = process.env.PHONE_VALIDATION_API_KEY
+const EMAIL_VALIDATION_API_KEY = process.env.REACT_APP_EMAIL_VALIDATION_API_KEY
+const PHONE_VALIDATION_API_KEY = process.env.REACT_APP_PHONE_VALIDATION_API_KEY
 
 export const AuthApi = axios.create({
-    baseURL: `${process.env.API_URL}`,
+    baseURL: `${process.env.REACT_APP_API_URL}`,
     headers: {
         'Content-Type': 'application/json',
     },
