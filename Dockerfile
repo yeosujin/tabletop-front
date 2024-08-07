@@ -1,5 +1,5 @@
-# 베이스 이미지로 Node.js 20.10을 사용합니다
-FROM node:20.10 as build
+# 베이스 이미지로 Node.js 20을 사용합니다
+FROM node:20 as build
 
 # 작업 디렉토리를 설정합니다
 WORKDIR /app
