@@ -1,14 +1,10 @@
 name: Table Top CI/CD with Docker
-
 on:
   push:
     branches: [ "main" ]
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     - name: Setup Node.js environment
@@ -29,7 +25,6 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
     - name: Build and push
       uses: docker/build-push-action@v2
       with:
@@ -43,7 +38,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Excute Remote SSH Commands Using SSH_PRIVATE_KEY
+      - name: Execute Remote SSH Commands Using SSH_PRIVATE_KEY
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.REMOTE_HOST }}
@@ -51,9 +46,22 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            docker stop github-action-frontend
-            docker rm github-action-frontend
+            # 기존 컨테이너 중지 및 제거
+            docker stop tabletop-frontend || true
+            docker rm tabletop-frontend || true
+
+            # Docker 네트워크 생성 (없는 경우)
+            docker network create tabletop-network || true
+
+            # 새 이미지 pull
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}
-            docker run -d -p 80:80 --name ${{ secrets.REPOSITORY_NAME }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}
+
+            # 네트워크 설정과 함께 새 컨테이너 실행
+            docker run -d \
+              --name tabletop-frontend \
+              --network tabletop-network \
+              -p 80:80 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}
+
+            # 시스템 정리
             docker system prune -f
-            # --network=docker-network 
