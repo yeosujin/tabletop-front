@@ -7,7 +7,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-RUN npm react-scripts build
+RUN npm build
 # 프로덕션 단계
 FROM nginx:stable-alpine
 
