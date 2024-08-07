@@ -52,7 +52,7 @@ jobs:
             docker rm tabletop-frontend || true
 
             # Docker 네트워크 생성 (없는 경우)
-            docker network create tabletop-network || true
+            # docker network create tabletop-network || true
 
             # 새 이미지 pull
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}
