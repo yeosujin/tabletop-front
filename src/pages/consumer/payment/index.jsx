@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useCart } from '../../../contexts/cart'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTable } from '../../../contexts/table-number'
-import axios from 'axios'
 import { Box, Button, Container, Paper, Typography } from '@mui/material'
+import {notifyOrder, createOrder } from '../../../apis/seller/PaymentAPI'
 
 const PaymentPage = () => {
     const [scriptsLoaded, setScriptsLoaded] = useState(false)
@@ -142,28 +142,23 @@ const PaymentPage = () => {
                 },
             }
 
-            const response = await axios.post(
-                'http://localhost:8080/api/orders/',
-                orderData
-            )
-            console.log('Order sent to server:', response.data)
+            const response = await createOrder(orderData)
+            console.log('Order sent to server:', response)
 
-            await axios.post(
-                `http://localhost:8080/api/sse/notify/${storeId}`,
-                response.data
-            )
+            await notifyOrder(storeId, response)
 
             clearCart()
             navigate(`/consumer/${storeId}/complete`, {
-                state: { orderData: response.data },
+                state: { orderData: response },
             })
 
-            return response.data
+            return response
         } catch (error) {
             console.error('Failed to send order to server:', error)
             throw error
         }
     }
+
 
     const calculateTotalAmount = () => {
         return cartItems.reduce(
