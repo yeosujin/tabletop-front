@@ -55,5 +55,6 @@ export const getStoreInfo = async (storeId) => {
     const response = await StoreAPI.get(`/api/stores/${storeId}/details`, {
         headers: getTokenHeaders(),
     })
+    console.log(response.data)
     return response.data
 }
