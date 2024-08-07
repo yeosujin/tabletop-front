@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { StoreAPI } from './StoreAPI'
 
 const getTokenHeaders = () => {
     const TOKEN_TYPE = localStorage.getItem('tokenType')
