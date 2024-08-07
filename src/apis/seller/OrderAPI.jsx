@@ -8,6 +8,7 @@ const getTokenHeaders = () => {
     return {
         Authorization: `${TOKEN_TYPE} ${ACCESS_TOKEN}`,
         REFRESH_TOKEN: REFRESH_TOKEN,
+        withCredentials: true
     }
 }
 
