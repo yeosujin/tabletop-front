@@ -17,10 +17,10 @@ const ConsumerHeader = () => {
             if (storeId) {
                 try {
                     const response = await getStoreInfo(storeId)
-                    if (!response.ok) {
+                    setStoreName(response.name)
+                    if (response.ok !== 200) {
                         throw new Error('Failed to fetch store details')
                     }
-                    setStoreName(response.name)
                 } catch (error) {
                     console.error('Error fetching store name:', error)
                 }
