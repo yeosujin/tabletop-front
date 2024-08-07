@@ -4,8 +4,8 @@ import { Box, Paper, Typography } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import useSSE from './usesse'
-import OrderSidebar from './OrderSidebar'
-import OrderItem from './OrderItem'
+import OrderSidebar from './ordersidebar'
+import OrderItem from './orderitem'
 import useOrders from './useorder'
 
 const ROUTES = {
