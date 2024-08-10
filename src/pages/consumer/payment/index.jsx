@@ -2,145 +2,170 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useCart } from '../../../contexts/cart'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTable } from '../../../contexts/table-number'
-import { Box, Button, Container, Paper, Snackbar, Typography } from '@mui/material'
-import { PaymentAPI } from '../../../apis/seller/PaymentAPI'
+import { Box, Button, Container, Paper, Typography } from '@mui/material'
+import {notifyOrder, createOrder } from '../../../apis/seller/PaymentAPI'
 
 const PaymentPage = () => {
-    const [scriptsLoaded, setScriptsLoaded] = useState(false);
-    const [paymentStatus, setPaymentStatus] = useState(null);
-    const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
-    const { cartItems, clearCart } = useCart();
-    const navigate = useNavigate();
-    const { storeId } = useParams();
-    const { tableNumber } = useTable();
+    const [scriptsLoaded, setScriptsLoaded] = useState(false)
+    const [paymentStatus, setPaymentStatus] = useState(null)
+    const [isPaymentProcessing, setIsPaymentProcessing] = useState(false)
+    const { cartItems, clearCart } = useCart()
+    const navigate = useNavigate()
+    const { storeId } = useParams()
+    const { tableNumber } = useTable()
 
     useEffect(() => {
         const loadScripts = async () => {
             const loadScript = (src) => {
                 return new Promise((resolve, reject) => {
-                    const script = document.createElement('script');
-                    script.src = src;
-                    script.onload = resolve;
-                    script.onerror = reject;
-                    document.head.appendChild(script);
-                });
-            };
+                    const script = document.createElement('script')
+                    script.src = src
+                    script.onload = resolve
+                    script.onerror = reject
+                    document.head.appendChild(script)
+                })
+            }
 
             try {
-                await loadScript('https://code.jquery.com/jquery-1.12.4.min.js');
-                await loadScript('https://cdn.iamport.kr/js/iamport.payment-1.2.0.js');
-                setScriptsLoaded(true);
-                console.log('Scripts loaded successfully');
+                await loadScript('https://code.jquery.com/jquery-1.12.4.min.js')
+                await loadScript(
+                    'https://cdn.iamport.kr/js/iamport.payment-1.2.0.js'
+                )
+                setScriptsLoaded(true)
+                console.log('Scripts loaded successfully')
             } catch (error) {
-                console.error('Failed to load scripts', error);
-                setPaymentStatus('script_error');
-                setErrorMessage('결제 스크립트 로딩에 실패했습니다.');
+                console.error('Failed to load scripts', error)
+                setPaymentStatus('script_error')
             }
-        };
+        }
 
-        loadScripts();
-    }, []);
+        loadScripts()
+    }, [])
+
+    const requestPay = useCallback(
+        (paymentMethod) => {
+            if (!scriptsLoaded) {
+                console.error('Scripts not loaded')
+                setPaymentStatus('script_error')
+                return
+            }
+
+            const { IMP } = window
+            if (!IMP) {
+                console.error('IMP is not loaded')
+                setPaymentStatus('imp_error')
+                return
+            }
+
+            console.log('Initializing IMP')
+            IMP.init('imp55078373') // 가맹점 식별코드
+
+            const totalAmount = calculateTotalAmount()
+
+            let pgProvider = ''
+            switch (paymentMethod) {
+                case 'kakaopay':
+                    pgProvider = 'kakaopay.TC0ONETIME'
+                    break
+                case 'tosspay':
+                    pgProvider = 'tosspay.tosstest'
+                    break
+                case 'inicis':
+                    pgProvider = 'html5_inicis.INIpayTest' // KG이니시스 테스트 모드
+                    break
+                default:
+                    console.error('Invalid payment method')
+                    return
+            }
+
+            console.log('Requesting payment')
+            setIsPaymentProcessing(true)
+            IMP.request_pay(
+                {
+                    pg: pgProvider,
+                    pay_method: 'card',
+                    merchant_uid: `order_no_${Date.now()}`,
+                    name: '주문명:결제테스트',
+                    amount: totalAmount,
+                    buyer_email: 'test1234@naver.com',
+                    buyer_name: '구매자이름',
+                    buyer_tel: '010-1234-5678',
+                    buyer_addr: '서울특별시 강남구 삼성동',
+                    buyer_postcode: '123-456',
+                    m_redirect_url: `${process.env.REACT_APP_API_URL}/consumer/1/complete`,
+                    escrow: true,
+                    vbank_due: 'YYYYMMDD',
+                    bypass: {
+                        acceptmethod: 'noeasypay',
+                    },
+                },
+                async function (rsp) {
+                    console.log('Payment response received', rsp)
+                    setIsPaymentProcessing(false)
+                    if (rsp.success) {
+                        console.log('Payment successful', rsp)
+                        try {
+                            const orderResult = await sendOrderToServer(rsp)
+                            setPaymentStatus('success')
+                        } catch (error) {
+                            console.error('Order processing failed:', error)
+                            setPaymentStatus('order_failure')
+                        }
+                    } else {
+                        console.error('Payment failed', rsp.error_msg)
+                        setPaymentStatus('failure')
+                    }
+                }
+            )
+        },
+        [scriptsLoaded, cartItems]
+    )
+
+    const handlePaymentClick = (paymentMethod) => {
+        setPaymentStatus(null)
+        requestPay(paymentMethod)
+    }
+
+    const sendOrderToServer = async (paymentData) => {
+        try {
+            const orderData = {
+                storeId: storeId,
+                tableNumber: tableNumber,
+                orderItems: cartItems.map((item) => ({
+                    menuId: item.menuId,
+                    quantity: item.quantity,
+                    price: item.price,
+                })),
+                payment: {
+                    paymentMethod: paymentData.pg_provider,
+                    transactionId: paymentData.imp_uid,
+                },
+            }
+
+            const response = await createOrder(orderData)
+            console.log('Order sent to server:', response)
+
+            await notifyOrder(storeId, response)
+
+            clearCart()
+            navigate(`/consumer/${storeId}/complete`, {
+                state: { orderData: response },
+            })
+
+            return response
+        } catch (error) {
+            console.error('Failed to send order to server:', error)
+            throw error
+        }
+    }
+
 
     const calculateTotalAmount = () => {
         return cartItems.reduce(
             (total, item) => total + item.price * item.quantity,
             0
-        );
-    };
-
-    const handlePaymentResult = async (rsp) => {
-        if (rsp.success) {
-            try {
-                const response = await PaymentAPI.post('/api/orders', {
-                    imp_uid: rsp.imp_uid,
-                    merchant_uid: rsp.merchant_uid,
-                    storeId: storeId,
-                    tableNumber: tableNumber,
-                    orderItems: cartItems.map((item) => ({
-                        menuId: item.menuId,
-                        quantity: item.quantity,
-                        price: item.price,
-                    })),
-                    payment: {
-                        paymentMethod: rsp.pay_method,
-                        transactionId: rsp.imp_uid,
-                    },
-                });
-
-                clearCart();
-                navigate(`/consumer/${storeId}/complete`, {
-                    state: { orderData: response.data }
-                });
-            } catch (error) {
-                console.error('Order creation failed:', error);
-                setPaymentStatus('order_failure');
-                setErrorMessage('주문 처리 중 오류가 발생했습니다.');
-            }
-        } else {
-            console.error('Payment failed', rsp.error_msg);
-            setPaymentStatus('failure');
-            setErrorMessage(`결제 실패: ${rsp.error_msg}`);
-        }
-        setIsPaymentProcessing(false);
-    };
-
-    const requestPay = useCallback((paymentMethod) => {
-        if (!scriptsLoaded) {
-            console.error('Scripts not loaded');
-            setPaymentStatus('script_error');
-            setErrorMessage('결제 스크립트가 로드되지 않았습니다.');
-            return;
-        }
-
-        const { IMP } = window;
-        if (!IMP) {
-            console.error('IMP is not loaded');
-            setPaymentStatus('imp_error');
-            setErrorMessage('결제 모듈이 초기화되지 않았습니다.');
-            return;
-        }
-
-        console.log('Initializing IMP');
-        IMP.init('imp55078373');
-
-        const totalAmount = calculateTotalAmount();
-
-        let pgProvider = '';
-        switch (paymentMethod) {
-            case 'kakaopay':
-                pgProvider = 'kakaopay.TC0ONETIME';
-                break;
-            case 'tosspay':
-                pgProvider = 'tosspay.tosstest';
-                break;
-            case 'inicis':
-                pgProvider = 'html5_inicis.INIpayTest';
-                break;
-            default:
-                console.error('Invalid payment method');
-                setErrorMessage('잘못된 결제 방법입니다.');
-                return;
-        }
-
-        console.log('Requesting payment');
-        setIsPaymentProcessing(true);
-        IMP.request_pay(
-            {
-                pg: pgProvider,
-                pay_method: 'card',
-                merchant_uid: `order_no_${Date.now()}`,
-                name: '주문명:결제테스트',
-                amount: totalAmount,
-                buyer_email: 'test1234@naver.com',
-                buyer_name: '구매자이름',
-                buyer_tel: '010-1234-5678',
-                buyer_addr: '서울특별시 강남구 삼성동',
-                buyer_postcode: '123-456',
-            },
-            handlePaymentResult
-        );
-    }, [scriptsLoaded, cartItems, storeId, tableNumber, clearCart, navigate]);
+        )
+    }
 
     return (
         <Container maxWidth="sm">
@@ -159,7 +184,7 @@ const PaymentPage = () => {
                             color: 'black',
                             '&:hover': { bgcolor: '#E6CF00' },
                         }}
-                        onClick={() => requestPay('kakaopay')}
+                        onClick={() => handlePaymentClick('kakaopay')}
                         disabled={
                             !scriptsLoaded ||
                             isPaymentProcessing ||
@@ -173,10 +198,10 @@ const PaymentPage = () => {
                         variant="contained"
                         sx={{
                             mb: 2,
-                            bgcolor: '#3182F6',
+                            bgcolor: '#3182F6', // 토스 색상 (밝은 파란색)
                             '&:hover': { bgcolor: '#2B72DE' },
                         }}
-                        onClick={() => requestPay('tosspay')}
+                        onClick={() => handlePaymentClick('tosspay')}
                         disabled={
                             !scriptsLoaded ||
                             isPaymentProcessing ||
@@ -190,10 +215,10 @@ const PaymentPage = () => {
                         variant="contained"
                         sx={{
                             mb: 2,
-                            bgcolor: '#E10000',
+                            bgcolor: '#E10000', // KG이니시스 색상 (빨간색)
                             '&:hover': { bgcolor: '#C70000' },
                         }}
-                        onClick={() => requestPay('inicis')}
+                        onClick={() => handlePaymentClick('inicis')}
                         disabled={
                             !scriptsLoaded ||
                             isPaymentProcessing ||
@@ -209,15 +234,23 @@ const PaymentPage = () => {
                         돌아옵니다.
                     </Typography>
                 )}
+                {paymentStatus === 'success' && (
+                    <Typography sx={{ mt: 2 }}>결제 성공</Typography>
+                )}
+                {paymentStatus === 'failure' && (
+                    <Typography sx={{ mt: 2 }}>결제 실패</Typography>
+                )}
+                {paymentStatus === 'script_error' && (
+                    <Typography sx={{ mt: 2 }}>스크립트 로딩 실패</Typography>
+                )}
+                {paymentStatus === 'imp_error' && (
+                    <Typography sx={{ mt: 2 }}>IMP 초기화 실패</Typography>
+                )}
+                {paymentStatus === 'order_failure' && (
+                    <Typography sx={{ mt: 2 }}>주문 처리 실패</Typography>
+                )}
             </Paper>
-            <Snackbar
-                open={!!errorMessage}
-                autoHideDuration={6000}
-                onClose={() => setErrorMessage('')}
-                message={errorMessage}
-            />
         </Container>
-    );
-};
-
-export default PaymentPage;
+    )
+}
+export default PaymentPage
