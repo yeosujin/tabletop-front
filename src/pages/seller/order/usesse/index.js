@@ -8,7 +8,10 @@ const useSSE = (storeId, addNewOrder) => {
     const reconnectTimeoutRef = useRef(null)
 
     const connectSSE = useCallback(() => {
-        const headers = getTokenHeaders()
+        const headers = {
+            headers: getTokenHeaders(),
+            withCredentials: true
+        }
         const EventSource = EventSourcePolyfill
 
         if (eventSourceRef.current) {
@@ -17,7 +20,7 @@ const useSSE = (storeId, addNewOrder) => {
 
         const eventSource = new EventSource(
             `${process.env.API_URL}/api/sse/orders/subscribe/${storeId}`,
-            { headers }
+            headers
         )
 
         eventSource.onmessage = (event) => {
