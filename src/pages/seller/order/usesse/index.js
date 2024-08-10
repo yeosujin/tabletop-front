@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { getTokenHeaders } from '../../../../apis/seller/SellerAPI'
 import { unsubscribeSSE } from '../../../../apis/seller/OrderAPI'
