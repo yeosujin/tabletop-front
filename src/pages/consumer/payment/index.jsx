@@ -159,7 +159,7 @@ const PaymentPage = () => {
                 buyer_tel: '010-1234-5678',
                 buyer_addr: '서울특별시 강남구 삼성동',
                 buyer_postcode: '123-456',
-                m_redirect_url: `${process.env.REACT_APP_API_URL}/consumer/${storeId}/payment/complete`,
+                m_redirect_url: `${process.env.REACT_APP_API_URL}/consumer/${storeId}/complete`,
                 escrow: true,
                 vbank_due: 'YYYYMMDD',
                 bypass: {
