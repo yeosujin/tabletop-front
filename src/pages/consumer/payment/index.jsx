@@ -46,8 +46,16 @@ const PaymentPage = () => {
             const orderResult = await sendOrderToServer(rsp);
             setPaymentStatus('success');
             clearCart();
+
+            // 필요한 정보만 추출하여 CompletePage로 전달
+            const completePageData = {
+                waitingNumber: orderResult.waitingNumber,
+                totalPrice: orderResult.totalPrice,
+                // 필요한 경우 다른 정보도 추가
+            };
+
             navigate(`/consumer/${storeId}/complete`, {
-                state: { orderData: orderResult },
+                state: { orderData: completePageData },
             });
         } catch (error) {
             console.error('Order processing failed:', error);
@@ -93,6 +101,13 @@ const PaymentPage = () => {
             console.error('Failed to send order to server:', error);
             throw error;
         }
+    };
+
+    const calculateTotalAmount = () => {
+        return cartItems.reduce(
+            (total, item) => total + item.price * item.quantity,
+            0
+        );
     };
 
     const requestPay = useCallback((paymentMethod) => {
@@ -162,14 +177,8 @@ const PaymentPage = () => {
                 }
             }
         );
-    }, [scriptsLoaded, cartItems, storeId, handlePaymentSuccess]);
+    }, [scriptsLoaded, cartItems, storeId, handlePaymentSuccess, calculateTotalAmount]);
 
-    const calculateTotalAmount = () => {
-        return cartItems.reduce(
-            (total, item) => total + item.price * item.quantity,
-            0
-        );
-    };
 
     return (
         <Container maxWidth="sm">
@@ -188,7 +197,7 @@ const PaymentPage = () => {
                             color: 'black',
                             '&:hover': { bgcolor: '#E6CF00' },
                         }}
-                        onClick={() => handlePaymentClick('kakaopay')}
+                        onClick={() => requestPay('kakaopay')}
                         disabled={
                             !scriptsLoaded ||
                             isPaymentProcessing ||
@@ -202,10 +211,10 @@ const PaymentPage = () => {
                         variant="contained"
                         sx={{
                             mb: 2,
-                            bgcolor: '#3182F6', // 토스 색상 (밝은 파란색)
+                            bgcolor: '#3182F6',
                             '&:hover': { bgcolor: '#2B72DE' },
                         }}
-                        onClick={() => handlePaymentClick('tosspay')}
+                        onClick={() => requestPay('tosspay')}
                         disabled={
                             !scriptsLoaded ||
                             isPaymentProcessing ||
@@ -219,10 +228,10 @@ const PaymentPage = () => {
                         variant="contained"
                         sx={{
                             mb: 2,
-                            bgcolor: '#E10000', // KG이니시스 색상 (빨간색)
+                            bgcolor: '#E10000',
                             '&:hover': { bgcolor: '#C70000' },
                         }}
-                        onClick={() => handlePaymentClick('inicis')}
+                        onClick={() => requestPay('inicis')}
                         disabled={
                             !scriptsLoaded ||
                             isPaymentProcessing ||
