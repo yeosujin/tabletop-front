@@ -3,7 +3,7 @@ import { useCart } from '../../../contexts/cart'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTable } from '../../../contexts/table-number'
 import { Box, Button, Container, Paper, Typography } from '@mui/material'
-import {notifyOrder, createOrder } from '../../../apis/seller/PaymentAPI'
+import { PaymentAPI } from '../../../apis/seller/PaymentAPI'
 
 const PaymentPage = () => {
     const [scriptsLoaded, setScriptsLoaded] = useState(false);
@@ -45,62 +45,6 @@ const PaymentPage = () => {
             (total, item) => total + item.price * item.quantity,
             0
         );
-    };
-
-    const handlePaymentResult = useCallback(async (rsp) => {
-        console.log('Payment response received', rsp);
-        setIsPaymentProcessing(false);
-        if (rsp.success) {
-            try {
-                // 결제 성공 시 주문 등록
-                const orderResult = await sendOrderToServer(rsp);
-                setPaymentStatus('success');
-                clearCart();
-
-                const completePageData = {
-                    waitingNumber: orderResult.waitingNumber,
-                    totalPrice: orderResult.totalPrice,
-                };
-
-                navigate(`/consumer/${storeId}/complete`, {
-                    state: { orderData: completePageData },
-                });
-            } catch (error) {
-                console.error('Order processing failed:', error);
-                setPaymentStatus('order_failure');
-            }
-        } else {
-            console.error('Payment failed', rsp.error_msg);
-            setPaymentStatus('failure');
-        }
-    }, [storeId, clearCart, navigate]);
-
-    const sendOrderToServer = async (paymentData) => {
-        try {
-            const orderData = {
-                storeId: storeId,
-                tableNumber: tableNumber,
-                orderItems: cartItems.map((item) => ({
-                    menuId: item.menuId,
-                    quantity: item.quantity,
-                    price: item.price,
-                })),
-                payment: {
-                    paymentMethod: paymentData.pg_provider,
-                    transactionId: paymentData.imp_uid,
-                },
-            };
-
-            const response = await createOrder(orderData);
-            console.log('Order sent to server:', response);
-
-            await notifyOrder(storeId, response);
-
-            return response;
-        } catch (error) {
-            console.error('Failed to send order to server:', error);
-            throw error;
-        }
     };
 
     const requestPay = useCallback((paymentMethod) => {
@@ -152,11 +96,36 @@ const PaymentPage = () => {
                 buyer_tel: '010-1234-5678',
                 buyer_addr: '서울특별시 강남구 삼성동',
                 buyer_postcode: '123-456',
-                m_redirect_url: `${process.env.REACT_APP_API_URL}/consumer/${storeId}/payment/complete`,
+                m_redirect_url: `${process.env.REACT_APP_API_URL}/consumer/${storeId}/complete`,
             },
-            handlePaymentResult
+            (rsp) => {
+                if (rsp.success) {
+                    // 결제 성공 시 서버로 결제 정보 전송
+                    PaymentAPI.post('/api/payments/complete', {
+                        imp_uid: rsp.imp_uid,
+                        merchant_uid: rsp.merchant_uid,
+                        storeId: storeId,
+                        tableNumber: tableNumber,
+                        orderItems: cartItems.map((item) => ({
+                            menuId: item.menuId,
+                            quantity: item.quantity,
+                            price: item.price,
+                        })),
+                    }).then(() => {
+                        clearCart();
+                        navigate(`/consumer/${storeId}/complete?imp_uid=${rsp.imp_uid}&merchant_uid=${rsp.merchant_uid}`);
+                    }).catch((error) => {
+                        console.error('Payment verification failed:', error);
+                        setPaymentStatus('verification_failure');
+                    });
+                } else {
+                    console.error('Payment failed', rsp.error_msg);
+                    setPaymentStatus('failure');
+                }
+                setIsPaymentProcessing(false);
+            }
         );
-    }, [scriptsLoaded, cartItems, storeId, handlePaymentResult, calculateTotalAmount]);
+    }, [scriptsLoaded, cartItems, storeId, tableNumber, clearCart, navigate]);
 
 
     return (
