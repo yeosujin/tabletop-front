@@ -17,7 +17,11 @@ export const createOrder = async (orderData) => {
 
 export const notifyOrder = async (storeId, orderData) => {
     try {
-        const response = await PaymentAPI.post(`/api/sse/notify/${storeId}`, orderData)
+        const response = await PaymentAPI.post(`/api/sse/notify/${storeId}`, orderData, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
         console.log('Order notification sent successfully:', response.data)
         return response.data
     } catch (error) {
