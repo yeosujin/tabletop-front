@@ -98,5 +98,3 @@ export const unsubscribeSSE = async (storeId) => {
     )
     return response.data
 }
-
-export default OrderAPI

@@ -15,8 +15,15 @@ const useOrders = (storeId, loginId, selectedDate, orderType) => {
     const [clickedDoneOrders, setClickedDoneOrders] = useState([])
 
     const addNewOrder = useCallback((newOrder) => {
-        setOrders((prevOrders) => [...prevOrders, newOrder])
-    }, [])
+        setOrders((prevOrders) => {
+            // 중복 주문 방지
+            if (!prevOrders.some(order => order.orderId === newOrder.orderId)) {
+                console.log('Adding new order:', newOrder);
+                return [newOrder, ...prevOrders];
+            }
+            return prevOrders;
+        });
+    }, []);
 
     const fetchOrders = useCallback(async () => {
         setIsLoading(true)

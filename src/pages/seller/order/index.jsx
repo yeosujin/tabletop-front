@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Box, Paper, Typography } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
@@ -35,7 +35,12 @@ const OrderPage = () => {
         addNewOrder,
     } = useOrders(storeId, loginId, selectedDate, orderType)
 
-    useSSE(storeId, addNewOrder)
+    const handleNewOrder = useCallback((newOrder) => {
+        console.log('New order received:', newOrder);
+        addNewOrder(newOrder);
+    }, [addNewOrder]);
+
+    useSSE(storeId, handleNewOrder)
 
     const handleTabChange = (newType) => {
         navigate(`?type=${newType}`)
