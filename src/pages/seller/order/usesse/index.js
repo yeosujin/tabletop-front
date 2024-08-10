@@ -21,21 +21,20 @@ const useSSE = (storeId, addNewOrder) => {
         )
 
         eventSource.onmessage = (event) => {
+            console.log('Received SSE message:', event.data)
             const newOrder = JSON.parse(event.data)
             addNewOrder(newOrder)
         }
 
         eventSource.onerror = (error) => {
-            console.error('SSE 에러:', error)
+            console.error('SSE error:', error)
+            console.error('EventSource readyState:', eventSource.readyState)
             eventSource.close()
             reconnectTimeoutRef.current = setTimeout(connectSSE, 5000)
         }
 
         eventSource.onopen = () => {
-            console.log('SSE 연결 성공')
-            if (reconnectTimeoutRef.current) {
-                clearTimeout(reconnectTimeoutRef.current)
-            }
+            console.log('SSE connection opened successfully')
         }
 
         eventSourceRef.current = eventSource
