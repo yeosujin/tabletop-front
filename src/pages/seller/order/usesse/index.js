@@ -4,8 +4,11 @@ import { getTokenHeaders } from '../../../../apis/seller/SellerAPI'
 import { unsubscribeSSE } from '../../../../apis/seller/OrderAPI'
 
 const useSSE = (storeId, onNewOrder) => {
+    const [isConnected, setIsConnected] = useState(false);
     const eventSourceRef = useRef(null);
     const reconnectTimeoutRef = useRef(null);
+    const retryCountRef = useRef(0);
+    const MAX_RETRY_COUNT = 5;
 
     const connectSSE = useCallback(() => {
         const headers = getTokenHeaders();
@@ -38,16 +41,24 @@ const useSSE = (storeId, onNewOrder) => {
         eventSource.onerror = (error) => {
             console.error('SSE connection error:', error);
             eventSource.close();
-            const reconnectDelay = (reconnectTimeoutRef.current ? reconnectTimeoutRef.current * 2 : 1000) + Math.random() * 1000;
-            console.log(`Attempting to reconnect in ${reconnectDelay}ms`);
-            reconnectTimeoutRef.current = setTimeout(() => {
-                console.log('Attempting to reconnect...');
-                connectSSE();
-            }, reconnectDelay);
+            setIsConnected(false);
+
+            if (retryCountRef.current < MAX_RETRY_COUNT) {
+                const reconnectDelay = Math.min(1000 * 2 ** retryCountRef.current, 30000);
+                console.log(`Attempting to reconnect in ${reconnectDelay}ms. Retry count: ${retryCountRef.current + 1}`);
+                reconnectTimeoutRef.current = setTimeout(() => {
+                    retryCountRef.current++;
+                    connectSSE();
+                }, reconnectDelay);
+            } else {
+                console.error('Max retry count reached. Stopping reconnection attempts.');
+            }
         };
 
         eventSource.onopen = () => {
             console.log('SSE connection opened successfully');
+            setIsConnected(true);
+            retryCountRef.current = 0;
             if (reconnectTimeoutRef.current) {
                 clearTimeout(reconnectTimeoutRef.current);
                 reconnectTimeoutRef.current = null;
@@ -67,6 +78,7 @@ const useSSE = (storeId, onNewOrder) => {
             clearTimeout(reconnectTimeoutRef.current);
             reconnectTimeoutRef.current = null;
         }
+        setIsConnected(false);
         unsubscribeSSE(storeId).catch(error => {
             console.error('Error unsubscribing from SSE:', error);
         });
@@ -77,7 +89,7 @@ const useSSE = (storeId, onNewOrder) => {
         return cleanupSSE;
     }, [connectSSE, cleanupSSE]);
 
-    return null;
+    return isConnected;
 };
 
 export default useSSE;
