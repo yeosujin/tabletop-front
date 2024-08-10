@@ -9,6 +9,7 @@ import {
     Typography,
 } from '@mui/material'
 import { PaymentAPI } from '../../../apis/seller/PaymentAPI'
+import { useEffect } from 'react'
 
 const theme = createTheme({
     palette: {
