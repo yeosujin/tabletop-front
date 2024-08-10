@@ -8,6 +8,8 @@ import {
     ThemeProvider,
     Typography,
 } from '@mui/material'
+import { useEffect, useState } from 'react'
+import { createOrder } from '../../../apis/seller/PaymentAPI'
 
 const theme = createTheme({
     palette: {
@@ -21,13 +23,57 @@ const theme = createTheme({
 })
 
 const CompletePage = () => {
-    const location = useLocation()
-    const navigate = useNavigate()
-    const { storeId } = useParams()
-    const orderData = location.state?.orderData
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { storeId } = useParams();
+    const [orderData, setOrderData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    if (!orderData) {
-        return <Typography>주문 정보를 찾을 수 없습니다.</Typography>
+    useEffect(() => {
+        const createOrderFromLocalStorage = async () => {
+            const searchParams = new URLSearchParams(location.search);
+            const imp_uid = searchParams.get('imp_uid');
+            const merchant_uid = searchParams.get('merchant_uid');
+
+            if (imp_uid && merchant_uid) {
+                try {
+                    const pendingOrderString = localStorage.getItem('pendingOrder');
+                    if (!pendingOrderString) {
+                        throw new Error('주문 정보를 찾을 수 없습니다.');
+                    }
+                    const pendingOrder = JSON.parse(pendingOrderString);
+
+                    const orderRequest = {
+                        ...pendingOrder,
+                        payment: {
+                            paymentMethod: 'CARD', // 또는 적절한 결제 방법
+                            transactionId: imp_uid
+                        }
+                    };
+
+                    const response = await createOrder(orderRequest);
+                    setOrderData(response);
+                    localStorage.removeItem('pendingOrder'); // 주문 생성 후 localStorage 정보 삭제
+                } catch (err) {
+                    console.error('Failed to create order:', err);
+                    setError('주문 생성에 실패했습니다.');
+                }
+            } else {
+                setError('결제 정보를 찾을 수 없습니다.');
+            }
+            setLoading(false);
+        };
+
+        createOrderFromLocalStorage();
+    }, [location, storeId]);
+
+    if (loading) {
+        return <CircularProgress />;
+    }
+
+    if (error || !orderData) {
+        return <Typography>{error || '주문 정보를 찾을 수 없습니다.'}</Typography>;
     }
 
     return (
@@ -61,7 +107,7 @@ const CompletePage = () => {
                 </Paper>
             </Container>
         </ThemeProvider>
-    )
-}
+    );
+};
 
-export default CompletePage
+export default CompletePage;

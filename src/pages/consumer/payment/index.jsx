@@ -78,6 +78,16 @@ const PaymentPage = () => {
                     return
             }
 
+            localStorage.setItem('pendingOrder', JSON.stringify({
+                storeId,
+                tableNumber,
+                orderItems: cartItems.map(item => ({
+                    menuId: item.menuId,
+                    quantity: item.quantity,
+                    price: item.price
+                }))
+            }));
+
             console.log('Requesting payment')
             setIsPaymentProcessing(true)
             IMP.request_pay(
