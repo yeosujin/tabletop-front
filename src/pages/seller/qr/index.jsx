@@ -123,7 +123,7 @@ const QrPage = () => {
                             >
                                 <Grid item>
                                     <QRCode
-                                        value={`http://${location.host}/consumer/${storeId}/menu?tableNumber=${qrValue}`}
+                                        value={`${process.env.REACT_APP_API_URL}/consumer/${storeId}/menu?tableNumber=${qrValue}`}
                                         size={80}
                                     />
                                 </Grid>
