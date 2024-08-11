@@ -94,6 +94,7 @@ export const unsubscribeSSE = async (storeId) => {
         `/api/sse/orders/unsubscribe/${storeId}`,
         {
             headers: getTokenHeaders(),
+            withCredentials: true,
         }
     )
     return response.data
