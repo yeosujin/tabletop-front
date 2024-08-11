@@ -22,8 +22,9 @@ const CardComponent = ({ store, render, onModifyClick }) => {
     const open = Boolean(anchorEl)
     const navigate = useNavigate()
     const loginId = localStorage.getItem('id')
+    const CLOUDFRONT_URL = 'https://d2wm6n5nrfx8ru.cloudfront.net';
     const s3Prefix =
-        'https://tabletop-tabletop.s3.ap-northeast-2.amazonaws.com/tabletop/store_image/'
+        `${CLOUDFRONT_URL}/tabletop/store_image/`;
 
     const storeTypeMap = {
         ORDINARY: '상시',
@@ -90,7 +91,7 @@ const CardComponent = ({ store, render, onModifyClick }) => {
                         component="img"
                         image={
                             store.s3Url
-                                ? s3Prefix + store.s3Url
+                                ? `${s3Prefix}${store.s3Url}`
                                 : 'https://via.placeholder.com/140x140?text=No+Image'
                         }
                         alt={store.name}
