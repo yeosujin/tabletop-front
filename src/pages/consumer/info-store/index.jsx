@@ -14,6 +14,7 @@ import {
     Typography,
 } from '@mui/material'
 import { format } from 'date-fns'
+import { getStoreInfo } from '../../../apis/seller/StoreAPI'
 
 const InfoStorePage = () => {
     const [storeDetails, setStoreDetails] = useState(null)
@@ -26,14 +27,8 @@ const InfoStorePage = () => {
     useEffect(() => {
         const fetchStoreDetails = async () => {
             try {
-                const response = await fetch(
-                    `http://localhost:8080/api/stores/${storeId}/details`
-                )
-                if (!response.ok) {
-                    throw new Error('Failed to fetch store details')
-                }
-                const data = await response.json()
-                setStoreDetails(data)
+                const response = await getStoreInfo(storeId)
+                setStoreDetails(response)
             } catch (err) {
                 setError(err.message)
             } finally {

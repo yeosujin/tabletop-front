@@ -1,89 +1,95 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { getTokenHeaders } from '../../../../apis/seller/SellerAPI'
+import { unsubscribeSSE } from '../../../../apis/seller/OrderAPI'
 
-const useSSE = (storeId, addNewOrder) => {
-    const eventSourceRef = useRef(null)
-    const reconnectTimeoutRef = useRef(null)
+const useSSE = (storeId, onNewOrder) => {
+    const [isConnected, setIsConnected] = useState(false);
+    const eventSourceRef = useRef(null);
+    const reconnectTimeoutRef = useRef(null);
+    const retryCountRef = useRef(0);
+    const MAX_RETRY_COUNT = 5;
 
     const connectSSE = useCallback(() => {
-        const headers = getTokenHeaders()
-        const EventSource = EventSourcePolyfill
+        const headers = getTokenHeaders();
+        const EventSource = EventSourcePolyfill;
 
         if (eventSourceRef.current) {
-            eventSourceRef.current.close()
+            eventSourceRef.current.close();
         }
 
-        const eventSource = new EventSource(
-            `http://localhost:8080/api/sse/orders/subscribe/${storeId}`,
-            { headers }
-        )
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://3.37.149.248:80';
+        const sseUrl = `${apiUrl}/api/sse/orders/subscribe/${storeId}`;
+
+        console.log(`Attempting to connect to SSE. URL: ${sseUrl}`);
+
+        const eventSource = new EventSource(sseUrl, {
+            headers,
+            withCredentials: true
+        });
 
         eventSource.onmessage = (event) => {
-            const newOrder = JSON.parse(event.data)
-            addNewOrder(newOrder)
-        }
+            console.log('Received SSE message:', event.data);
+            try {
+                const newOrder = JSON.parse(event.data);
+                onNewOrder(newOrder);
+            } catch (error) {
+                console.error('Error parsing SSE message:', error);
+            }
+        };
 
         eventSource.onerror = (error) => {
-            console.error('SSE 에러:', error)
-            eventSource.close()
-            reconnectTimeoutRef.current = setTimeout(connectSSE, 5000)
-        }
+            console.error('SSE connection error:', error);
+            eventSource.close();
+            setIsConnected(false);
+
+            if (retryCountRef.current < MAX_RETRY_COUNT) {
+                const reconnectDelay = Math.min(1000 * 2 ** retryCountRef.current, 30000);
+                console.log(`Attempting to reconnect in ${reconnectDelay}ms. Retry count: ${retryCountRef.current + 1}`);
+                reconnectTimeoutRef.current = setTimeout(() => {
+                    retryCountRef.current++;
+                    connectSSE();
+                }, reconnectDelay);
+            } else {
+                console.error('Max retry count reached. Stopping reconnection attempts.');
+            }
+        };
 
         eventSource.onopen = () => {
-            console.log('SSE 연결 성공')
+            console.log('SSE connection opened successfully');
+            setIsConnected(true);
+            retryCountRef.current = 0;
             if (reconnectTimeoutRef.current) {
-                clearTimeout(reconnectTimeoutRef.current)
+                clearTimeout(reconnectTimeoutRef.current);
+                reconnectTimeoutRef.current = null;
             }
-        }
+        };
 
-        eventSourceRef.current = eventSource
-    }, [storeId, addNewOrder])
+        eventSourceRef.current = eventSource;
+    }, [storeId, onNewOrder]);
 
-    const handleSSEUnsubscribe = useCallback(async () => {
-        try {
-            console.log('Unsubscribing from SSE...')
-            const response = await fetch(
-                `http://localhost:8080/api/sse/orders/unsubscribe/${storeId}`,
-                { method: 'GET', headers: getTokenHeaders() }
-            )
-            if (!response.ok) throw new Error('Unsubscribe failed')
-            console.log('Successfully unsubscribed from SSE')
-        } catch (error) {
-            console.error('Failed to unsubscribe from SSE:', error)
+    const cleanupSSE = useCallback(() => {
+        console.log('Cleaning up SSE connection...');
+        if (eventSourceRef.current) {
+            eventSourceRef.current.close();
+            eventSourceRef.current = null;
         }
-    }, [storeId])
+        if (reconnectTimeoutRef.current) {
+            clearTimeout(reconnectTimeoutRef.current);
+            reconnectTimeoutRef.current = null;
+        }
+        setIsConnected(false);
+        unsubscribeSSE(storeId).catch(error => {
+            console.error('Error unsubscribing from SSE:', error);
+        });
+    }, [storeId]);
 
     useEffect(() => {
-        connectSSE()
+        connectSSE();
+        return cleanupSSE;
+    }, [connectSSE, cleanupSSE]);
 
-        // 주기적으로 연결 상태 확인 (예: 30초마다)
-        const intervalId = setInterval(() => {
-            if (
-                eventSourceRef.current &&
-                eventSourceRef.current.readyState === EventSource.CLOSED
-            ) {
-                console.log('SSE 연결이 끊어졌습니다. 재연결 시도 중...')
-                connectSSE()
-            }
-        }, 30000)
+    return isConnected;
+};
 
-        return () => {
-            console.log('Component unmounting, closing SSE connection...')
-            if (eventSourceRef.current) {
-                eventSourceRef.current.close()
-            }
-            if (reconnectTimeoutRef.current) {
-                clearTimeout(reconnectTimeoutRef.current)
-            }
-            clearInterval(intervalId)
-            handleSSEUnsubscribe().then(() => {
-                console.log('SSE cleanup completed')
-            })
-        }
-    }, [storeId, connectSSE, handleSSEUnsubscribe])
-
-    return null // 이 훅은 상태를 반환하지 않습니다.
-}
-
-export default useSSE
+export default useSSE;

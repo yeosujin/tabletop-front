@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useCart } from '../../../contexts/cart'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTable } from '../../../contexts/table-number'
-import axios from 'axios'
 import { Box, Button, Container, Paper, Typography } from '@mui/material'
+import {notifyOrder, createOrder } from '../../../apis/seller/PaymentAPI'
 
 const PaymentPage = () => {
     const [scriptsLoaded, setScriptsLoaded] = useState(false)
@@ -78,6 +78,16 @@ const PaymentPage = () => {
                     return
             }
 
+            localStorage.setItem('pendingOrder', JSON.stringify({
+                storeId,
+                tableNumber,
+                orderItems: cartItems.map(item => ({
+                    menuId: item.menuId,
+                    quantity: item.quantity,
+                    price: item.price
+                }))
+            }));
+
             console.log('Requesting payment')
             setIsPaymentProcessing(true)
             IMP.request_pay(
@@ -92,7 +102,7 @@ const PaymentPage = () => {
                     buyer_tel: '010-1234-5678',
                     buyer_addr: '서울특별시 강남구 삼성동',
                     buyer_postcode: '123-456',
-                    m_redirect_url: '{모바일에서 결제 완료 후 리디렉션 될 URL}',
+                    m_redirect_url: `${process.env.REACT_APP_API_URL}/consumer/${storeId}/complete`,
                     escrow: true,
                     vbank_due: 'YYYYMMDD',
                     bypass: {
@@ -142,28 +152,23 @@ const PaymentPage = () => {
                 },
             }
 
-            const response = await axios.post(
-                'http://localhost:8080/api/orders/',
-                orderData
-            )
-            console.log('Order sent to server:', response.data)
+            const response = await createOrder(orderData)
+            console.log('Order sent to server:', response)
 
-            await axios.post(
-                `http://localhost:8080/api/sse/notify/${storeId}`,
-                response.data
-            )
+            await notifyOrder(storeId, response)
 
             clearCart()
             navigate(`/consumer/${storeId}/complete`, {
-                state: { orderData: response.data },
+                state: { orderData: response },
             })
 
-            return response.data
+            return response
         } catch (error) {
             console.error('Failed to send order to server:', error)
             throw error
         }
     }
+
 
     const calculateTotalAmount = () => {
         return cartItems.reduce(
