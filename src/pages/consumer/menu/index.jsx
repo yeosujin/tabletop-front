@@ -22,6 +22,7 @@ import {
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
+import { getStoreInfo } from '../../../apis/seller/StoreAPI'
 
 const theme = createTheme({
     palette: {
@@ -110,9 +111,8 @@ const MenuPage = () => {
 
         const fetchStoreInfo = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/stores/${storeId}/details`)
-                const data = await response.json()
-                setStoreName(data.name)
+                const response = await getStoreInfo(storeId);
+                setStoreName(response.name)
             } catch (error) {
                 console.error('가게 정보를 불러오는데 실패했습니다:', error)
             }

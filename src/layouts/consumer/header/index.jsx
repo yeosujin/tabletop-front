@@ -4,6 +4,7 @@ import { AppBar, Toolbar, Typography } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 import { InfoOutlined } from '@mui/icons-material'
 import { useEffect, useState } from 'react'
+import { getStoreInfo } from '../../../apis/seller/StoreAPI'
 
 const ConsumerHeader = () => {
     const [storeName, setStoreName] = useState('-')
@@ -15,14 +16,8 @@ const ConsumerHeader = () => {
         const fetchStoreName = async () => {
             if (storeId) {
                 try {
-                    const response = await fetch(
-                        `http://localhost:8080/api/stores/${storeId}/details`
-                    )
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch store details')
-                    }
-                    const data = await response.json()
-                    setStoreName(data.name)
+                    const response = await getStoreInfo(storeId)
+                    setStoreName(response.name)
                 } catch (error) {
                     console.error('Error fetching store name:', error)
                 }

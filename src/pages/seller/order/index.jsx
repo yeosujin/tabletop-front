@@ -1,12 +1,12 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Box, Paper, Typography } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import useOrders from './useorder'
 import useSSE from './usesse'
 import OrderSidebar from './ordersidebar'
 import OrderItem from './orderitem'
+import useOrders from './useorder'
 
 const ROUTES = {
     CHARTS: (loginId, storeId) =>
@@ -35,7 +35,12 @@ const OrderPage = () => {
         addNewOrder,
     } = useOrders(storeId, loginId, selectedDate, orderType)
 
-    useSSE(storeId, addNewOrder)
+    const handleNewOrder = useCallback((newOrder) => {
+        console.log('New order received:', newOrder);
+        addNewOrder(newOrder);
+    }, [addNewOrder]);
+
+    useSSE(storeId, handleNewOrder)
 
     const handleTabChange = (newType) => {
         navigate(`?type=${newType}`)

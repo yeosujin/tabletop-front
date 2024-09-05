@@ -8,16 +8,17 @@ const getTokenHeaders = () => {
     return {
         Authorization: `${TOKEN_TYPE} ${ACCESS_TOKEN}`,
         REFRESH_TOKEN: REFRESH_TOKEN,
+        withCredentials: true
     }
 }
 
-export const MenuAPI = axios.create({
+export const OrderAPI = axios.create({
     baseURL: `${process.env.REACT_APP_API_URL}`,
 })
 
 const refreshAccessToken = async () => {
     try {
-        const response = await MenuAPI.post(`/api/auth/token/refresh`, null, {
+        const response = await OrderAPI.post(`/api/auth/token/refresh`, null, {
             headers: getTokenHeaders(),
         })
         const ACCESS_TOKEN = response.data
@@ -31,10 +32,8 @@ const refreshAccessToken = async () => {
     }
 }
 
-MenuAPI.interceptors.response.use(
-    (response) => {
-        return response
-    },
+OrderAPI.interceptors.response.use(
+    (response) => response,
     async (error) => {
         const originalRequest = error.config
 
@@ -43,57 +42,59 @@ MenuAPI.interceptors.response.use(
             await refreshAccessToken()
             originalRequest.headers['Authorization'] =
                 `${localStorage.getItem('tokenType')} ${localStorage.getItem('accessToken')}`
-            return MenuAPI(originalRequest)
+            return OrderAPI(originalRequest)
         }
 
         return Promise.reject(error)
     }
 )
 
-// 메뉴 목록 조회
-export const getMenus = async (storeId, lastMenuId, limit) => {
-    const response = await MenuAPI.get(`/api/stores/${storeId}/menus`, {
-        params: { lastMenuId, limit },
+// 주문 목록 조회
+export const getOrders = async (storeId) => {
+    const response = await OrderAPI.get(`/api/orders/${storeId}`, {
         headers: getTokenHeaders(),
     })
     return response.data
 }
 
-// 메뉴 등록
-export const createMenu = async (storeId, menuData) => {
-    const response = await MenuAPI.post(
-        `/api/stores/${storeId}/menus`,
-        menuData,
-        {
-            headers: {
-                ...getTokenHeaders(),
-            },
-        }
-    )
+// 주문 취소
+export const cancelOrder = async (orderId) => {
+    const response = await OrderAPI.put(`/api/orders/${orderId}/cancel`, null, {
+        headers: getTokenHeaders(),
+    })
     return response.data
 }
 
-// 메뉴 수정
-export const updateMenu = async (storeId, menuId, menuData) => {
-    console.log(`Updating menu: storeId=${storeId}, menuId=${menuId}`)
-    const response = await MenuAPI.put(
-        `/api/stores/${storeId}/menus/${menuId}`,
-        menuData,
-        {
-            headers: {
-                ...getTokenHeaders(),
-            },
-        }
-    )
-    return response.data
-}
-
-// 메뉴 삭제
-export const deleteMenu = async (storeId, menuId) => {
-    const response = await MenuAPI.delete(
-        `/api/stores/${storeId}/menus/${menuId}`,
+// 주문 완료
+export const completeOrder = async (orderId) => {
+    const response = await OrderAPI.put(
+        `/api/orders/${orderId}/complete`,
+        null,
         {
             headers: getTokenHeaders(),
+        }
+    )
+    return response.data
+}
+
+// 판매자 설정 조회
+export const getSellerSettings = async (loginId) => {
+    const response = await OrderAPI.get(
+        `/api/sellers/${loginId}/count-setting`,
+        {
+            headers: getTokenHeaders(),
+        }
+    )
+    return response.data
+}
+
+// SSE 구독 해제
+export const unsubscribeSSE = async (storeId) => {
+    const response = await OrderAPI.get(
+        `/api/sse/orders/unsubscribe/${storeId}`,
+        {
+            headers: getTokenHeaders(),
+            withCredentials: true,
         }
     )
     return response.data
