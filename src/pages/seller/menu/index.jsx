@@ -39,6 +39,25 @@ const Menu = () => {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
 
+
+    /**
+     * 메뉴 항목을 비동기적으로 가져오고 상태를 업데이트하는 함수입니다.
+     *
+     * 이 함수는 메뉴 항목을 페이지네이션 방식으로 가져옵니다. 현재 로딩 중이거나 더 이상 가져올 항목이 없거나 매장 ID가 없는 경우에는 동작하지 않습니다.
+     * 메뉴 항목을 성공적으로 가져오면 상태를 업데이트하고, 실패하면 에러 상태를 설정합니다.
+     *
+     * @async
+     * @function
+     * @returns {Promise<void>} - 함수는 값을 반환하지 않으며, 비동기 작업이 완료될 때까지 대기합니다.
+     *
+     * @description
+     * - `loading`, `hasMore`, `storeId`와 같은 상태값을 기반으로 데이터를 가져옵니다.
+     * - `getMenus` 함수를 호출하여 메뉴 항목을 가져옵니다.
+     * - 메뉴 항목이 성공적으로 로드되면, 이전 메뉴 항목과 새로운 메뉴 항목을 결합하여 상태를 업데이트합니다.
+     * - `lastMenuId`를 최신 메뉴 항목의 ID로 업데이트하여 다음 호출 시 페이지네이션을 지원합니다.
+     * - 메뉴 항목이 20개가 아닌 경우 `hasMore` 상태를 `false`로 설정하여 더 이상 로드할 항목이 없음을 표시합니다.
+     * - 에러가 발생하면 사용자에게 에러 메시지를 표시합니다.
+     */
     const fetchMenuItems = useCallback(async () => {
         if (loading || !hasMore || !storeId) return
         setLoading(true)

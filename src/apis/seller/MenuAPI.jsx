@@ -59,6 +59,23 @@ export const getMenus = async (storeId, lastMenuId, limit) => {
     return response.data
 }
 
+
+/**
+ * 특정 매장에 새로운 메뉴를 생성합니다.
+ *
+ * @param {string} storeId - 메뉴를 생성할 매장의 ID입니다.
+ * @param {Object} menuData - 생성할 메뉴에 대한 데이터입니다. 메뉴에 필요한 세부 정보를 포함해야 합니다.
+ * @param {string} menuData.name - 메뉴의 이름입니다.
+ * @param {string} [menuData.description] - 메뉴에 대한 선택적 설명입니다.
+ * @param {Array<Object>} menuData.items - 메뉴에 포함된 항목들의 배열입니다.
+ * @param {string} menuData.items[].name - 항목의 이름입니다.
+ * @param {number} menuData.items[].price - 항목의 가격입니다.
+ * @param {string} [menuData.items[].description] - 항목에 대한 선택적 설명입니다.
+ *
+ * @returns {Promise<Object>} - API로부터의 응답 데이터가 포함된 프로미스를 반환합니다. 일반적으로 생성된 메뉴의 세부 사항이 포함됩니다.
+ * @throws {Error} - API 요청 실패 또는 제공된 데이터에 문제가 있을 경우 에러를 발생시킬 수 있습니다.
+ *
+*/
 // 메뉴 등록
 export const createMenu = async (storeId, menuData) => {
     const response = await MenuAPI.post(
@@ -73,6 +90,24 @@ export const createMenu = async (storeId, menuData) => {
     return response.data
 }
 
+
+/**
+ * 특정 매장의 메뉴를 업데이트합니다.
+ *
+ * @param {string} storeId - 업데이트할 메뉴가 포함된 매장의 ID입니다.
+ * @param {string} menuId - 업데이트할 메뉴의 ID입니다.
+ * @param {Object} menuData - 업데이트할 메뉴의 데이터입니다. 변경할 메뉴에 대한 세부 정보를 포함해야 합니다.
+ * @param {string} menuData.name - 메뉴의 새로운 이름입니다.
+ * @param {string} [menuData.description] - 메뉴에 대한 새로운 선택적 설명입니다.
+ * @param {Array<Object>} [menuData.items] - 메뉴에 포함된 항목들의 배열입니다. 기존 항목을 수정하거나 새로운 항목을 추가할 수 있습니다.
+ * @param {string} [menuData.items[].name] - 항목의 새로운 이름입니다.
+ * @param {number} [menuData.items[].price] - 항목의 새로운 가격입니다.
+ * @param {string} [menuData.items[].description] - 항목에 대한 새로운 선택적 설명입니다.
+ *
+ * @returns {Promise<Object>} - API로부터의 응답 데이터가 포함된 프로미스를 반환합니다. 일반적으로 업데이트된 메뉴의 세부 사항이 포함됩니다.
+ * @throws {Error} - API 요청 실패 또는 제공된 데이터에 문제가 있을 경우 에러를 발생시킬 수 있습니다.
+ *
+*/
 // 메뉴 수정
 export const updateMenu = async (storeId, menuId, menuData) => {
     console.log(`Updating menu: storeId=${storeId}, menuId=${menuId}`)
